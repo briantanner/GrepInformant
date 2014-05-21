@@ -3,7 +3,7 @@ extends layout
 block content
   h1= title
   if departure
-    h4 Departure Time: #{departure}
+    h4.green Departure Time: #{departure}
   form(action="/", method="post")
     div
       label Travel Time: 
