@@ -2,22 +2,41 @@ extends layout
 
 block content
   h1= title
-  if departure
-    h4.green Departure Time: #{departure}
-  form(action="/", method="post")
-    div
-      label Travel Time: 
-      if travel
-        input(type="text", name="travel", value="#{travel}")
-      else
-        input(type="text", name="travel")
-      span.help (ex. 4:32:09)
-    div
-      label Arrival Time: 
-      if arrival
-        input(type="text", name="arrival", value="#{arrival}")
-      else
-        input(type="text", name="arrival")
-      span.help (ex. 21:00:15)
-    div
-      input(type="submit")
+  div.calculator
+    h4.title Departure Time
+    form(action="/", method="post")
+      div.row
+        label Travel Time: 
+        if travel
+          input(type="text", name="travel", value="#{travel}")
+        else
+          input(type="text", name="travel")
+        span.help (ex. 4:32:09)
+      div.row
+        label Arrival Time: 
+        if arrival
+          input(type="text", name="arrival", value="#{arrival}")
+        else
+          input(type="text", name="arrival")
+        span.help (ex. 21:00:15)
+      div.row
+        input(type="submit", value="Calculate")
+    if departure
+      div.result
+        spen Departure Time: #{departure}
+  div.calculator
+    h4.title Culture Points
+    form(action="/", method="post")
+      div.row
+        label Culture Level: 
+        if level
+          input(type="text", name="level", value="#{level}")
+        else
+          input(type="text", name="level")
+        span.help (ex. 30)
+      div.row
+        input(type="submit", value="Calculate")
+    if culture
+      div.result
+        span Culture Level: #{level}
+        span Culture Points: #{culture}

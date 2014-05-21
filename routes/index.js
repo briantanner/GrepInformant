@@ -4,22 +4,31 @@
  */
 
 var _ = require('underscore'),
-  utils = require('Grepolis-Utils');
+  utils = require('Grepolis-Utils'),
+  defaults = { title: 'Grepolis Calculators' };
 
 exports.index = function(req, res) {
-  res.render('index', { title: 'Grepolis Departure Time Calculator' });
+  res.render('index', defaults);
 };
 
 exports.calculate = function (req, res) {
-  if (!req.body) { return res.send(500, 'No travel or arrival time provided.'); }
-  if (!req.body.travel || !req.body.travel.length) { return res.send(500, 'No travel time provided'); }
-  if (!req.body.arrival || !req.body.arrival.length) { return res.send(500, 'No arrival time provided'); }
+  if (!req.body) { return res.send(500, 'Error.'); }
 
-  var time = utils.getDepartureTime(req.body.travel, req.body.arrival),
-    payload = _.extend(req.body, {
-      title: 'Grepolis Departure Time Calculator',
-      departure: time
-    });
+  if (req.body.travel && req.body.arrival) {
+    var payload = _.extend(defaults, req.body, {
+        departure: utils.getDepartureTime(req.body.travel, req.body.arrival)
+      });
+  }
+
+  if (req.body.level) {
+    var payload = _.extend(defaults, req.body, {
+        culture: utils.getCps(req.body.level)
+      });
+  }
+
+  if (!payload) {
+    return res.send(500, 'Error.');
+  }
 
   res.render('index', payload);
 };
