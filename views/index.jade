@@ -6,16 +6,18 @@ block content
     h4 Departure Time: #{departure}
   form(action="/", method="post")
     div
-      label Travel Time:
+      label Travel Time: 
       if travel
         input(type="text", name="travel", value="#{travel}")
       else
         input(type="text", name="travel")
+      span.help (ex. 4:32:09)
     div
       label Arrival Time: 
       if arrival
         input(type="text", name="arrival", value="#{arrival}")
       else
         input(type="text", name="arrival")
+      span.help (ex. 21:00:15)
     div
       input(type="submit")
