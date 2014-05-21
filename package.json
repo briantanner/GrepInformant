@@ -6,8 +6,9 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "Grepolis-Utils": "git+ssh://git@github.com:briantanner/Grepolis-Utils.git",
     "express": "3.4.7",
     "jade": "*",
-    "Grepolis-Utils": "git+ssh://git@github.com:briantanner/Grepolis-Utils.git"
+    "underscore": "^1.6.0"
   }
 }
