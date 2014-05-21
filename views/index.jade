@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  h1= title
+  if departure
+    h4 Departure Time: #{departure}
+  form(action="/", method="post")
+    div
+      label Travel Time:
+      input(type="text", name="travel")
+    div
+      label Arrival Time: 
+      input(type="text", name="arrival")
+    div
+      input(type="submit")
