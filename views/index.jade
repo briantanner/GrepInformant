@@ -2,6 +2,27 @@ extends layout
 
 block content
   h1= title
+  if alliances
+    div.compare
+      each obj in alliances
+        div.stats
+          h5.alliance #{obj.name}
+          ul
+            li
+              span Points: 
+              | #{obj.points}
+            li
+              span Cities: 
+              | #{obj.towns}
+            li
+              span Members: 
+              | #{obj.members}
+            li
+              span Avg Points: 
+              | #{obj.average.points}
+            li
+              span Avg Cities: 
+              | #{obj.average.towns}
   div.calculator
     h4.title Departure Time
     form(action="/", method="post")

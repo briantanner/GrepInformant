@@ -18,6 +18,33 @@ div.calculator {
   moz-border-radius: 12px;
 }
 
+div.compare {
+  background: #efefef;
+  max-width: 600px;
+  margin: 15px;
+  padding: 12px;
+  margin-left: 0;
+  border-radius: 12px;
+  webkit-border-radius: 12px;
+  moz-border-radius: 12px;
+}
+
+div.compare ul {
+  padding-left: 15px;
+}
+
+div.compare li {
+  list-style-type: none;
+  font-size: 12px;
+}
+
+div.compare li span {
+  display: block;
+  width: 90px;
+  font-weight: bold;
+  float: left;
+}
+
 div.calculator h4.title {
   margin: 5px 0 15px 0;
 }
