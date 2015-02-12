@@ -34,6 +34,31 @@ exports.calculate = function (req, res) {
   res.render('index', payload);
 };
 
+exports.conquers = function (req, res) {
+  compared_alliances = [
+    [20, 3222, 2243, 1759],
+    [3615, 3617, 1082, 1502, 1933]
+  ];
+
+  utils.getData('us39', 'conquers', function (err, data) {
+    if (err) { return; }
+    var conquer_data = {};
+
+    var tmp = _.filter(data, function(o) { return compared_alliances[0].indexOf(parseInt(o.newAlly,10)) !== -1; });
+    tmp = _.filter(tmp, function(o) { return compared_alliances[1].indexOf(parseInt(o.oldAlly,10)) !== -1; });
+
+    conquer_data['Unsullied'] = tmp.length;
+
+    var tmp = _.filter(data, function(o) { return compared_alliances[1].indexOf(parseInt(o.newAlly,10)) !== -1; });
+    tmp = _.filter(tmp, function(o) { return compared_alliances[0].indexOf(parseInt(o.oldAlly,10)) !== -1; });
+
+    conquer_data['Commission'] = tmp.length;
+
+    res.send(200, conquer_data);
+  });
+
+};
+
 exports.compare = function (req, res) {
   compared_alliances = [
     [20, 3222, 2243, 1759],
@@ -44,6 +69,7 @@ exports.compare = function (req, res) {
     if (err) { return; }
     var alliances = _.sortBy(data, function(o){ return parseInt(o.rank, 10); }).slice(0,30),
         compare_data = [],
+        conquer_data = [],
         total_data = [],
         payload = {};
 
@@ -88,13 +114,27 @@ exports.compare = function (req, res) {
       });
 
       return row;
-
     });
 
-    var payload = _.extend(defaults, {alliances: total_data});
+    utils.getData('us39', 'conquers', function (err, data) {
+      if (err) { return; }
 
-    res.render('index', payload);
+      var tmp = _.filter(data, function(o) { return compared_alliances[0].indexOf(parseInt(o.newAlly,10)) !== -1; });
+      tmp = _.filter(tmp, function(o) { return compared_alliances[1].indexOf(parseInt(o.oldAlly,10)) !== -1; });
+
+      total_data[0].conquers = tmp.length;
+      // conquer_data.push(tmp.length);
+
+      var tmp = _.filter(data, function(o) { return compared_alliances[1].indexOf(parseInt(o.newAlly,10)) !== -1; });
+      tmp = _.filter(tmp, function(o) { return compared_alliances[0].indexOf(parseInt(o.oldAlly,10)) !== -1; });
+
+      total_data[1].conquers = tmp.length;
+      // conquer_data.push(tmp.length);
+
+      var payload = _.extend(defaults, {alliances: total_data});
+
+      res.render('index', payload);
+    });
 
   });
-
-}
+};
