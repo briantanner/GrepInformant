@@ -20,6 +20,7 @@
   "dependencies": {
     "Grepolis-Utils": "git+ssh://git@github.com:briantanner/Grepolis-Utils.git",
     "express": "3.4.7",
+    "async": "*",
     "jade": "*",
     "underscore": "^1.6.0",
     "accounting": "~0.3.2"
