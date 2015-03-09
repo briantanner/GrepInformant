@@ -1,0 +1,59 @@
+extends layout
+
+block content
+  if players
+    table
+      tr
+        th Rank
+        th Name
+        th Cities
+        th Points
+        th ABP
+        th DBP
+        th Total BP
+        th ABP Rank
+        th DBP Rank
+        th World Rank
+        th World ABP
+        th World DBP
+        th Point Score
+        th ABP Score
+        th DBP Score
+        th Total Score
+      each o in players
+        if o.alliance_rank % 2 == 0
+          tr.alt
+            td #{o.alliance_rank}
+            td #{o.name}
+            td.center #{o.towns}
+            td.center #{o.points}
+            td.center #{o.abp}
+            td.center #{o.dbp}
+            td.center #{o.tbp}
+            td.center #{o.abp_rank}
+            td.center #{o.dbp_rank}
+            td.center #{o.rank_world}
+            td.center #{o.abp_rank_world}
+            td.center #{o.dbp_rank_world}
+            td.center #{o.rank_points}
+            td.center #{o.abp_points}
+            td.center #{o.dbp_points}
+            td.center.bold #{o.total_points}
+        else
+          tr
+            td #{o.alliance_rank}
+            td #{o.name}
+            td.center #{o.towns}
+            td.center #{o.points}
+            td.center #{o.abp}
+            td.center #{o.dbp}
+            td.center #{o.tbp}
+            td.center #{o.abp_rank}
+            td.center #{o.dbp_rank}
+            td.center #{o.rank_world}
+            td.center #{o.abp_rank_world}
+            td.center #{o.dbp_rank_world}
+            td.center #{o.rank_points}
+            td.center #{o.abp_points}
+            td.center #{o.dbp_points}
+            td.center.bold #{o.total_points}

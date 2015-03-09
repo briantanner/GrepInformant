@@ -1,10 +1,27 @@
 body {
-  padding: 50px;
+  padding: 10px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00B7FF;
+}
+
+td,th {
+  padding-right: 8px;
+  font-size: 12px;
+}
+
+tr.alt td {
+  background-color: #ececec;
+}
+
+td.center {
+  text-align: center;
+}
+
+td.bold {
+  font-weight: bold;
 }
 
 div.calculator {
