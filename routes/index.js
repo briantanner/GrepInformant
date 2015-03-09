@@ -54,7 +54,7 @@ exports.rank = function (req, res) {
             players[o.id] = o;
             players[o.id]['rank_world'] = parseInt(o.rank,10);
             players[o.id]['rank'] = i;
-            players[o.id]['rank_points'] = (75 - o.rank);
+            players[o.id]['rank_points'] = (75 - o.rank) <= 0 ? 1 : (75 - o.rank);
           });
 
           return callback(null, players);
@@ -71,7 +71,7 @@ exports.rank = function (req, res) {
             players[o.id]['abp'] = o.points;
             players[o.id]['abp_rank'] = parseInt(i,10)+1;
             players[o.id]['abp_rank_world'] = parseInt(o.rank,10);
-            players[o.id]['abp_points'] = (75 - players[o.id]['abp_rank']);
+            players[o.id]['abp_points'] = (75 - players[o.id]['abp_rank']) <= 0 ? 1 : (75 - players[o.id]['abp_rank']);
           });
           return callback(null, players);
         });
@@ -86,7 +86,7 @@ exports.rank = function (req, res) {
             players[o.id]['dbp'] = o.points;
             players[o.id]['dbp_rank'] = parseInt(i,10)+1;
             players[o.id]['dbp_rank_world'] = parseInt(o.rank,10);
-            players[o.id]['dbp_points'] = (75 - players[o.id]['dbp_rank']);
+            players[o.id]['dbp_points'] = (75 - players[o.id]['dbp_rank']) <= 0 ? 1 : (75 - players[o.id]['dbp_rank']);
           });
           return callback(null, players);
         });
