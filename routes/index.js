@@ -122,6 +122,96 @@ exports.rank = function (req, res) {
 
 };
 
+exports.rank2 = function (req, res) {
+  var alliances = [20, 3222, 2243, 1759],
+    alliance_players = [],
+    players = {};
+
+    async.waterfall([
+
+      // get players/points
+      function (callback) {
+        utils.getData('us39', 'players', function (err, data) {
+          if (err) { return callback(err); }
+          // console.log(alliances);
+          data = _.filter(data, function (o) { return alliances.indexOf(parseInt(o.alliance,10)) !== -1; });
+          data = _.sortBy(data, function (o) { return parseInt(o.rank,10); });
+          data.forEach(function (o,i) {
+            alliance_players.push(parseInt(o.id, 10));
+            players[o.id] = o;
+            players[o.id]['rank_world'] = parseInt(o.rank,10);
+            players[o.id]['rank'] = i;
+          });
+
+          data.forEach(function (o,i) {
+            players[o.id]['rank_points'] = (alliance_players.length - o.rank);
+          });
+
+          return callback(null, players);
+        });
+      },
+
+      // get abp
+      function (players, callback) {
+        utils.getData('us39', 'player_kills_att', function (err, data) {
+          if (err) { return callback(err); }
+          data = _.filter(data, function(o) { return alliance_players.indexOf(parseInt(o.id,10)) !== -1; });
+          data = _.sortBy(data, function (o) { return parseInt(o.rank,10); });
+          data.forEach(function (o,i) {
+            players[o.id]['abp'] = o.points;
+            players[o.id]['abp_rank'] = parseInt(i,10)+1;
+            players[o.id]['abp_rank_world'] = parseInt(o.rank,10);
+            players[o.id]['abp_points'] = (alliance_players.length - players[o.id]['abp_rank']);
+          });
+          return callback(null, players);
+        });
+      },
+
+      // get dbp
+      function (players, callback) {
+        utils.getData('us39', 'player_kills_def', function (err, data) {
+          data = _.filter(data, function(o) { return alliance_players.indexOf(parseInt(o.id,10)) !== -1; });
+          data = _.sortBy(data, function (o) { return parseInt(o.rank,10); });
+          data.forEach(function (o,i) {
+            players[o.id]['dbp'] = o.points;
+            players[o.id]['dbp_rank'] = parseInt(i,10)+1;
+            players[o.id]['dbp_rank_world'] = parseInt(o.rank,10);
+            players[o.id]['dbp_points'] = (alliance_players.length - players[o.id]['dbp_rank']);
+          });
+          return callback(null, players);
+        });
+      },
+
+      // parse numbers
+      function (players, callback) {
+        players = _.map(players, function (o) {
+          o.tbp = accounting.formatNumber(parseInt(o.abp,10) + parseInt(o.dbp,10));
+          o.total_points = o.rank_points + o.abp_points + o.dbp_points;
+          o.name = o.name.replace(/\+/g,' ');
+          o.points = accounting.formatNumber(parseInt(o.points,10));
+          o.abp = accounting.formatNumber(parseInt(o.abp,10));
+          o.dbp = accounting.formatNumber(parseInt(o.dbp,10));
+          o.rank = parseInt(o.rank,10);
+          return o;
+        });
+
+        players = _.sortBy(players, function (o) { return o.total_points; }).reverse();
+
+        players.forEach(function (o,i) {
+          o.alliance_rank = i+1;
+        });
+
+        return callback(null, players);
+      }
+
+    ], function (err, players) {
+      if (err) { return res.send(500, err); }
+      // return res.send(200, players);
+      return res.render('rank', {players: players});
+    });
+
+};
+
 exports.conquers = function (req, res) {
   var compared_alliances = [
     [20, 3222, 2243, 1759],

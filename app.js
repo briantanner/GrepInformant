@@ -32,6 +32,7 @@ app.post('/', routes.calculate);
 app.get('/compare', routes.compare);
 app.get('/conquers', routes.conquers);
 app.get('/rank', routes.rank);
+app.get('/rank2', routes.rank2);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
