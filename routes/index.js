@@ -159,7 +159,7 @@ exports.rank2 = function (req, res) {
           data = _.sortBy(data, function (o) { return parseInt(o.rank,10); });
           data.forEach(function (o,i) {
             players[o.id]['abp'] = o.points;
-            players[o.id]['abp_rank'] = parseInt(i,10)+1;
+            players[o.id]['abp_rank'] = parseInt(i,10);
             players[o.id]['abp_rank_world'] = parseInt(o.rank,10);
             players[o.id]['abp_points'] = (alliance_players.length - players[o.id]['abp_rank']);
           });
@@ -174,7 +174,7 @@ exports.rank2 = function (req, res) {
           data = _.sortBy(data, function (o) { return parseInt(o.rank,10); });
           data.forEach(function (o,i) {
             players[o.id]['dbp'] = o.points;
-            players[o.id]['dbp_rank'] = parseInt(i,10)+1;
+            players[o.id]['dbp_rank'] = parseInt(i,10);
             players[o.id]['dbp_rank_world'] = parseInt(o.rank,10);
             players[o.id]['dbp_points'] = (alliance_players.length - players[o.id]['dbp_rank']);
           });
