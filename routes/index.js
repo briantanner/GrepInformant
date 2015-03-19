@@ -394,7 +394,8 @@ exports.compare = function (req, res) {
         members: members,
         average: {
           points: accounting.formatNumber(points/members),
-          towns: accounting.formatNumber(towns/members)
+          towns: accounting.formatNumber(towns/members),
+          town_size: accounting.formatNumber(points/towns)
         }
       };
 
