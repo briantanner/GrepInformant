@@ -12,15 +12,17 @@ block content
           td <strong>BG#{bg}</strong>
           td #{count}
   if conquers
-    each list, bg in conquers
-      h5 BG#{bg}
+    each bg, i in conquers
+      h3 BG#{i}
+      h5 Players: #{bg.players}
+      h5 Cities Taken: #{bg.total}
       table
         tr
           td <strong>Time</strong>
           td <strong>Town</strong>
           td <strong>New Player</strong>
           td <strong>Old Player</strong>
-        each o in list
+        each o in bg
           tr
             td #{o.time}
             td #{o.town} (#{o.points} points)

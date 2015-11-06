@@ -201,8 +201,10 @@ exports.bgConquers = function (req, res) {
     },
 
     function  (data, callback) {
-      _.map(data.conquers, function (conquers) {
-        conquers = _.map(conquers, function (o) {
+      _.map(data.conquers, function (battleGroup, i) {
+        battleGroup.total = totalConquers[i];
+        battleGroup.players = config.battlegroups[--i].join(', ');
+        battleGroup = _.map(battleGroup, function (o) {
           var town = data.towns[o.town];
           o.town = town.name.replace(/\+/g, ' ');
           o.points = parseInt(town.points,10);
@@ -213,7 +215,7 @@ exports.bgConquers = function (req, res) {
           o.oldAlly = data.alliances[o.oldAlly].name.replace(/\+/g, ' ');
           return o;
         });
-        return conquers;
+        return battleGroup;
       });
       return callback(null, data);
     }
@@ -226,6 +228,7 @@ exports.bgConquers = function (req, res) {
       delete data.towns;
       delete data.players;
       delete data.alliances;
+      delete data.totalConquers;
 
       return res.render('bgconquers', _.extend(defaults, data));
     });
