@@ -143,6 +143,7 @@ exports.battleGroupIds = function (req, res) {
 };
 
 exports.bgConquers = function (req, res) {
+
   var server = req.params.server,
       alliance = parseInt(config.alliance,10),
       enemy = parseInt(config.enemy,10),
@@ -205,7 +206,7 @@ exports.bgConquers = function (req, res) {
           var town = data.towns[o.town];
           o.town = town.name.replace(/\+/g, ' ');
           o.points = parseInt(town.points,10);
-          o.time = new Date(o.time*1000).toString();
+          o.time = new Date(o.time*1000).toUTCString();
           o.newPlayer = data.players[o.newPlayer].name.replace(/\+/g, ' ');
           o.oldPlayer = data.players[o.oldPlayer].name.replace(/\+/g, ' ');
           o.newAlly = data.alliances[o.newAlly].name.replace(/\+/g, ' ');
@@ -219,12 +220,14 @@ exports.bgConquers = function (req, res) {
 
     ], function (err, data) {
       if (err) { return res.send(500, err); }
+
+      data.title = "Battle Group Conquers";
       
       delete data.towns;
       delete data.players;
       delete data.alliances;
 
-      return res.send(200, data);
+      return res.render('bgconquers', _.extend(defaults, data));
     });
 
 };

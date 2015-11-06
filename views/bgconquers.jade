@@ -1,0 +1,28 @@
+extends layout
+
+block content
+  h1= title
+  if totalConquers
+    table
+      tr
+        td <strong>BG</strong>
+        td <strong>Conquers</strong>
+      each count, bg in totalConquers
+        tr
+          td <strong>BG#{bg}</strong>
+          td #{count}
+  if conquers
+    each list, bg in conquers
+      h5 BG#{bg}
+      table
+        tr
+          td <strong>Time</strong>
+          td <strong>Town</strong>
+          td <strong>New Player</strong>
+          td <strong>Old Player</strong>
+        each o in list
+          tr
+            td #{o.time}
+            td #{o.town} (#{o.points} points)
+            td #{o.newPlayer} (#{o.newAlly})
+            td #{o.oldPlayer} (#{o.oldAlly})
