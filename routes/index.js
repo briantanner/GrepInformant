@@ -183,7 +183,7 @@ exports.bgConquers = function (req, res) {
       utils.getData(server, 'conquers', function (err, _data) {
         if (err) { return callback(err); }
         _data = _.filter(_data, function (o) { return parseInt(o.newAlly,10) == alliance && parseInt(o.oldAlly,10) == enemy; });
-        _data = _.sortBy(_data, function (o) { return parseInt(o.time,10); });
+        _data = _.sortBy(_data, function (o) { return parseInt(o.time,10); }).reverse();
         
         _.each(battleGroupIds, function (group, index) {
           index++;
