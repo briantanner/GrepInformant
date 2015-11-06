@@ -27,12 +27,14 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/', routes.compare);
-app.post('/', routes.calculate);
-app.get('/compare', routes.compare);
-app.get('/conquers', routes.conquers);
-app.get('/rank', routes.rank);
-app.get('/rank2', routes.rank2);
+app.get('/', routes.index);
+app.get('/:server/towns', routes.towns);
+app.get('/:server/players', routes.players);
+app.get('/:server/alliances', routes.alliances);
+app.get('/:server/conquers', routes.conquers);
+app.get('/:server/alliancePlayers/:alliance?', routes.alliancePlayers);
+app.get('/:server/battleGroupIds', routes.battleGroupIds);
+app.get('/:server/bgConquers', routes.bgConquers);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
