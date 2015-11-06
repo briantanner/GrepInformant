@@ -148,9 +148,7 @@ exports.bgConquers = function (req, res) {
       alliance = parseInt(config.alliance,10),
       enemy = parseInt(config.enemy,10),
       battleGroups = config.battlegroups,
-      battleGroupIds = config.battlegroupids,
-      bgConquers = {},
-      totalConquers = {};
+      battleGroupIds = config.battlegroupids;
 
   async.waterfall([
 
@@ -182,19 +180,31 @@ exports.bgConquers = function (req, res) {
     function (data, callback) {
       utils.getData(server, 'conquers', function (err, _data) {
         if (err) { return callback(err); }
+
+        var conquers = {};
+            bgConquers = {},
+            totalConquers = 0;
+
+        var startDate = new Date(2015, 9, 10).getTime() / 1000;
+
         _data = _.filter(_data, function (o) { return parseInt(o.newAlly,10) == alliance && parseInt(o.oldAlly,10) == enemy; });
+        _data = _.filter(_data, function (o) { return parseInt(o.time) > startDate; }.bind(startDate));
         _data = _.sortBy(_data, function (o) { return parseInt(o.time,10); }).reverse();
-        
         _.each(battleGroupIds, function (group, index) {
           index++;
-          var conquers = _.reject(_data, function (o) { return _.indexOf(group, o.newPlayer) === -1; });
-          if (!bgConquers[index]) { bgConquers[index] = conquers; }
-          bgConquers[index].concat(conquers);
-          totalConquers[index] = bgConquers[index].length;
+          
+          var _conquers = _.reject(_data, function (o) { return _.indexOf(group, o.newPlayer) === -1; });
+          
+          if (!conquers[index]) { conquers[index] = _conquers; }
+          
+          conquers[index].concat(_conquers);
+          bgConquers[index] = conquers[index].length;
+          totalConquers += conquers[index].length;
         });
 
+        data.conquers = conquers;
+        data.bgConquers = bgConquers;
         data.totalConquers = totalConquers;
-        data.conquers = bgConquers;
 
         return callback(null, data);
       }.bind(data));
@@ -202,7 +212,7 @@ exports.bgConquers = function (req, res) {
 
     function  (data, callback) {
       _.map(data.conquers, function (battleGroup, i) {
-        battleGroup.total = totalConquers[i];
+        battleGroup.total = bgConquers[i];
         battleGroup.players = config.battlegroups[--i].join(', ');
         battleGroup = _.map(battleGroup, function (o) {
           var town = data.towns[o.town];
@@ -224,11 +234,12 @@ exports.bgConquers = function (req, res) {
       if (err) { return res.send(500, err); }
 
       data.title = "Battle Group Conquers";
+      data.ally = data.alliances[alliance].name.replace(/\+/g, ' ');
+      data.enemy = data.alliances[enemy].name.replace(/\+/g, ' ');
       
       delete data.towns;
       delete data.players;
       delete data.alliances;
-      delete data.totalConquers;
 
       return res.render('bgconquers', _.extend(defaults, data));
     });

@@ -2,15 +2,7 @@ extends layout
 
 block content
   h1= title
-  if totalConquers
-    table
-      tr
-        td <strong>BG</strong>
-        td <strong>Conquers</strong>
-      each count, bg in totalConquers
-        tr
-          td <strong>BG#{bg}</strong>
-          td #{count}
+  h3 #{ally} vs #{enemy} - #{totalConquers} Cities Taken
   if conquers
     each bg, i in conquers
       h3 BG#{i}
