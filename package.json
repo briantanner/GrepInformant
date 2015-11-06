@@ -18,7 +18,7 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "Grepolis-Utils": "https://git@github.com:briantanner/Grepolis-Utils.git",
+    "Grepolis-Utils": "https://github.com/briantanner/Grepolis-Utils.git",
     "express": "3.4.7",
     "async": "*",
     "jade": "*",
