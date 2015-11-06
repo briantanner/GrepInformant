@@ -202,7 +202,9 @@ exports.bgConquers = function (req, res) {
     function  (data, callback) {
       _.map(data.conquers, function (conquers) {
         conquers = _.map(conquers, function (o) {
-          o.town = data.towns[o.town].name.replace(/\+/g, ' ');
+          var town = data.towns[o.town];
+          o.town = town.name.replace(/\+/g, ' ');
+          o.points = parseInt(town.points,10);
           o.time = new Date(o.time*1000).toString();
           o.newPlayer = data.players[o.newPlayer].name.replace(/\+/g, ' ');
           o.oldPlayer = data.players[o.oldPlayer].name.replace(/\+/g, ' ');
