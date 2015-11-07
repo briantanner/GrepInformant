@@ -6,51 +6,43 @@
 var _ = require('underscore'),
   async = require('async'),
   accounting = require('accounting'),
-  utils = require('Grepolis-Utils'),
+  grepolis = require('../lib/grepolis');
   config = require('../config.json'),
   defaults = { title: 'Grepolis Tools' };
 
-function loadTowns(server, callback) {
-  utils.getData(server, 'towns', function (err, data) {
-    if (err) { return callback(err); }
-    var towns = {};
+function getDefaultData(server, callback) {
+  
+  async.waterfall([
 
-    _.each(data, function (o) {
-      towns[o.id] = o;
+    function (callback) {
+      grepolis.getPlayers(server, function (err, players) {
+        if (err) { return callback(err); }
+        var data = {};
+        data.players = players;
+        return callback(null, data);
+      });
+    },
+
+    function (data, callback) {
+      grepolis.getAlliances(server, function (err, alliances) {
+        if (err) { return callback(err); }
+        data.alliances = alliances;
+        return callback(null, data);
+      });
+    },
+
+    function (data, callback) {
+      grepolis.getTowns(server, function (err, towns) {
+        if (err) { return callback(err); }
+        data.towns = towns;
+        return callback(null, data);
+      });
+    }
+
+    ], function (err, data) {
+      return callback(err, data);
     });
 
-    return callback(null, towns);
-  });
-}
-
-function loadPlayers(server, callback) {
-  utils.getData(server, 'players', function (err, data) {
-    if (err) { return callback(err); }
-    var players = {};
-
-    data = _.sortBy(data, function (o) { return parseInt(o.rank, 10); });
-
-    _.each(data, function (o) {
-      players[o.id] = o;
-    });
-    
-    return callback(null, players);
-  });
-}
-
-function loadAlliances(server, callback) {
-  utils.getData(server, 'alliances', function (err, data) {
-    if (err) { return callback(err); }
-    var alliances = {};
-
-    data = _.sortBy(data, function (o) { return parseInt(o.rank, 10); });
-
-    _.each(data, function (o) {
-      alliances[o.id] = o;
-    });
-
-    return callback(null, alliances);
-  });
 }
 
 exports.index = function(req, res) {
@@ -61,7 +53,7 @@ exports.index = function(req, res) {
 exports.towns = function (req, res) {
   var server = req.params.server;
 
-  utils.getData(server, 'towns', function (err, data) {
+  grepolis.getTowns(server, function (err, data) {
     if (err) { return res.send(500, err); }
     return res.send(200, data);
   });
@@ -71,9 +63,8 @@ exports.towns = function (req, res) {
 exports.players = function (req, res) {
   var server = req.params.server;
 
-  utils.getData(server, 'players', function (err, data) {
+  grepolis.getPlayers(server, function (err, data) {
     if (err) { return res.send(500, err); }
-    data = _.sortBy(data, function (o) { return parseInt(o.rank, 10); });
     return res.send(200, data);
   });
 
@@ -82,9 +73,8 @@ exports.players = function (req, res) {
 exports.alliances = function (req, res) {
   var server = req.params.server;
 
-  utils.getData(server, 'alliances', function (err, data) {
+  grepolis.getAlliances(server, function (err, data) {
     if (err) { return res.send(500, err); }
-    data = _.sortBy(data, function (o) { return parseInt(o.rank,10); });
     return res.send(200, data);
   });
 
@@ -93,7 +83,7 @@ exports.alliances = function (req, res) {
 exports.conquers = function (req, res) {
   var server = req.params.server;
 
-  utils.getData(server, 'conquers', function (err, data) {
+  grepolis.getConquers(server, function (err, data) {
     if (err) { return res.send(500, err); }
     return res.send(200, data);
   });
@@ -104,10 +94,9 @@ exports.alliancePlayers = function (req, res) {
   var server = req.params.server,
       alliance = parseInt(req.params.alliance || config.alliance,10);
 
-  utils.getData(server, 'players', function (err, data) {
+  grepolis.getPlayers(server, function (err, data) {
     if (err) { return res.send(500, err); }
     data = _.filter(data, function (o) { return parseInt(o.alliance,10) == alliance; });
-    data = _.sortBy(data, function (o) { return parseInt(o.rank); });
     return res.send(200, data);
   });
 
@@ -119,7 +108,7 @@ exports.battleGroupIds = function (req, res) {
       battleGroups = config.battlegroups,
       battleGroupIds = [];
 
-  utils.getData(server, 'players', function (err, data) {
+  grepolis.getPlayers(server, function (err, data) {
     if (err) { return res.send(500, err); }
     
     data = _.filter(data, function (o) { return parseInt(o.alliance, 10) == alliance; });
@@ -142,6 +131,77 @@ exports.battleGroupIds = function (req, res) {
   });
 };
 
+exports.allianceConquers = function (req, res) {
+
+  var server = req.params.server,
+      alliance = parseInt(req.params.alliance || config.alliance, 10);
+
+  async.waterfall([
+
+    function (callback) {
+      getDefaultData(server, callback);
+    },
+
+    function (data, callback) {
+      
+      grepolis.getConquers(server, function (err, _data) {
+        if (err) { return callback(err); }
+
+        _data = _.filter(_data, function (o) { return parseInt(o.newAlly, 10) == alliance || parseInt(o.oldAlly, 10) == alliance; });
+        _data = _.sortBy(_data, function (o) { return parseInt(o.time, 10); }).reverse();
+
+        data.conquers = _data;
+        return callback(null, data);
+      });
+
+    },
+
+    function (data, callback) {
+
+      _.map(data.conquers, function (o) {
+        var town = data.towns[o.town];
+
+        o.town = town.name.replace(/\+/g, ' ').replace(/%27/g, "'");
+        o.points = parseInt(town.points,10);
+        o.time = new Date(o.time*1000).toUTCString();
+        o.newPlayer = (o.newPlayer.length && data.players[o.newPlayer]) ?
+          data.players[o.newPlayer].name.replace(/\+/g, ' ') : 'Unknown';
+        o.oldPlayer = (o.oldPlayer.length && data.players[o.oldPlayer]) ?
+          data.players[o.oldPlayer].name.replace(/\+/g, ' ') : 'Unknown';
+        if (o.newAlly.length) {
+          o.newAlly = (data.alliances[o.newAlly]) ?
+            data.alliances[o.newAlly].name.replace(/\+/g, ' ') : 'Unknown';
+        } else {
+          o.newAlly = 'No Alliance';
+        }
+        if (o.oldAlly.length) {
+          o.oldAlly = (data.alliances[o.oldAlly]) ?
+            data.alliances[o.oldAlly].name.replace(/\+/g, ' ') : 'Unknown';
+        } else {
+          o.oldAlly = 'No Alliance';
+        }
+
+        return o;
+      });
+
+      return callback(null, data);
+    }
+
+    ], function (err, data) {
+      if (err) { return res.send(500, err); }
+
+      data.title = "Alliance Conquers";
+      data.ally = data.alliances[alliance].name.replace(/\+/g, ' ');
+      
+      delete data.towns;
+      delete data.players;
+      delete data.alliances;
+
+      return res.render('allyconquers', _.extend(defaults, data));
+    })
+
+};
+
 exports.bgConquers = function (req, res) {
 
   var server = req.params.server,
@@ -152,33 +212,10 @@ exports.bgConquers = function (req, res) {
 
   async.waterfall([
 
-    function (callback) {
-      loadPlayers(server, function (err, players) {
-        if (err) { return callback(err); }
-        var data = {};
-        data.players = players;
-        return callback(null, data);
-      });
-    },
+    getDefaultData,
 
     function (data, callback) {
-      loadAlliances(server, function (err, alliances) {
-        if (err) { return callback(err); }
-        data.alliances = alliances;
-        return callback(null, data);
-      });
-    },
-
-    function (data, callback) {
-      loadTowns(server, function (err, towns) {
-        if (err) { return callback(err); }
-        data.towns = towns;
-        return callback(null, data);
-      });
-    },
-
-    function (data, callback) {
-      utils.getData(server, 'conquers', function (err, _data) {
+      grepolis.getConquers(server, function (err, _data) {
         if (err) { return callback(err); }
 
         var conquers = {};
@@ -225,8 +262,10 @@ exports.bgConquers = function (req, res) {
           o.oldAlly = data.alliances[o.oldAlly].name.replace(/\+/g, ' ');
           return o;
         });
+
         return battleGroup;
       });
+
       return callback(null, data);
     }
 

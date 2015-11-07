@@ -19,10 +19,11 @@
   },
   "dependencies": {
     "Grepolis-Utils": "https://github.com/briantanner/Grepolis-Utils.git",
-    "express": "3.4.7",
+    "accounting": "~0.3.2",
     "async": "*",
+    "dotenv": "^1.2.0",
+    "express": "3.4.7",
     "jade": "*",
-    "underscore": "^1.6.0",
-    "accounting": "~0.3.2"
+    "underscore": "^1.6.0"
   }
 }

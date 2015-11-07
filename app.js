@@ -3,10 +3,12 @@
  * Module dependencies.
  */
 
-var express = require('express');
-var routes = require('./routes');
-var http = require('http');
-var path = require('path');
+var express = require('express'),
+	routes = require('./routes'),
+	http = require('http'),
+	path = require('path');
+
+// require('dotenv').load();
 
 var app = express();
 
@@ -33,6 +35,7 @@ app.get('/:server/players', routes.players);
 app.get('/:server/alliances', routes.alliances);
 app.get('/:server/conquers', routes.conquers);
 app.get('/:server/alliancePlayers/:alliance?', routes.alliancePlayers);
+app.get('/:server/allianceConquers/:alliance', routes.allianceConquers);
 app.get('/:server/battleGroupIds', routes.battleGroupIds);
 app.get('/:server/bgConquers', routes.bgConquers);
 
