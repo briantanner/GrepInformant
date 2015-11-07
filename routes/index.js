@@ -212,7 +212,9 @@ exports.bgConquers = function (req, res) {
 
   async.waterfall([
 
-    getDefaultData,
+    function (callback) {
+      getDefaultData(server, callback);
+    },
 
     function (data, callback) {
       grepolis.getConquers(server, function (err, _data) {
