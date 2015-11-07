@@ -24,6 +24,7 @@
     "dotenv": "^1.2.0",
     "express": "3.4.7",
     "jade": "*",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "urlencode": "^1.1.0"
   }
 }
