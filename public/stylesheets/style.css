@@ -37,13 +37,19 @@ div.calculator {
 
 div.compare {
   background: #efefef;
-  max-width: 600px;
+  /*max-width: 600px;*/
   margin: 15px;
   padding: 12px;
   margin-left: 0;
   border-radius: 12px;
   webkit-border-radius: 12px;
   moz-border-radius: 12px;
+}
+
+div.compare div.stats {
+  width: 250px;
+  height: 160px;
+  float: left;
 }
 
 div.compare ul {
@@ -84,4 +90,10 @@ div.result span {
   font-size: 10px;
   color: green;
   padding-left: 5px;
+}
+
+.clear {
+  display:block;
+  height: 1px;
+  clear: both;
 }

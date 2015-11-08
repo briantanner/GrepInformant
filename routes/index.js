@@ -4,6 +4,8 @@
  */
 
 var _ = require('underscore'),
+  util = require('util'),
+  utils = require('Grepolis-Utils'),
   urlencode = require('urlencode'),
   async = require('async'),
   accounting = require('accounting'),
@@ -68,7 +70,18 @@ exports.towns = function (req, res) {
 exports.players = function (req, res) {
   var server = req.params.server;
 
-  grepolis.getPlayers(server, function (err, data) {
+  grepolis.getPlayersFull(server, function (err, data) {
+    if (err) { return res.send(500, err); }
+    return res.send(200, data);
+  });
+
+};
+
+exports.playerStats = function (req, res) {
+  var server = req.params.server,
+      stat = util.format('player_kills_%s', req.params.stat);
+
+  grepolis.getPlayerStats(server, stat, function (err, data) {
     if (err) { return res.send(500, err); }
     return res.send(200, data);
   });
@@ -99,7 +112,7 @@ exports.alliancePlayers = function (req, res) {
   var server = req.params.server,
       alliance = parseInt(req.params.alliance || config.alliance,10);
 
-  grepolis.getPlayers(server, function (err, data) {
+  grepolis.getPlayersFull(server, function (err, data) {
     if (err) { return res.send(500, err); }
     data = _.filter(data, function (o) { return parseInt(o.alliance,10) == alliance; });
     return res.send(200, data);
@@ -290,4 +303,97 @@ exports.bgConquers = function (req, res) {
       return res.render('bgconquers', _.extend(defaults, data));
     });
 
+};
+
+exports.compare = function (req, res) {
+  var server = req.params.server,
+      compared_alliances = [
+        [4],
+        [293],
+        [301],
+        [1547],
+        [47, 2185],
+        [256, 492],
+        [66, 97, 1951, 1502, 3307]
+      ];
+
+  utils.getData(server, 'alliances', function (err, data) {
+    if (err) { return; }
+    var alliances = _.sortBy(data, function(o){ return parseInt(o.rank, 10); }).slice(0,30),
+        compare_data = [],
+        conquer_data = [],
+        total_data = [],
+        payload = {};
+
+    compared_alliances.forEach(function(row) {
+      var tmp = _.filter(alliances, function(o) { return row.indexOf(parseInt(o.id,10)) !== -1; });
+      compare_data.push(tmp);
+    });
+
+    _.map(compare_data, function (row) {
+      _.map(row, function(o){ o.name = parseName(o.name); return o; });
+
+      var points = _.reduce(row, function(num,o){ return num + parseInt(o.points,10); }, 0),
+          towns = _.reduce(row, function(num,o){ return num + parseInt(o.towns,10); }, 0),
+          members = _.reduce(row, function(num,o){ return num + parseInt(o.members,10); }, 0),
+          names = _.reduce(row, function(arr,o){ return arr.concat([o.name]); }, []),
+          nameStr = names.join('/');
+
+      var total = {
+        name: nameStr,
+        points: points,
+        towns: towns,
+        members: members,
+        average: {
+          points: accounting.formatNumber(points/members),
+          towns: accounting.formatNumber(towns/members),
+          town_size: accounting.formatNumber(points/towns)
+        }
+      };
+
+      row.push(total);
+      total_data.push(total);
+
+      _.map(row, function(o) {
+        o.points = accounting.formatNumber(o.points);
+        o.towns = accounting.formatNumber(o.towns);
+        return o;
+      });
+
+      _.map(total_data, function(o) {
+        o.points = accounting.formatNumber(o.points);
+        o.towns = accounting.formatNumber(o.towns);
+        return o;
+      });
+
+      return row;
+    });
+
+    utils.getData(server, 'conquers', function (err, data) {
+      if (err) { return; }
+
+      var tmp = _.filter(data, function(o) { return compared_alliances[0].indexOf(parseInt(o.newAlly,10)) !== -1; });
+      tmp = _.filter(tmp, function(o) { return compared_alliances[1].indexOf(parseInt(o.oldAlly,10)) !== -1; });
+
+      total_data[0].conquers = tmp.length;
+      // conquer_data.push(tmp.length);
+
+      var tmp = _.filter(data, function(o) { return compared_alliances[1].indexOf(parseInt(o.newAlly,10)) !== -1; });
+      tmp = _.filter(tmp, function(o) { return compared_alliances[0].indexOf(parseInt(o.oldAlly,10)) !== -1; });
+
+      total_data[1].conquers = tmp.length;
+      // conquer_data.push(tmp.length);
+
+      total_data = _.sortBy(total_data, function (o) { return parseInt(o.points,10); }).reverse();
+
+      var payload = _.extend(defaults, {alliances: total_data});
+
+      res.render('index', payload);
+
+      payload = null;
+      data = null;
+      tmp = null;
+    });
+    data = null;
+  });
 };
