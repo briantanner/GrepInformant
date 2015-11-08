@@ -342,6 +342,7 @@ exports.compare = function (req, res) {
       var total = {
         name: nameStr,
         points: points,
+        pointsInt: points,
         towns: towns,
         members: members,
         average: {
@@ -384,7 +385,7 @@ exports.compare = function (req, res) {
       total_data[1].conquers = tmp.length;
       // conquer_data.push(tmp.length);
 
-      total_data = _.sortBy(total_data, function (o) { return parseInt(o.points,10); }).reverse();
+      total_data = _.sortBy(total_data, function (o) { return parseInt(o.pointsInt,10); }).reverse();
 
       var payload = _.extend(defaults, {alliances: total_data});
 
