@@ -276,8 +276,10 @@ exports.bgConquers = function (req, res) {
           o.town = parseName(town.name);
           o.points = parseInt(town.points,10);
           o.time = new Date(o.time*1000).toUTCString();
-          o.newPlayer = parseName(data.players[o.newPlayer].name);
-          o.oldPlayer = parseName(data.players[o.oldPlayer].name);
+          o.newPlayer = (o.newPlayer.length && data.players[o.newPlayer]) ?
+            parseName(data.players[o.newPlayer].name) : 'Unknown';
+          o.oldPlayer = (o.oldPlayer.length && data.players[o.oldPlayer]) ?
+            parseName(data.players[o.oldPlayer].name) : 'Unknown';
           o.newAlly = parseName(data.alliances[o.newAlly].name);
           o.oldAlly = parseName(data.alliances[o.oldAlly].name);
           return o;
