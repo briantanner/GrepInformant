@@ -18,12 +18,12 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "Grepolis-Utils": "https://github.com/briantanner/Grepolis-Utils.git",
     "accounting": "~0.3.2",
     "async": "*",
     "dotenv": "^1.2.0",
     "express": "3.4.7",
     "jade": "*",
+    "pg": "^4.4.3",
     "underscore": "^1.6.0",
     "urlencode": "^1.1.0"
   }

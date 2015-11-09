@@ -5,7 +5,6 @@
 
 var _ = require('underscore'),
   util = require('util'),
-  utils = require('Grepolis-Utils'),
   urlencode = require('urlencode'),
   async = require('async'),
   accounting = require('accounting'),
@@ -311,15 +310,14 @@ exports.compare = function (req, res) {
   var server = req.params.server,
       compared_alliances = [
         [4],
-        [293],
+        [293, 256, 492],
         [301],
         [1547],
         [47, 2185],
-        [256, 492],
         [66, 97, 1951, 1502, 3307]
       ];
 
-  utils.getData(server, 'alliances', function (err, data) {
+  grepolis.getData(server, 'alliances', function (err, data) {
     if (err) { return; }
     var alliances = _.sortBy(data, function(o){ return parseInt(o.rank, 10); }).slice(0,30),
         compare_data = [],
@@ -372,7 +370,7 @@ exports.compare = function (req, res) {
       return row;
     });
 
-    utils.getData(server, 'conquers', function (err, data) {
+    grepolis.getData(server, 'conquers', function (err, data) {
       if (err) { return; }
 
       var tmp = _.filter(data, function(o) { return compared_alliances[0].indexOf(parseInt(o.newAlly,10)) !== -1; });
