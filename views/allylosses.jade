@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  h1= title
+  h3 Cities Lost: #{totalLosses}
+  each o in lossCount
+    p
+      strong #{o.ally} - #{o.count}
+  if conquers
+    table
+      tr
+        td <strong>Time</strong>
+        td <strong>Town</strong>
+        td <strong>New Player</strong>
+        td <strong>Old Player</strong>
+      each o in conquers
+        tr
+          td #{o.time}
+          td #{o.town} (#{o.points} points)
+          td #{o.newPlayer} (#{o.newAlly})
+          td #{o.oldPlayer} (#{o.oldAlly})
