@@ -66,6 +66,15 @@ exports.towns = function (req, res) {
 
 };
 
+exports.islands = function (req, res) {
+  var server = req.params.server;
+
+  grepolis.getIslands(server, function (err, data) {
+    if (err) { return res.send(500, err); }
+    return res.send(200, data);
+  });
+};
+
 exports.players = function (req, res) {
   var server = req.params.server;
 
@@ -215,7 +224,186 @@ exports.allianceConquers = function (req, res) {
       delete data.alliances;
 
       return res.render('allyconquers', _.extend(defaults, data));
-    })
+    });
+
+};
+
+exports.allianceLosses = function (req, res) {
+  var server = req.params.server,
+      alliance = req.params.alliance,
+      date = req.query.start,
+      enemies = req.query.enemies.split(',');
+
+  async.waterfall([
+
+    function (callback) {
+      getDefaultData(server, callback);
+    },
+
+    function (data, callback) {
+      grepolis.getConquers(server, function (err, _data) {
+        if (err) { return callback(err); }
+        var losses = {},
+            dateArray = date.split('-'),
+            year = dateArray[0],
+            month = dateArray[1]-1,
+            day = dateArray[2];
+
+        var startDate = new Date(year, month, day).getTime() / 1000;
+
+        _data = _.filter(_data, function (o) { return _.indexOf(enemies, o.newAlly) !== -1 && parseInt(o.oldAlly,10) == alliance; });
+        _data = _.filter(_data, function (o) { return parseInt(o.time) > startDate; }.bind(startDate));
+        _data = _.sortBy(_data, function (o) { return parseInt(o.time,10); }).reverse();
+
+        data.conquers = _data;
+        return callback(null, data);
+      });
+    },
+
+    function (data, callback) {
+      _.map(data.conquers, function (o) {
+        var town = data.towns[o.town];
+
+        o.town = parseName(town.name);
+        o.points = parseInt(town.points,10);
+        o.time = new Date(o.time*1000).toUTCString();
+        o.newPlayer = (o.newPlayer.length && data.players[o.newPlayer]) ?
+          parseName(data.players[o.newPlayer].name) : 'Unknown';
+        o.oldPlayer = (o.oldPlayer.length && data.players[o.oldPlayer]) ?
+          parseName(data.players[o.oldPlayer].name) : 'Unknown';
+        o.newAllyId = parseInt(o.newAlly,10);
+        if (o.newAlly.length) {
+          o.newAlly = (data.alliances[o.newAlly]) ?
+            parseName(data.alliances[o.newAlly].name) : 'Unknown';
+        } else {
+          o.newAlly = 'No Alliance';
+        }
+        if (o.oldAlly.length) {
+          o.oldAlly = (data.alliances[o.oldAlly]) ?
+            parseName(data.alliances[o.oldAlly].name) : 'Unknown';
+        } else {
+          o.oldAlly = 'No Alliance';
+        }
+
+        return o;
+      });
+
+      return callback(null, data);
+    }
+
+  ], function (err, data) {
+    if (err) { return res.send(500, err); }
+
+    data.title = "Alliance Losses";
+    data.ally = parseName(data.alliances[alliance].name);
+    data.totalLosses = data.conquers.length;
+    data.lossCount = [];
+
+    _.each(enemies, function (id) {
+      id = parseInt(id,10);
+      
+      data.lossCount.push({
+        'ally': parseName(data.alliances[id].name),
+        'count': _.countBy(data.conquers, function (o) { return o.newAllyId === id; }).true || 0
+      });
+
+      data.lossCount = _.sortBy(data.lossCount, function (o) { return o.count; }).reverse();
+
+    });
+    
+    delete data.towns;
+    delete data.players;
+    delete data.alliances;
+
+    return res.render('allylosses', _.extend(defaults, data));
+  });
+};
+
+exports.sharedIslands = function (req, res) {
+  var server = req.params.server,
+      alliance = parseInt(req.params.alliance,10),
+      enemy = parseInt(req.params.enemy,10),
+      ocean = req.params.ocean ? parseInt(req.params.ocean,10) : null,
+      getLts = req.query.lts || null;
+
+  async.waterfall([
+
+    function (callback) {
+      grepolis.getAllianceTowns(server, alliance, ocean, function (err, towns) {
+        if (err) { return callback(err); }
+        return callback(null, { alliance: towns });
+      });
+    },
+
+    function (data, callback) {
+      grepolis.getAllianceTowns(server, enemy, ocean, function (err, towns) {
+        if (err) { return callback(err); }
+        return callback(null, _.extend(data, { enemy: towns }));
+      });
+    },
+
+    function (data, callback) {
+      var allianceObj = { keys: _.uniq(_.pluck(data.alliance, 'islandXy')), islands: {} },
+          enemyObj = { keys: _.uniq(_.pluck(data.enemy, 'islandXy')), islands: {} },
+          islands = {};
+
+      _.each(data.alliance, function (o) {
+        if (!allianceObj.islands[o.islandXy]) {
+          allianceObj.islands[o.islandXy] = [];
+        }
+
+        allianceObj.islands[o.islandXy].push(o);
+      });
+
+      _.each(data.enemy, function (o) {
+        if (!enemyObj.islands[o.islandXy]) {
+          enemyObj.islands[o.islandXy] = [];
+        }
+
+        enemyObj.islands[o.islandXy].push(o);
+      });
+
+      // return callback(null, {alliance: allianceObj, enemy: enemyObj});
+      
+      var intersection = _.intersection(allianceObj.keys, enemyObj.keys);
+      allianceObj.islands = _.reject(allianceObj.islands, function (o) { return _.indexOf(intersection, o.islandXy) !== -1; });
+      enemyObj.islands = _.reject(enemyObj.islands, function (o) { return _.indexOf(intersection, o.islandXy) !== -1; });
+
+      delete allianceObj.keys;
+      delete enemyObj.keys;
+
+      var enemyIslands = {},
+          sharedIslands = {};
+
+      _.each(enemyObj.islands, function (o) {
+        var islandId = o[0].islandId;
+        enemyIslands[islandId] = o;
+      });
+
+      _.each(allianceObj.islands, function (o) {
+        var islandId = o[0].islandId;
+        
+        if (!enemyIslands[islandId]) { return; }
+        if (getLts) {
+          if (enemyIslands[islandId].length > 3 || o.length < 3) { return; }
+        }
+        
+        sharedIslands[islandId] = {
+          allyCount: o.length,
+          enemyCount: enemyIslands[islandId].length,
+          towns: o,
+          enemies: enemyIslands[islandId]
+        };
+
+      });
+
+      return callback(null, sharedIslands);
+    }
+
+  ], function (err, data) {
+    if (err) { return res.send(500, err); }
+    return res.send(200, data);
+  });
 
 };
 

@@ -31,15 +31,18 @@ if ('development' == app.get('env')) {
 
 app.get('/', routes.index);
 app.get('/:server/towns', routes.towns);
+app.get('/:server/islands', routes.islands);
 app.get('/:server/players', routes.players);
 app.get('/:server/players/:stat', routes.playerStats);
 app.get('/:server/alliances', routes.alliances);
 app.get('/:server/conquers', routes.conquers);
 app.get('/:server/alliancePlayers/:alliance?', routes.alliancePlayers);
 app.get('/:server/allianceConquers/:alliance', routes.allianceConquers);
+app.get('/:server/allianceLosses/:alliance', routes.allianceLosses);
 app.get('/:server/battleGroupIds', routes.battleGroupIds);
 app.get('/:server/bgConquers', routes.bgConquers);
 app.get('/:server/compare', routes.compare);
+app.get('/:server/sharedIslands/:alliance/:enemy/:ocean?', routes.sharedIslands);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
