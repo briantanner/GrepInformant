@@ -530,14 +530,17 @@ exports.sharedIslands = function (req, res) {
 
 exports.compare = function (req, res) {
   var server = req.params.server,
-      compared_alliances = [
-        [4],
-        [293, 256, 492],
-        [301],
-        [1547],
-        [47, 2185],
-        [66, 97, 1951, 1502, 3307]
-      ];
+      compared_alliances = config.comparealliances;
+
+  if (req.query.ally) {
+    var allies = req.query.ally,
+        compared_alliances = [];
+    _.each(req.query.ally, function (ids) {
+      ids = ids.split(',');
+      ids = _.map(ids, function (id) { return parseInt(id,10); });
+      compared_alliances.push(ids);
+    });
+  }
 
   grepolis.getData(server, 'alliances', function (err, data) {
     if (err) { return; }
@@ -611,7 +614,7 @@ exports.compare = function (req, res) {
 
       var payload = _.extend(defaults, {alliances: total_data});
 
-      res.render('index', payload);
+      res.render('compare', payload);
 
       payload = null;
       data = null;
