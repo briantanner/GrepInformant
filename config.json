@@ -11,10 +11,10 @@
 		["MomQB", "lord squid", "dwain oakenhammer", "wmhinton", "tomtong", "war hammer1", "Texan12", "Crapoleus"],
 		["Detow", "Kyrna", "IP Freely", "Ivyteainn", "redwingnut", "maxx II", "aliasneo", "srobs"],
 		["Howie Dohaan", "Byzantine Zen", "lotus67", "Hired Gunz", "Heavenly Angel", "Jessip"],
-		["Blondie 2.1", "KingdomKinsley", "kwAP72", "Kommie", "Obadiah Foulbelly", "ares3.0", "kwitit"],
+		["Blondie 2.1", "KingdomKinsley", "kwAP72", "Kommie", "Obadiah Foulbelly", "ares3.0", "kwitit", "Lance The Strange"],
 		["andari74", "RickRahl", "slugger 21", "TheSpelher", "Cooter88", "mwig", "elyod"],
 		["junbee", "Hockeydad89", "Cratus", "ScarletFort", "Idius", "Krazzy", "maximus a orealius", "Jaxton Timothy"],
-		["cfrf3902", "Gestort", "ctduck", "Nyia", "RuffleDags", "ccoy", "ang101", "karch131", "Lance The Strange"]
+		["cfrf3902", "Gestort", "ctduck", "Nyia", "RuffleDags", "ccoy", "ang101", "karch131"]
 	],
 	"battlegroupids": [
 	  [ "1571884", "583448", "764222", "1170992", "910760", "1538253", "901113", "857300" ],
@@ -25,9 +25,9 @@
 	  [ "784216", "711982", "550170", "602308", "1032863", "863919", "297416", "1569035" ],
 	  [ "1183240", "585220", "660324", "591106", "1974504", "1540089", "342355", "959662" ],
 	  [ "2195500", "835815", "835824", "1454928", "2148539", "2138010" ],
-	  [ "2007958", "921399", "1174454", "1153764", "1635737", "759672", "223707" ],
+	  [ "2007958", "921399", "1174454", "1153764", "1635737", "759672", "223707", "1068993" ],
 	  [ "1565277", "1945648", "1976524", "2156443", "234587", "771397", "861159" ],
 	  [ "1158899", "2136994", "289909", "777630", "1164522", "810691", "1214044", "864619" ],
-	  [ "1839027", "190040", "364731", "544044", "852580", "1160983", "361385", "1585467", "1068993" ]
+	  [ "1839027", "190040", "364731", "544044", "852580", "1160983", "361385", "1585467" ]
 	]
 }

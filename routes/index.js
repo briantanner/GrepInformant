@@ -231,7 +231,8 @@ exports.allianceConquers = function (req, res) {
 exports.allianceLosses = function (req, res) {
   var server = req.params.server,
       alliance = req.params.alliance,
-      date = req.query.start,
+      start = req.query.start,
+      end = req.query.end || null,
       enemies = req.query.enemies.split(',');
 
   async.waterfall([
@@ -244,15 +245,22 @@ exports.allianceLosses = function (req, res) {
       grepolis.getConquers(server, function (err, _data) {
         if (err) { return callback(err); }
         var losses = {},
-            dateArray = date.split('-'),
-            year = dateArray[0],
-            month = dateArray[1]-1,
-            day = dateArray[2];
+            startArray = start.split('-'),
+            endArray = (end) ? end.split('-') : null;
 
-        var startDate = new Date(year, month, day).getTime() / 1000;
+        var startDate = new Date(startArray[0], startArray[1]-1, startArray[2]).getTime() / 1000;
+        if (end) {
+          var endDate = new Date(endArray[0], endArray[1]-1, endArray[2]).getTime() / 1000;
+        }
+        console.log(end, endDate);
 
         _data = _.filter(_data, function (o) { return _.indexOf(enemies, o.newAlly) !== -1 && parseInt(o.oldAlly,10) == alliance; });
-        _data = _.filter(_data, function (o) { return parseInt(o.time) > startDate; }.bind(startDate));
+        _data = _.filter(_data, function (o) { return parseInt(o.time) >= startDate; }.bind(startDate));
+
+        if (endDate) {
+          _data = _.filter(_data, function (o) { return parseInt(o.time) <= endDate; }.bind(endDate));
+        }
+
         _data = _.sortBy(_data, function (o) { return parseInt(o.time,10); }).reverse();
 
         data.conquers = _data;
