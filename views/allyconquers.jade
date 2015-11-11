@@ -9,9 +9,22 @@ block content
         td <strong>Town</strong>
         td <strong>New Player</strong>
         td <strong>Old Player</strong>
+        td
+          a(href="#", style="font-size: 10px; text-decoration: none; color: orange; float: right;", onclick="$('.townBb').toggle(); $('.townName').toggle(); $('.newPlayerBb').toggle(); $('.newPlayer').toggle(); $('.oldPlayerBb').toggle(); $('.oldPlayer').toggle(); $('.bbcodeLink').toggle(); return false;") bbcode all
       each o in conquers
         tr
           td #{o.time}
-          td #{o.town} (#{o.points} points)
-          td #{o.newPlayer} (#{o.newAlly})
-          td #{o.oldPlayer} (#{o.oldAlly})
+          td 
+            span.townName(class='townName' + o.townId) #{o.town} 
+            span.townBb(class='townBb' + o.townId, style="display:none;") [town]#{o.townId}[/town] 
+            span.points (#{o.points} points) 
+          td 
+            span.newPlayer(class='newPlayer' + o.newPlayerId + o.townId) #{o.newPlayer} 
+            span.newPlayerBb(class='newPlayerBb' + o.newPlayerId + o.townId, style="display:none;") [player]#{o.newPlayer}[/player] 
+            span.alliance (#{o.newAlly})
+          td
+            span.oldPlayer(class='oldPlayer' + o.oldPlayerId + o.townId) #{o.oldPlayer} 
+            span.oldPlayerBb(class='oldPlayerBb' + o.oldPlayerId + o.townId, style="display:none;") [player]#{o.oldPlayer}[/player] 
+            span.alliance (#{o.oldAlly})
+          td
+            a.bbcodeLink(href="#", style="font-size: 10px; text-decoration: none; color: orange; float: right;", onclick="$('.townBb#{o.townId}').toggle(); $('.townName#{o.townId}').toggle(); $('.newPlayerBb#{o.newPlayerId}#{o.townId}').toggle(); $('.newPlayer#{o.newPlayerId}#{o.townId}').toggle(); $('.oldPlayerBb#{o.oldPlayerId}#{o.townId}').toggle(); $('.oldPlayer#{o.oldPlayerId}#{o.townId}').toggle(); return false;") bbcode

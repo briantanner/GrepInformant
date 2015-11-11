@@ -14,9 +14,22 @@ block content
           td <strong>Town</strong>
           td <strong>New Player</strong>
           td <strong>Old Player</strong>
+          td
+            a(href="#", style="font-size: 10px; text-decoration: none; color: orange; float: right;", onclick="$('.townBb#{i}').toggle(); $('.townName#{i}').toggle(); $('.newPlayerBb#{i}').toggle(); $('.newPlayer#{i}').toggle(); $('.oldPlayerBb#{i}').toggle(); $('.oldPlayer#{i}').toggle(); $('.bbcodeLink#{i}').toggle(); return false;") bbcode all
         each o in bg
           tr
             td #{o.time}
-            td #{o.town} (#{o.points} points)
-            td #{o.newPlayer} (#{o.newAlly})
-            td #{o.oldPlayer} (#{o.oldAlly})
+            td 
+              span(class='townName' + i + ' townName' + o.townId) #{o.town} 
+              span(class='townBb' + i + ' townBb' + o.townId, style="display:none;") [town]#{o.townId}[/town] 
+              span.points (#{o.points} points) 
+            td 
+              span(class='newPlayer' + i + ' newPlayer' + o.newPlayerId + o.townId) #{o.newPlayer} 
+              span(class='newPlayerBb' + i + ' newPlayerBb' + o.newPlayerId + o.townId, style="display:none;") [player]#{o.newPlayer}[/player] 
+              span.alliance (#{o.newAlly})
+            td
+              span(class='oldPlayer' + i + ' oldPlayer' + o.oldPlayerId + o.townId) #{o.oldPlayer} 
+              span(class='oldPlayerBb' + i + ' oldPlayerBb' + o.oldPlayerId + o.townId, style="display:none;") [player]#{o.oldPlayer}[/player] 
+              span.alliance (#{o.oldAlly})
+            td
+              a(class='bbcodeLink' + i, href="#", style="font-size: 10px; text-decoration: none; color: orange; float: right;", onclick="$('.townBb#{o.townId}').toggle(); $('.townName#{o.townId}').toggle(); $('.newPlayerBb#{o.newPlayerId}#{o.townId}').toggle(); $('.newPlayer#{o.newPlayerId}#{o.townId}').toggle(); $('.oldPlayerBb#{o.oldPlayerId}#{o.townId}').toggle(); $('.oldPlayer#{o.oldPlayerId}#{o.townId}').toggle(); return false;") bbcode

@@ -52,8 +52,8 @@ function getDefaultData(server, callback) {
 }
 
 exports.index = function(req, res) {
-  return res.send(200, 'Hello!');
-  // res.render('index', defaults);
+  // return res.send(200, 'Hello!');
+  res.render('index', defaults);
 };
 
 exports.towns = function (req, res) {
@@ -185,21 +185,29 @@ exports.allianceConquers = function (req, res) {
     function (data, callback) {
 
       _.map(data.conquers, function (o) {
-        var town = data.towns[o.town];
+        var town = data.towns[o.town],
+            newPlayer = data.players[o.newPlayer],
+            oldPlayer = data.players[o.oldPlayer];
 
         o.town = parseName(town.name);
+        o.townId = town.id;
         o.points = parseInt(town.points,10);
         o.time = new Date(o.time*1000).toUTCString();
-        o.newPlayer = (o.newPlayer.length && data.players[o.newPlayer]) ?
-          parseName(data.players[o.newPlayer].name) : 'Unknown';
-        o.oldPlayer = (o.oldPlayer.length && data.players[o.oldPlayer]) ?
-          parseName(data.players[o.oldPlayer].name) : 'Unknown';
+        o.newPlayer = (o.newPlayer.length && newPlayer) ?
+          parseName(newPlayer.name) : 'Unknown';
+        o.oldPlayer = (o.oldPlayer.length && oldPlayer) ?
+          parseName(oldPlayer.name) : 'Unknown';
+        
+        if (newPlayer) { o.newPlayerId = newPlayer.id; }
+        if (oldPlayer) { o.oldPlayerId = oldPlayer.id; }
+        
         if (o.newAlly.length) {
           o.newAlly = (data.alliances[o.newAlly]) ?
             parseName(data.alliances[o.newAlly].name) : 'Unknown';
         } else {
           o.newAlly = 'No Alliance';
         }
+        
         if (o.oldAlly.length) {
           o.oldAlly = (data.alliances[o.oldAlly]) ?
             parseName(data.alliances[o.oldAlly].name) : 'Unknown';
@@ -270,22 +278,31 @@ exports.allianceLosses = function (req, res) {
 
     function (data, callback) {
       _.map(data.conquers, function (o) {
-        var town = data.towns[o.town];
+        var town = data.towns[o.town],
+            newPlayer = data.players[o.newPlayer],
+            oldPlayer = data.players[o.oldPlayer];
 
         o.town = parseName(town.name);
+        o.townId = town.id;
         o.points = parseInt(town.points,10);
         o.time = new Date(o.time*1000).toUTCString();
         o.newPlayer = (o.newPlayer.length && data.players[o.newPlayer]) ?
           parseName(data.players[o.newPlayer].name) : 'Unknown';
         o.oldPlayer = (o.oldPlayer.length && data.players[o.oldPlayer]) ?
           parseName(data.players[o.oldPlayer].name) : 'Unknown';
+        
+        if (newPlayer) { o.newPlayerId = newPlayer.id; }
+        if (oldPlayer) { o.oldPlayerId = oldPlayer.id; }
+        
         o.newAllyId = parseInt(o.newAlly,10);
+        
         if (o.newAlly.length) {
           o.newAlly = (data.alliances[o.newAlly]) ?
             parseName(data.alliances[o.newAlly].name) : 'Unknown';
         } else {
           o.newAlly = 'No Alliance';
         }
+        
         if (o.oldAlly.length) {
           o.oldAlly = (data.alliances[o.oldAlly]) ?
             parseName(data.alliances[o.oldAlly].name) : 'Unknown';
@@ -325,6 +342,103 @@ exports.allianceLosses = function (req, res) {
 
     return res.render('allylosses', _.extend(defaults, data));
   });
+};
+
+exports.bgConquers = function (req, res) {
+
+  var server = req.params.server,
+      alliance = parseInt(config.alliance,10),
+      enemy = parseInt(config.enemy,10),
+      battleGroups = config.battlegroups,
+      battleGroupIds = config.battlegroupids;
+
+  async.waterfall([
+
+    function (callback) {
+      getDefaultData(server, callback);
+    },
+
+    function (data, callback) {
+      grepolis.getConquers(server, function (err, _data) {
+        if (err) { return callback(err); }
+
+        var conquers = {};
+            bgConquers = {},
+            totalConquers = 0;
+
+        var startDate = new Date(2015, 9, 10).getTime() / 1000;
+
+        _data = _.filter(_data, function (o) { return parseInt(o.newAlly,10) == alliance && parseInt(o.oldAlly,10) == enemy; });
+        _data = _.filter(_data, function (o) { return parseInt(o.time) > startDate; }.bind(startDate));
+        _data = _.sortBy(_data, function (o) { return parseInt(o.time,10); }).reverse();
+        _.each(battleGroupIds, function (group, index) {
+          index++;
+          
+          var _conquers = _.reject(_data, function (o) { return _.indexOf(group, o.newPlayer) === -1; });
+          
+          if (!conquers[index]) { conquers[index] = _conquers; }
+          
+          conquers[index].concat(_conquers);
+          bgConquers[index] = conquers[index].length;
+          totalConquers += conquers[index].length;
+        });
+
+        data.conquers = conquers;
+        data.bgConquers = bgConquers;
+        data.totalConquers = totalConquers;
+
+        return callback(null, data);
+      }.bind(data));
+    },
+
+    function  (data, callback) {
+      _.map(data.conquers, function (battleGroup, i) {
+        battleGroup.total = bgConquers[i];
+        battleGroup.players = config.battlegroups[--i].join(', ');
+        
+        battleGroup = _.map(battleGroup, function (o) {
+          var town = data.towns[o.town],
+              newPlayer = data.players[o.newPlayer],
+              oldPlayer = data.players[o.oldPlayer];
+
+          o.town = parseName(town.name);
+          o.townId = town.id;
+          o.points = parseInt(town.points,10);
+          o.time = new Date(o.time*1000).toUTCString();
+          o.newPlayer = (o.newPlayer.length && data.players[o.newPlayer]) ?
+            parseName(data.players[o.newPlayer].name) : 'Unknown';
+          o.oldPlayer = (o.oldPlayer.length && data.players[o.oldPlayer]) ?
+            parseName(data.players[o.oldPlayer].name) : 'Unknown';
+          
+          if (newPlayer) { o.newPlayerId = newPlayer.id; }
+          if (oldPlayer) { o.oldPlayerId = oldPlayer.id; }
+          
+          o.newAlly = parseName(data.alliances[o.newAlly].name);
+          o.oldAlly = parseName(data.alliances[o.oldAlly].name);
+        
+          return o;
+        });
+
+        return battleGroup;
+      });
+
+      return callback(null, data);
+    }
+
+    ], function (err, data) {
+      if (err) { return res.send(500, err); }
+
+      data.title = "Battle Group Conquers";
+      data.ally = parseName(data.alliances[alliance].name);
+      data.enemy = parseName(data.alliances[enemy].name);
+      
+      delete data.towns;
+      delete data.players;
+      delete data.alliances;
+
+      return res.render('bgconquers', _.extend(defaults, data));
+    });
+
 };
 
 exports.sharedIslands = function (req, res) {
@@ -412,93 +526,6 @@ exports.sharedIslands = function (req, res) {
     if (err) { return res.send(500, err); }
     return res.send(200, data);
   });
-
-};
-
-exports.bgConquers = function (req, res) {
-
-  var server = req.params.server,
-      alliance = parseInt(config.alliance,10),
-      enemy = parseInt(config.enemy,10),
-      battleGroups = config.battlegroups,
-      battleGroupIds = config.battlegroupids;
-
-  async.waterfall([
-
-    function (callback) {
-      getDefaultData(server, callback);
-    },
-
-    function (data, callback) {
-      grepolis.getConquers(server, function (err, _data) {
-        if (err) { return callback(err); }
-
-        var conquers = {};
-            bgConquers = {},
-            totalConquers = 0;
-
-        var startDate = new Date(2015, 9, 10).getTime() / 1000;
-
-        _data = _.filter(_data, function (o) { return parseInt(o.newAlly,10) == alliance && parseInt(o.oldAlly,10) == enemy; });
-        _data = _.filter(_data, function (o) { return parseInt(o.time) > startDate; }.bind(startDate));
-        _data = _.sortBy(_data, function (o) { return parseInt(o.time,10); }).reverse();
-        _.each(battleGroupIds, function (group, index) {
-          index++;
-          
-          var _conquers = _.reject(_data, function (o) { return _.indexOf(group, o.newPlayer) === -1; });
-          
-          if (!conquers[index]) { conquers[index] = _conquers; }
-          
-          conquers[index].concat(_conquers);
-          bgConquers[index] = conquers[index].length;
-          totalConquers += conquers[index].length;
-        });
-
-        data.conquers = conquers;
-        data.bgConquers = bgConquers;
-        data.totalConquers = totalConquers;
-
-        return callback(null, data);
-      }.bind(data));
-    },
-
-    function  (data, callback) {
-      _.map(data.conquers, function (battleGroup, i) {
-        battleGroup.total = bgConquers[i];
-        battleGroup.players = config.battlegroups[--i].join(', ');
-        battleGroup = _.map(battleGroup, function (o) {
-          var town = data.towns[o.town];
-          o.town = parseName(town.name);
-          o.points = parseInt(town.points,10);
-          o.time = new Date(o.time*1000).toUTCString();
-          o.newPlayer = (o.newPlayer.length && data.players[o.newPlayer]) ?
-            parseName(data.players[o.newPlayer].name) : 'Unknown';
-          o.oldPlayer = (o.oldPlayer.length && data.players[o.oldPlayer]) ?
-            parseName(data.players[o.oldPlayer].name) : 'Unknown';
-          o.newAlly = parseName(data.alliances[o.newAlly].name);
-          o.oldAlly = parseName(data.alliances[o.oldAlly].name);
-          return o;
-        });
-
-        return battleGroup;
-      });
-
-      return callback(null, data);
-    }
-
-    ], function (err, data) {
-      if (err) { return res.send(500, err); }
-
-      data.title = "Battle Group Conquers";
-      data.ally = parseName(data.alliances[alliance].name);
-      data.enemy = parseName(data.alliances[enemy].name);
-      
-      delete data.towns;
-      delete data.players;
-      delete data.alliances;
-
-      return res.render('bgconquers', _.extend(defaults, data));
-    });
 
 };
 
