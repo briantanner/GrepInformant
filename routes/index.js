@@ -260,7 +260,6 @@ exports.allianceLosses = function (req, res) {
         if (end) {
           var endDate = new Date(endArray[0], endArray[1]-1, endArray[2]).getTime() / 1000;
         }
-        console.log(end, endDate);
 
         _data = _.filter(_data, function (o) { return _.indexOf(enemies, o.newAlly) !== -1 && parseInt(o.oldAlly,10) == alliance; });
         _data = _.filter(_data, function (o) { return parseInt(o.time) >= startDate; }.bind(startDate));
