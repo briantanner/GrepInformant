@@ -24,6 +24,7 @@
     "express": "3.4.7",
     "jade": "*",
     "pg": "^4.4.3",
+    "pg-copy-streams": "^0.3.0",
     "underscore": "^1.6.0",
     "urlencode": "^1.1.0"
   }

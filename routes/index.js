@@ -40,7 +40,14 @@ function getDefaultData(server, callback) {
     function (data, callback) {
       grepolis.getTowns(server, function (err, towns) {
         if (err) { return callback(err); }
-        data.towns = towns;
+        var townsMapped = {};
+
+        _.each(towns, function (o) {
+          townsMapped[o.id] = o;
+        });
+        
+        data.towns = townsMapped;
+
         return callback(null, data);
       });
     }
@@ -57,11 +64,21 @@ exports.index = function(req, res) {
 };
 
 exports.towns = function (req, res) {
-  var server = req.params.server;
+  var server = req.params.server,
+      playerId = req.params.playerId || null;
 
   grepolis.getTowns(server, function (err, data) {
     if (err) { return res.send(500, err); }
-    return res.send(200, data);
+    var towns = {};
+
+    _.each(data, function (o) {
+      towns[o.id] = o;
+    })
+    // if (playerId) {
+    //   data = _.reject(data, function (o) { return o.player !== playerId; });
+    // }
+
+    return res.send(200, towns);
   });
 
 };
@@ -391,6 +408,7 @@ exports.bgConquers = function (req, res) {
     },
 
     function  (data, callback) {
+      console.log(data.towns);
       _.map(data.conquers, function (battleGroup, i) {
         battleGroup.total = bgConquers[i];
         battleGroup.players = config.battlegroups[--i].join(', ');

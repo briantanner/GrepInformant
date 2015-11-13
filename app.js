@@ -30,7 +30,7 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/', routes.index);
-app.get('/:server/towns', routes.towns);
+app.get('/:server/towns/:playerId?', routes.towns);
 app.get('/:server/islands', routes.islands);
 app.get('/:server/players', routes.players);
 app.get('/:server/players/:stat', routes.playerStats);
