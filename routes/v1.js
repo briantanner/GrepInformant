@@ -103,8 +103,6 @@ exports.player = function (req, res) {
   var server = req.params.server,
       query = util.format("select * from players where id = %s", req.params.playerId);
 
-  console.log(query);
-
   select({ text: query }, function (err, result) {
     if (err) { return res.send(500, err); }
     return res.send(200, result);
@@ -122,7 +120,6 @@ exports.map = function (req, res) {
       if (err) { return res.send(500, err); }
       if (result.rowCount > 0) {
         var towns = result.rows;
-        console.log(towns);
         return res.render('map', { towns: towns });
       }
     });
