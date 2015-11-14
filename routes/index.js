@@ -408,7 +408,6 @@ exports.bgConquers = function (req, res) {
     },
 
     function  (data, callback) {
-      console.log(data.towns);
       _.map(data.conquers, function (battleGroup, i) {
         battleGroup.total = bgConquers[i];
         battleGroup.players = config.battlegroups[--i].join(', ');

@@ -45,9 +45,13 @@ app.get('/:server/bgConquers', routes.bgConquers);
 app.get('/:server/compare', routes.compare);
 app.get('/:server/sharedIslands/:alliance/:enemy/:ocean?', routes.sharedIslands);
 
-app.get('/v1/:server/towns/:playerId?', routes.v1.towns);
+app.get('/v1/:server/alliances', routes.v1.alliances);
+app.get('/v1/:server/players', routes.v1.players);
 app.get('/v1/:server/player/:playerId', routes.v1.player);
+app.get('/v1/:server/towns/:playerId?', routes.v1.towns);
 app.get('/v1/:server/map/:playerId?', routes.v1.map);
+app.get('/v1/:server/offsets', routes.v1.offsets);
+app.get('/v1/:server/islands', routes.v1.islands);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

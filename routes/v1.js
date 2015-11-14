@@ -99,6 +99,35 @@ exports.towns = function (req, res) {
 
 };
 
+exports.islands = function (req, res) {
+  var query = "select * from islands";
+
+  select({ text: query }, function (err, result) {
+    if (err) { return res.send(500, err); }
+    return res.send(200, result);
+  });
+};
+
+exports.alliances = function (req, res) {
+  var server = req.params.server,
+      query = "select * from alliances order by rank asc";
+
+  select({ text: query }, function (err, result) {
+    if (err) { return res.send(500, err); }
+    return res.send(200, result);
+  });
+};
+
+exports.players = function (req, res) {
+  var server = req.params.server,
+      query = "select * from players order by rank asc";
+
+  select({ text: query }, function (err, result) {
+    if (err) { return res.send(500, err); }
+    return res.send(200, result);
+  });
+};
+
 exports.player = function (req, res) {
   var server = req.params.server,
       query = util.format("select * from players where id = %s", req.params.playerId);
@@ -111,20 +140,46 @@ exports.player = function (req, res) {
 
 exports.map = function (req, res) {
   var playerId = req.params.playerId || null,
-      query = "select * from towns";
+      allyId = req.query.alliance || null,
+      query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, p.name as player, i.type, o.offsetx, o.offsety from towns t inner join players p on t.player = p.id";
 
+  query += " inner join islands i on t.x = i.x and t.y = i.y inner join offsets o on i.type = o.id and t.islandNo = o.pos";
+  
   if (playerId) {
-    query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, p.name as player from towns t inner join players p on t.player = p.id";
-    query += util.format(" where player = '%s'", playerId);
-
-    select({ text: query }, function (err, result) {
-      if (err) { return res.send(500, err); }
-      if (result.rowCount > 0) {
-        var towns = result.rows;
-        return res.render('map', { towns: towns });
-      }
-    });
+    // query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, p.name as player from towns t inner join players p on t.player = p.id";
+    query += util.format(" where t.player = '%s'", playerId);
   }
 
-  if (!playerId) { return res.render('map'); }
+  if (allyId) {
+    query += util.format(" where p.alliance = %s", allyId);
+  }
+
+  console.log(query);
+  select({ text: query }, function (err, result) {
+    if (err) { return res.send(500, err); }
+    if (result.rowCount > 0) {
+      var towns = result.rows;
+
+      towns = _.map(towns, function (o) {
+        // Island_X = x-coordinate from islands.txt * 128
+        // Island_Y = y-coordinate from islands.txt * 128 if x is even
+        // Island_Y = 64 + y-coordinate from islands.txt * 128 if x is odd
+        o.exactX = ( ((o.x * 128) + o.offsetx) / 128 );
+        o.exactY = ( ((o.y * 128) + o.offsety) / 128 );// : ( (((64 + o.y) * 128) + o.offsety) / 128 );
+
+        return o;
+      });
+      // return res.send(200, towns);
+      return res.render('map', { towns: towns });
+    }
+  });
+};
+
+exports.offsets = function (req, res) {
+  var query = "select * from offsets";
+
+  select({ text: query }, function (err, result) {
+    if (err) { return res.send(500, err); }
+    return res.send(200, result);
+  });
 };

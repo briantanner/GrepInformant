@@ -15,7 +15,12 @@ block content
 			- h += 200
 		if towns
 			each o in towns
-				span.town(style='left: ' + (o.x * 2) + 'px; top: ' + (o.y * 2) + 'px;')
+				if (o.points < 2000)
+					span.town.townSmall(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px;')
+				else if (o.points < 6000)
+					span.town.townMed(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px;')
+				else
+					span.town(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px;')
 				span.townInfo
 					| #{o.name}
 					br
