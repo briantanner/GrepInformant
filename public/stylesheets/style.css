@@ -97,3 +97,37 @@ div.result span {
   height: 1px;
   clear: both;
 }
+
+.map {
+  width: 2000px;
+  height: 2000px;
+  background: url('../images/watertiles.png') repeat;
+  position: relative;
+}
+
+span.line-vert {
+  display: block;
+  width: 1px;
+  height: 2000px;
+  background: url('../images/linefff.png') repeat-y;
+  position: absolute;
+  top: 0;
+}
+
+span.line-horz {
+  display: block;
+  width: 2000px;
+  height: 1px;
+  background: url('../images/linefff.png') repeat-x;
+  position: absolute;
+  left: 0;
+}
+
+span.town {
+  display: block;
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  position: absolute;
+  border-radius: 4px;
+}

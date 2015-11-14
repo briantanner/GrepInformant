@@ -1,0 +1,15 @@
+extends layout
+
+block content
+	div.map
+		- var v = 200
+		while (v < 2000)
+			span.line-vert(style='left: ' + v + 'px')
+			- v += 200
+		- var h = 200
+		while (h < 2000)
+			span.line-horz(style='top: ' + h + 'px')
+			- h += 200
+		if towns
+			each o in towns
+				span.town(style='left: ' + (o.x * 2) + 'px; top: ' + (o.y * 2) + 'px;')

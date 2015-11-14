@@ -8,6 +8,7 @@ var express = require('express'),
 	http = require('http'),
 	path = require('path');
 
+routes.v1 = require('./routes/v1');
 // require('dotenv').load();
 
 var app = express();
@@ -43,6 +44,10 @@ app.get('/:server/battleGroupIds', routes.battleGroupIds);
 app.get('/:server/bgConquers', routes.bgConquers);
 app.get('/:server/compare', routes.compare);
 app.get('/:server/sharedIslands/:alliance/:enemy/:ocean?', routes.sharedIslands);
+
+app.get('/v1/:server/towns/:playerId?', routes.v1.towns);
+app.get('/v1/:server/player/:playerId', routes.v1.player);
+app.get('/v1/:server/map/:playerId?', routes.v1.map);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
