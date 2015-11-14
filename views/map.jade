@@ -1,5 +1,8 @@
 extends layout
 
+block styles
+	link(rel='stylesheet', href='/stylesheets/tipped.css')
+
 block content
 	div.map
 		- var v = 200
@@ -13,3 +16,15 @@ block content
 		if towns
 			each o in towns
 				span.town(style='left: ' + (o.x * 2) + 'px; top: ' + (o.y * 2) + 'px;')
+				span.townInfo
+					| #{o.name}
+					br
+					| #{o.player}
+					br
+					| #{o.points}
+					br
+					| [town]#{o.id}[/town]
+
+block scripts
+	script(type='text/javascript', src='/js/tipped.js')
+	script(type='text/javascript', src='/js/map.js')

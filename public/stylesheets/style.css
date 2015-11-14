@@ -131,3 +131,7 @@ span.town {
   position: absolute;
   border-radius: 4px;
 }
+
+span.townInfo {
+  display: none;
+}

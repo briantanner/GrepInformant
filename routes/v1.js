@@ -114,6 +114,7 @@ exports.map = function (req, res) {
       query = "select * from towns";
 
   if (playerId) {
+    query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, p.name as player from towns t inner join players p on t.player = p.id";
     query += util.format(" where player = '%s'", playerId);
 
     select({ text: query }, function (err, result) {
