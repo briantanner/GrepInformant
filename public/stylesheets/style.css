@@ -131,6 +131,12 @@ span.town {
   position: absolute;
   border-radius: 4px;
   border: #000 solid 1px;
+  z-index: 100;
+}
+
+span.ghost {
+  background-color: gray;
+  z-index: 999;
 }
 
 span.townMed {

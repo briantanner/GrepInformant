@@ -16,11 +16,11 @@ block content
 		if towns
 			each o in towns
 				if (o.points < 2000)
-					span.town.townSmall(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px;')
+					span.town.townSmall(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px;', class=o.player)
 				else if (o.points < 6000)
-					span.town.townMed(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px;')
+					span.town.townMed(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px;', class=o.player)
 				else
-					span.town(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px;')
+					span.town(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px;', class=o.player)
 				span.townInfo
 					| #{o.name}
 					br

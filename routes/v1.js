@@ -139,39 +139,51 @@ exports.player = function (req, res) {
 };
 
 exports.map = function (req, res) {
-  var playerId = req.params.playerId || null,
-      allyId = req.query.alliance || null,
-      query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, p.name as player, i.type, o.offsetx, o.offsety from towns t inner join players p on t.player = p.id";
+  var server = req.params.server,
+      playerId = req.params.playerId || null,
+      allyId = req.query.alliance || null;
 
-  query += " inner join islands i on t.x = i.x and t.y = i.y inner join offsets o on i.type = o.id and t.islandNo = o.pos";
-  
-  if (playerId) {
-    // query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, p.name as player from towns t inner join players p on t.player = p.id";
-    query += util.format(" where t.player = '%s'", playerId);
-  }
+  async.waterfall([
 
-  if (allyId) {
-    query += util.format(" where p.alliance = %s", allyId);
-  }
-
-  console.log(query);
-  select({ text: query }, function (err, result) {
-    if (err) { return res.send(500, err); }
-    if (result.rowCount > 0) {
-      var towns = result.rows;
-
-      towns = _.map(towns, function (o) {
-        // Island_X = x-coordinate from islands.txt * 128
-        // Island_Y = y-coordinate from islands.txt * 128 if x is even
-        // Island_Y = 64 + y-coordinate from islands.txt * 128 if x is odd
-        o.exactX = ( ((o.x * 128) + o.offsetx) / 128 );
-        o.exactY = ( ((o.y * 128) + o.offsety) / 128 );// : ( (((64 + o.y) * 128) + o.offsety) / 128 );
-
-        return o;
+    function (callback) {
+      var query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, p.name as player, i.type, o.offsetx, o.offsety from towns t inner join players p on t.player = p.id";
+          query += " inner join islands i on t.x = i.x and t.y = i.y inner join offsets o on i.type = o.id and t.islandNo = o.pos";
+      
+      if (playerId) query += util.format(" where t.player = '%s'", playerId);
+      if (allyId) query += util.format(" where p.alliance = %s", allyId);
+      
+      select({ text: query }, function (err, result) {
+        if (err) { return callback(err); }
+        return callback(null, result.rows);
       });
-      // return res.send(200, towns);
-      return res.render('map', { towns: towns });
+    },
+
+    function (towns, callback) {
+      var query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, p.name as player, i.type, o.offsetx, o.offsety from towns t left join players p on t.player = p.id";
+          query += " inner join islands i on t.x = i.x and t.y = i.y inner join offsets o on i.type = o.id and t.islandNo = o.pos";
+          query += " where t.player = 0 and t.points > 1200";
+
+      select({ text: query }, function (err, result) {
+        if (err) { return callback(err); }
+        towns = towns.concat(result.rows);
+        return callback(null, towns);
+      });
     }
+
+  ], function (err, towns) {
+    if (err) { return res.send(500, err); }
+    towns = _.map(towns, function (o) {
+      // Island_X = x-coordinate from islands.txt * 128
+      // Island_Y = y-coordinate from islands.txt * 128 if x is even
+      // Island_Y = 64 + y-coordinate from islands.txt * 128 if x is odd
+      if (!o.player) o.player = 'ghost';
+      o.exactX = ( ((o.x * 128) + o.offsetx) / 128 );
+      o.exactY = ( ((o.y * 128) + o.offsety) / 128 );// : ( (((64 + o.y) * 128) + o.offsety) / 128 );
+
+      return o;
+    });
+    // return res.send(200, towns);
+    return res.render('map', { towns: towns });
   });
 };
 
