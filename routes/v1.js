@@ -179,9 +179,9 @@ exports.map = function (req, res) {
           allyColor = data.options.allycolor,
           playerColor = data.options.playercolor;
 
-      var query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, p.name as player, p.alliance, i.type, o.offsetx, o.offsety from towns t inner join players p on t.player = p.id";
+      var query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, t.player as playerid, p.name as player, p.alliance, i.type, o.offsetx, o.offsety from towns t inner join players p on t.player = p.id";
           query += " inner join islands i on t.x = i.x and t.y = i.y inner join offsets o on i.type = o.id and t.islandNo = o.pos";
-      console.log(ally, player);
+
       if (ally.length) {
         query += " where p.alliance in (" + ally.join(", ") + ")";
       }
@@ -209,9 +209,9 @@ exports.map = function (req, res) {
           data.towns = _.map(data.towns, function (o) {
             o.color = '';
 
-            if (!allyColors[o.alliance] && !playerColors[o.player]) { return o; }
+            if (!allyColors[o.alliance] && !playerColors[o.playerid]) { return o; }
             if (allyColors[o.alliance]) { o.color = allyColors[o.alliance]; }
-            if (playerColors[o.player]) { o.color = playercolors[o.player]; }
+            if (playerColors[o.playerid]) { o.color = playerColors[o.playerid]; }
 
             return o;
           });
@@ -226,7 +226,7 @@ exports.map = function (req, res) {
       if (id) { return callback(null, data); }
       if (!playerId && !allyId) { return callback(null, data); }
 
-      var query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, p.name as player, p.alliance, i.type, o.offsetx, o.offsety from towns t inner join players p on t.player = p.id";
+      var query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, t.player as playerid, p.name as player, p.alliance, i.type, o.offsetx, o.offsety from towns t inner join players p on t.player = p.id";
           query += " inner join islands i on t.x = i.x and t.y = i.y inner join offsets o on i.type = o.id and t.islandNo = o.pos";
       
       if (playerId) query += util.format(" where t.player = '%s'", playerId);
@@ -241,7 +241,7 @@ exports.map = function (req, res) {
 
     // get ghosts
     function (data, callback) {
-      var query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, p.name as player, p.alliance, i.type, o.offsetx, o.offsety from towns t left join players p on t.player = p.id";
+      var query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, t.player as playerid, p.name as player, p.alliance, i.type, o.offsetx, o.offsety from towns t left join players p on t.player = p.id";
           query += " inner join islands i on t.x = i.x and t.y = i.y inner join offsets o on i.type = o.id and t.islandNo = o.pos";
           query += " where t.player = 0 and t.points > 1200";
 
