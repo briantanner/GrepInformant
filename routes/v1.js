@@ -171,11 +171,31 @@ exports.map = function (req, res) {
       });
     },
 
+    function (data, callback) {
+      if (!id) { return callback(null, data); }
+      if (!data.options.player || data.options.player.length === 0) { return callback(null, data); }
+      var query = util.format("select id, name from players where id in (%s)", data.options.player.join(', '));
+
+      dbQuery({ text: query }, function (err, result) {
+        if (err) { return callback(err); }
+        var players = _.indexBy(result.rows, 'id');
+        
+        data.options.player = _.map(data.options.player, function (id) {
+          return {
+            id: id,
+            name: players[id].name
+          };
+        });
+
+        return callback(null, data);
+      });
+    },
+
     // get hashed searches
     function (data, callback) {
       if (!id) { return callback(null, data); }
       var ally = data.options.ally,
-          player = data.options.player,
+          player = _.pluck(data.options.player, 'id'),
           allyColor = data.options.allycolor,
           playerColor = data.options.playercolor;
 

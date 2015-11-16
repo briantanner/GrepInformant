@@ -26,52 +26,78 @@ block content
   div.options
     form.optionsForm(method='get', action='/v1/'+server+'/map', autocomplete='off')
       div.allyWrap
-        div.ally
-          select.allySelect(name='ally[]')
-            option(value='') Select Alliance
-            each o in alliances
-              if (parseInt(alliance,10) === parseInt(o.id,10))
-                option(value=o.id, selected='selected') #{o.name} (#{o.rank})
-              else
-                option(value=o.id) #{o.name} (#{o.rank})
-          input(class='color startEmpty', type='text', name='allycolor[]', value='', autocomplete='off')
+        if options.ally && options.ally.length
+          each id, i in options.ally
+            div.ally
+              select.allySelect(name='ally[]')
+                option(value='') Select Alliance
+                each o in alliances
+                  if (parseInt(id,10) === parseInt(o.id,10))
+                    option(value=o.id, selected='selected') #{o.name} (#{o.rank})
+                  else
+                    option(value=o.id) #{o.name} (#{o.rank})
+              input(class='color startEmpty', type='text', name='allycolor[]', value= (options.allycolor && options.allycolor[i]) ? options.allycolor[i] : '', autocomplete='off')
+        else
+          div.ally
+            select.allySelect(name='ally[]')
+              option(value='') Select Alliance
+              each o in alliances
+                if (parseInt(alliance,10) === parseInt(o.id,10))
+                  option(value=o.id, selected='selected') #{o.name} (#{o.rank})
+                else
+                  option(value=o.id) #{o.name} (#{o.rank})
+            input(class='color startEmpty', type='text', name='allycolor[]', value='', autocomplete='off')
         a.addAlly(href='#') + Add Alliance
         span.clear
       div.playerWrap
-        div.player
-          input.name(type='text', name='player[]', placeholder='Player Name')
-          input(class='color startEmpty', type='text', name='playercolor[]', value='', autocomplete='off')
-          ul.players(style='display:none;')
+        if options.player && options.player.length
+          each o, i in options.player
+            div.player
+              input.name(type='text', name='player[]', placeholder='Player Name', value= o.name)
+              input(class='color startEmpty', type='text', name='playercolor[]', value=(options.playercolor && options.playercolor[i]) ? options.playercolor[i] : '', autocomplete='off')
+              ul.players(style='display:none;')
+        else
+          div.player
+            input.name(type='text', name='player[]', placeholder='Player Name')
+            input(class='color startEmpty', type='text', name='playercolor[]', value='', autocomplete='off')
+            ul.players(style='display:none;')
         a.addPlayer(href='#') + Add Player
       input(type='submit', value='Generate Map')
   div.map-container
     div.map
-      - var v = 200
-      while (v < 2000)
-        span.line-vert(style='left: ' + v + 'px')
-        - v += 200
-      - var h = 200
-      while (h < 2000)
-        span.line-horz(style='top: ' + h + 'px')
-        - h += 200
-      - var num = ""
-      - for (var i = 0; i < 10; i++) {
-        - for (var n = 0; n < 10; n++) {
-          - num = n + "" + i
-          span.num(style='top: ' + (200*parseInt(i,10)+2) + 'px; left: ' + (200*parseInt(n,10)+2) + 'px;') #{num}
-          span.num(style='top: ' + (200*parseInt(i,10)+180) + 'px; left: ' + (200*parseInt(n,10)+180) + 'px;') #{num}
-          span.num(style='top: ' + (200*parseInt(i,10)+2) + 'px; left: ' + (200*parseInt(n,10)+180) + 'px;') #{num}
-          span.num(style='top: ' + (200*parseInt(i,10)+180) + 'px; left: ' + (200*parseInt(n,10)+2) + 'px;') #{num}
+      div.grid
+        - var v = 200
+        while (v < 2000)
+          span.line-vert(style='left: ' + v + 'px')
+          - v += 200
+        - var h = 200
+        while (h < 2000)
+          span.line-horz(style='top: ' + h + 'px')
+          - h += 200
+        - var num = ""
+        - for (var i = 0; i < 10; i++) {
+          - for (var n = 0; n < 10; n++) {
+            - num = n + "" + i
+            span.num(style='top: ' + (200*parseInt(i,10)+2) + 'px; left: ' + (200*parseInt(n,10)+2) + 'px;') #{num}
+            span.num(style='top: ' + (200*parseInt(i,10)+180) + 'px; left: ' + (200*parseInt(n,10)+180) + 'px;') #{num}
+            span.num(style='top: ' + (200*parseInt(i,10)+2) + 'px; left: ' + (200*parseInt(n,10)+180) + 'px;') #{num}
+            span.num(style='top: ' + (200*parseInt(i,10)+180) + 'px; left: ' + (200*parseInt(n,10)+2) + 'px;') #{num}
+          - }
         - }
-      - }
       if towns
-        each o in towns
+        - var zIndex = 100;
+        <div class='townGroup1'>
+        each o, i in towns
+          - zIndex = 100 - options.ally.indexOf(""+o.alliance)
+          if (i % 100 === 0)
+            </div>
+            <div class='townGroup#{(i/100)+1}'>
           if (o.points < 2000)
-            span.town.townSmall(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px; background-color: '+ o.color + ';', class=o.player)
+            span.town.townSmall(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px; background-color: '+ o.color + '; z-index: ' + zIndex, class=o.player)
           else if (o.points < 6000)
-            span.town.townMed(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px; background-color: '+ o.color + ';', class=o.player)
+            span.town.townMed(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px; background-color: '+ o.color + '; z-index: ' + zIndex, class=o.player)
           else
-            span.town(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px; background-color: '+ o.color + ';', class=o.player)
+            span.town(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px; background-color: '+ o.color + '; z-index: ' + zIndex, class=o.player)
           span.townInfo
             | #{o.name}
             br
@@ -80,11 +106,14 @@ block content
             | #{o.points}
             br
             | [town]#{o.id}[/town]
-
+        </div>
 
 block scripts
   script(type='text/javascript').
     var server = '#{server}';
+    var town = !{JSON.stringify(towns[0])};
+    var ally = !{JSON.stringify(options.ally)}
+    console.log(!{options.ally.indexOf(""+towns[0].alliance)});
   script(type='text/javascript', src='/js/tipped.js')
   script(type='text/javascript', src='/js/map.js')
   script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.min.js')

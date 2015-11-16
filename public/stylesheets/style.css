@@ -139,7 +139,11 @@ div.result span {
   margin-right: 15px;
 }
 
-.player input[type=text] {
+.color {
+  display: none;
+}
+
+.player .name {
   -webkit-tap-highlight-color: transparent;
   background-color: #fff;
   border-radius: 5px;
@@ -215,8 +219,8 @@ span.town {
   height: 8px;
   background-color: green;
   position: absolute;
-  border-radius: 4px;
-  border: #000 solid 1px;
+  border-radius: 5px;
+  border: #333 solid 1px;
   z-index: 100;
 }
 
@@ -228,7 +232,7 @@ span.ghost {
 span.townMed {
   width: 6px;
   height: 6px;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 span.townSmall {
