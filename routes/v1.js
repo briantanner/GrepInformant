@@ -275,9 +275,6 @@ exports.map = function (req, res) {
   ], function (err, data) {
     if (err) { return res.send(500, err); }
     data.towns = _.map(data.towns, function (o) {
-      // Island_X = x-coordinate from islands.txt * 128
-      // Island_Y = y-coordinate from islands.txt * 128 if x is even
-      // Island_Y = 64 + y-coordinate from islands.txt * 128 if x is odd
       if (!o.player) o.player = 'ghost';
       o.exactX = ( ((o.x * 128) + o.offsetx) / 128 );
       o.exactY = ( ((o.y * 128) + o.offsety) / 128 );// : ( (((64 + o.y) * 128) + o.offsety) / 128 );
@@ -289,6 +286,42 @@ exports.map = function (req, res) {
     if (allyId) { data.alliance = allyId; }
 
     return res.render('map', data);
+  });
+};
+
+exports.mapCanvas = function (req, res) {
+  var server = req.params.server,
+      id = req.params.id || req.query.id || req.query.q || null;
+
+  async.waterfall([
+
+    // get alliances
+    function (callback) {
+      var query = "select * from alliances order by rank asc";
+
+      dbQuery({ text: query }, function (err, result) {
+        if (err) { return callback(err); }
+        return callback(null, { alliances: result.rows });
+      });
+    },
+
+    function (data, callback) {
+      if (!id) { return callback(null, data); }
+      var query = util.format("select * from searches where id = '%s'", id);
+
+      dbQuery({ text: query }, function (err, result) {
+        if (err) { return callback(err); }
+        var row = result.rows[0];
+        data.options = JSON.parse(row.options);
+        return callback(null, data);
+      });
+    }
+
+  ], function (err, data) {
+    if (err) { return res.send(500, err); }
+    data.id = id;
+    data.server = server;
+    return res.render('mapCanvas', data);
   });
 };
 
@@ -344,4 +377,136 @@ exports.search = function (req, res) {
     return res.send(200, { id: id });
   });
 
+};
+
+exports.getMap = function (req, res) {
+  var server = req.params.server,
+      id = req.query.id || null;
+
+  async.waterfall([
+
+    // get alliances
+    function (callback) {
+      var query = "select * from alliances order by rank asc";
+
+      dbQuery({ text: query }, function (err, result) {
+        if (err) { return callback(err); }
+        return callback(null, { alliances: result.rows });
+      });
+    },
+
+    // get search data
+    function (data, callback) {
+      if (!id) { return callback(null, data); }
+      var query = util.format("select * from searches where id = '%s'", id);
+
+      dbQuery({ text: query }, function (err, result) {
+        if (err) { return callback(err); }
+        var row = result.rows[0];
+        data.options = JSON.parse(row.options);
+        return callback(null, data);
+      });
+    },
+
+    // map id/name to search options
+    function (data, callback) {
+      if (!id) { return callback(null, data); }
+      if (!data.options.player || data.options.player.length === 0) { return callback(null, data); }
+      var query = util.format("select id, name from players where id in (%s)", data.options.player.join(', '));
+
+      dbQuery({ text: query }, function (err, result) {
+        if (err) { return callback(err); }
+        var players = _.indexBy(result.rows, 'id');
+        
+        data.options.player = _.map(data.options.player, function (id) {
+          return {
+            id: id,
+            name: players[id].name
+          };
+        });
+
+        return callback(null, data);
+      });
+    },
+
+    // get towns from search params
+    function (data, callback) {
+      if (!id) { return callback(null, data); }
+      var ally = data.options.ally,
+          player = _.pluck(data.options.player, 'id'),
+          allyColor = data.options.allycolor,
+          playerColor = data.options.playercolor;
+
+      var query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, t.player as playerid, p.name as player, p.alliance, a.name as allyName, i.type, o.offsetx, o.offsety from towns t inner join players p on t.player = p.id";
+          query += " inner join islands i on t.x = i.x and t.y = i.y inner join offsets o on i.type = o.id and t.islandNo = o.pos left join alliances a on p.alliance = a.id";
+
+      if (ally.length) {
+        query += " where p.alliance in (" + ally.join(", ") + ")";
+      }
+      if (player.length) {
+        query += (ally.length) ? " or" : " where";
+        query += " t.player in (" + player.join(", ") + ")";
+      }
+      console.log(query);
+
+      dbQuery({ text: query }, function (err, result) {
+        if (err) { return callback(err); }
+        data.towns = result.rows;
+        
+        if (allyColor.length || playerColor.length) {
+          var allyColors = {},
+              playerColors = {};
+          
+          _.each(allyColor, function (color, i) {
+            allyColors[ally[i]] = color;
+          });
+          _.each(playerColor, function (color, i) {
+            playerColors[player[i]] = color;
+          });
+
+          data.towns = _.map(data.towns, function (o) {
+            o.color = '';
+
+            if (!allyColors[o.alliance] && !playerColors[o.playerid]) { return o; }
+            if (allyColors[o.alliance]) { o.color = allyColors[o.alliance]; }
+            if (playerColors[o.playerid]) { o.color = playerColors[o.playerid]; }
+
+            return o;
+          });
+        }
+
+        return callback(null, data);
+      });
+    },
+
+    // get ghosts
+    function (data, callback) {
+      var query = "select t.id, t.name, t.points, t.x, t.y, t.islandNo, t.player as playerid, p.name as player, p.alliance, i.type, o.offsetx, o.offsety from towns t left join players p on t.player = p.id";
+          query += " inner join islands i on t.x = i.x and t.y = i.y inner join offsets o on i.type = o.id and t.islandNo = o.pos";
+          query += " where t.player = 0 and t.points > 1200";
+
+      dbQuery({ text: query }, function (err, result) {
+        if (err) { return callback(err); }
+        data.towns = (data.towns && data.towns.length) ? data.towns.concat(result.rows) : result.rows;
+        return callback(null, data);
+      });
+    }
+
+  ], function (err, data) {
+    if (err) { return res.send(500, err); }
+    data.towns = _.map(data.towns, function (o) {
+      // Island_X = x-coordinate from islands.txt * 128
+      // Island_Y = y-coordinate from islands.txt * 128 if x is even
+      // Island_Y = 64 + y-coordinate from islands.txt * 128 if x is odd
+      if (!o.player) o.player = 'ghost';
+      o.exactX = ( ((o.x * 128) + o.offsetx) / 128 );
+      o.exactY = ( ((o.y * 128) + o.offsety) / 128 );// : ( (((64 + o.y) * 128) + o.offsety) / 128 );
+
+      return o;
+    });
+
+    data.server = server;
+
+    return res.send(200, data);
+  });
 };

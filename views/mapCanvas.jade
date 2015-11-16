@@ -1,7 +1,6 @@
 extends layout
 
 block styles
-  link(rel='stylesheet', href='/stylesheets/tipped.css')
   link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.min.css')
   link(rel='stylesheet', href='/stylesheets/nice-select.css')
   link(rel='stylesheet', href='/stylesheets/easy-autocomplete.min.css')
@@ -58,58 +57,16 @@ block content
             ul.players(style='display:none;')
         a.addPlayer(href='#') + Add Player
       input(type='submit', value='Generate Map')
-      
-  div.map-container
-    div.map
-      div.grid
-        - var v = 200
-        while (v < 2000)
-          span.line-vert(style='left: ' + v + 'px')
-          - v += 200
-        - var h = 200
-        while (h < 2000)
-          span.line-horz(style='top: ' + h + 'px')
-          - h += 200
-        - var num = ""
-        - for (var i = 0; i < 10; i++) {
-          - for (var n = 0; n < 10; n++) {
-            - num = n + "" + i
-            span.num(style='top: ' + (200*parseInt(i,10)+2) + 'px; left: ' + (200*parseInt(n,10)+2) + 'px;') #{num}
-            span.num(style='top: ' + (200*parseInt(i,10)+180) + 'px; left: ' + (200*parseInt(n,10)+180) + 'px;') #{num}
-            span.num(style='top: ' + (200*parseInt(i,10)+2) + 'px; left: ' + (200*parseInt(n,10)+180) + 'px;') #{num}
-            span.num(style='top: ' + (200*parseInt(i,10)+180) + 'px; left: ' + (200*parseInt(n,10)+2) + 'px;') #{num}
-          - }
-        - }
-      if towns
-        - var zIndex = 100;
-        <div class='townGroup1'>
-        each o, i in towns
-          if (options && options.ally)
-            - zIndex = 100 - options.ally.indexOf(""+o.alliance)
-          if (i % 100 === 0)
-            </div>
-            <div class='townGroup#{(i/100)+1}'>
-          if (o.points < 2000)
-            span.town.townSmall(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px; ' + ((o.color && o.color.length) ? 'background-color: ' + o.color : '') + '; z-index: ' + zIndex, class=o.player)
-          else if (o.points < 6000)
-            span.town.townMed(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px; ' + ((o.color && o.color.length) ? 'background-color: ' + o.color : '') + '; z-index: ' + zIndex, class=o.player)
-          else
-            span.town(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px; ' + ((o.color && o.color.length) ? 'background-color: ' + o.color : '') + '; z-index: ' + zIndex, class=o.player)
-          span.townInfo
-            | #{o.name}
-            br
-            | #{o.player}
-            br
-            | #{o.points}
-            br
-            | [town]#{o.id}[/town]
-        </div>
+
+  canvas#mapCanvas(width='2000', height='2000')
 
 block scripts
   script(type='text/javascript').
-    var server = '#{server}';
-  script(type='text/javascript', src='/js/tipped.js')
-  script(type='text/javascript', src='/js/map.js')
+    var server = '#{server}',
+        id = '#{id}';
+  script(type='text/javascript', src='https://code.createjs.com/preloadjs-0.6.1.min.js')
+  script(type='text/javascript', src='https://code.createjs.com/easeljs-0.8.1.min.js')
   script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.min.js')
   script(type='text/javascript', src='/js/jquery.nice-select.min.js')
   script(type='text/javascript', src='/js/jquery.easy-autocomplete.min.js')
+  script(type='text/javascript', src='/js/mapv2.js')

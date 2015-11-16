@@ -43,7 +43,7 @@ $(document).ready(function () {
   $('.optionsForm').on('submit', function (e) {
     e.preventDefault();
 
-    var url = '/v1/api/search';
+    var url = '/v1/api/' + server + '/search';
     
     $(this).find('.player .name').each(function () {
       $el = $(this);

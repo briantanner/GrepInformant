@@ -110,6 +110,7 @@ div.result span {
 
 .allyWrap, .playerWrap {
   margin: 0 15px 15px 0;
+  min-height: 65px;
 }
 
 .ally, .player {
@@ -243,4 +244,9 @@ span.townSmall {
 
 span.townInfo {
   display: none;
+}
+
+.nice-select .list {
+  max-height: 300px;
+  overflow: scroll;
 }
