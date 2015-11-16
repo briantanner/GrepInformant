@@ -343,7 +343,7 @@ $(document).ready(function() {
       url: url,
       data: data,
       success: function( response ) {
-        top.location.href = "/v2/" + server + "/map/" + response.id;
+        top.location.href = "/v1/" + server + "/map/" + response.id;
       }
     });
 
