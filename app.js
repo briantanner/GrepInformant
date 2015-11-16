@@ -53,6 +53,9 @@ app.get('/v1/:server/map/:playerId?', routes.v1.map);
 app.get('/v1/:server/offsets', routes.v1.offsets);
 app.get('/v1/:server/islands', routes.v1.islands);
 
+app.get('/v1/api/:server/autocomplete/:table', routes.v1.autocomplete);
+app.post('/v1/api/search', routes.v1.search);
+
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });

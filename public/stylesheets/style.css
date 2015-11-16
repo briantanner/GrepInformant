@@ -98,6 +98,86 @@ div.result span {
   clear: both;
 }
 
+.map-container {
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+}
+
+.options {
+  margin-bottom: 15px;
+}
+
+.allyWrap, .playerWrap {
+  margin: 0 15px 15px 0;
+}
+
+.ally, .player {
+  margin: 0 15px 15px 0;
+  float: left;
+}
+
+.allySelect {
+  height: 32px;
+  line-height: 30px;
+  margin-right: 15px;
+}
+
+.allySelect .option {
+  min-height: 30px;
+  line-height: 30px;
+}
+
+.addAlly, .addPlayer {
+  display: block;
+  clear: left;
+  width: 250px;
+}
+
+.easy-autocomplete {
+  float: left;
+  margin-right: 15px;
+}
+
+.player input[type=text] {
+  -webkit-tap-highlight-color: transparent;
+  background-color: #fff;
+  border-radius: 5px;
+  border: solid 1px #e8e8e8;
+  box-sizing: border-box;
+  font-size: 14px;
+  height: 32px;
+  line-height: 30px;
+  outline: none;
+  padding-left: 18px;
+  padding-right: 30px;
+  float: left;
+  display: block;
+}
+
+.players {
+    background: #f0f0f0;
+    position: relative;
+    top: -18px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding: 10px 0;
+    list-style-type: none;
+    border: solid 1px #ddd;
+}
+
+.players li {
+  height: 26px;
+  line-height: 26px;
+  color: #667;
+  cursor: pointer;
+  padding: 0 10px;
+}
+
+.players li:hover {
+  background-color: #fff;
+}
+
 .map {
   width: 2000px;
   height: 2000px;
@@ -109,7 +189,7 @@ span.line-vert {
   display: block;
   width: 1px;
   height: 2000px;
-  background: url('../images/linefff.png') repeat-y;
+  background-color: #fff;
   position: absolute;
   top: 0;
 }
@@ -121,6 +201,12 @@ span.line-horz {
   background: url('../images/linefff.png') repeat-x;
   position: absolute;
   left: 0;
+}
+
+span.num {
+  display: block;
+  position: absolute;
+  color: #fff;
 }
 
 span.town {

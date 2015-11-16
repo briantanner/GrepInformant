@@ -1,35 +1,92 @@
 extends layout
 
 block styles
-	link(rel='stylesheet', href='/stylesheets/tipped.css')
+  link(rel='stylesheet', href='/stylesheets/tipped.css')
+  link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.min.css')
+  link(rel='stylesheet', href='/stylesheets/nice-select.css')
+  link(rel='stylesheet', href='/stylesheets/easy-autocomplete.min.css')
 
 block content
-	div.map
-		- var v = 200
-		while (v < 2000)
-			span.line-vert(style='left: ' + v + 'px')
-			- v += 200
-		- var h = 200
-		while (h < 2000)
-			span.line-horz(style='top: ' + h + 'px')
-			- h += 200
-		if towns
-			each o in towns
-				if (o.points < 2000)
-					span.town.townSmall(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px;', class=o.player)
-				else if (o.points < 6000)
-					span.town.townMed(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px;', class=o.player)
-				else
-					span.town(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px;', class=o.player)
-				span.townInfo
-					| #{o.name}
-					br
-					| #{o.player}
-					br
-					| #{o.points}
-					br
-					| [town]#{o.id}[/town]
+  script(type='text/template', id='playerTemplate')
+    div.player
+      input.name(type='text', name='player[]', placeholder='Player Name')
+      input(class='color startEmpty', type='text', name='playercolor[]', value='', autocomplete='off')
+      ul.players(style='display:none;')
+  script(type='text/template', id='allyTemplate')
+    div.ally
+      select.allySelect(name='ally[]')
+        option(value='') Select Alliance
+        each o in alliances
+          if (parseInt(alliance,10) === parseInt(o.id,10))
+            option(value=o.id, selected='selected') #{o.name} (#{o.rank})
+          else
+            option(value=o.id) #{o.name} (#{o.rank})
+      input(class='color startEmpty', type='text', name='allycolor[]', value='', autocomplete='off')
+
+  div.options
+    form.optionsForm(method='get', action='/v1/'+server+'/map', autocomplete='off')
+      div.allyWrap
+        div.ally
+          select.allySelect(name='ally[]')
+            option(value='') Select Alliance
+            each o in alliances
+              if (parseInt(alliance,10) === parseInt(o.id,10))
+                option(value=o.id, selected='selected') #{o.name} (#{o.rank})
+              else
+                option(value=o.id) #{o.name} (#{o.rank})
+          input(class='color startEmpty', type='text', name='allycolor[]', value='', autocomplete='off')
+        a.addAlly(href='#') + Add Alliance
+        span.clear
+      div.playerWrap
+        div.player
+          input.name(type='text', name='player[]', placeholder='Player Name')
+          input(class='color startEmpty', type='text', name='playercolor[]', value='', autocomplete='off')
+          ul.players(style='display:none;')
+        a.addPlayer(href='#') + Add Player
+      input(type='submit', value='Generate Map')
+  div.map-container
+    div.map
+      - var v = 200
+      while (v < 2000)
+        span.line-vert(style='left: ' + v + 'px')
+        - v += 200
+      - var h = 200
+      while (h < 2000)
+        span.line-horz(style='top: ' + h + 'px')
+        - h += 200
+      - var num = ""
+      - for (var i = 0; i < 10; i++) {
+        - for (var n = 0; n < 10; n++) {
+          - num = n + "" + i
+          span.num(style='top: ' + (200*parseInt(i,10)+2) + 'px; left: ' + (200*parseInt(n,10)+2) + 'px;') #{num}
+          span.num(style='top: ' + (200*parseInt(i,10)+180) + 'px; left: ' + (200*parseInt(n,10)+180) + 'px;') #{num}
+          span.num(style='top: ' + (200*parseInt(i,10)+2) + 'px; left: ' + (200*parseInt(n,10)+180) + 'px;') #{num}
+          span.num(style='top: ' + (200*parseInt(i,10)+180) + 'px; left: ' + (200*parseInt(n,10)+2) + 'px;') #{num}
+        - }
+      - }
+      if towns
+        each o in towns
+          if (o.points < 2000)
+            span.town.townSmall(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px; background-color: '+o.color + ';', class=o.player)
+          else if (o.points < 6000)
+            span.town.townMed(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px; background-color: '+o.color + ';', class=o.player)
+          else
+            span.town(style='left: ' + (o.exactX * 2) + 'px; top: ' + (o.exactY * 2) + 'px; background-color: '+o.color + ';', class=o.player)
+          span.townInfo
+            | #{o.name}
+            br
+            | #{o.player}
+            br
+            | #{o.points}
+            br
+            | [town]#{o.id}[/town]
+
 
 block scripts
-	script(type='text/javascript', src='/js/tipped.js')
-	script(type='text/javascript', src='/js/map.js')
+  script(type='text/javascript').
+    var server = '#{server}';
+  script(type='text/javascript', src='/js/tipped.js')
+  script(type='text/javascript', src='/js/map.js')
+  script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.min.js')
+  script(type='text/javascript', src='/js/jquery.nice-select.min.js')
+  script(type='text/javascript', src='/js/jquery.easy-autocomplete.min.js')
