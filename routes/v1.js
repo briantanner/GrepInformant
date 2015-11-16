@@ -315,6 +315,26 @@ exports.mapCanvas = function (req, res) {
         data.options = JSON.parse(row.options);
         return callback(null, data);
       });
+    },
+
+    function (data, callback) {
+      if (!id) { return callback(null, data); }
+      if (!data.options.player || data.options.player.length === 0) { return callback(null, data); }
+      var query = util.format("select id, name from players where id in (%s)", data.options.player.join(', '));
+
+      dbQuery({ text: query }, function (err, result) {
+        if (err) { return callback(err); }
+        var players = _.indexBy(result.rows, 'id');
+        
+        data.options.player = _.map(data.options.player, function (id) {
+          return {
+            id: id,
+            name: players[id].name
+          };
+        });
+
+        return callback(null, data);
+      });
     }
 
   ], function (err, data) {
