@@ -26,7 +26,7 @@ block content
   div.options
     form.optionsForm(method='get', action='/v1/'+server+'/map', autocomplete='off')
       div.allyWrap
-        if options.ally && options.ally.length
+        if options && options.ally && options.ally.length
           each id, i in options.ally
             div.ally
               select.allySelect(name='ally[]')
@@ -50,7 +50,7 @@ block content
         a.addAlly(href='#') + Add Alliance
         span.clear
       div.playerWrap
-        if options.player && options.player.length
+        if options && options.player && options.player.length
           each o, i in options.player
             div.player
               input.name(type='text', name='player[]', placeholder='Player Name', value= o.name)
@@ -88,7 +88,8 @@ block content
         - var zIndex = 100;
         <div class='townGroup1'>
         each o, i in towns
-          - zIndex = 100 - options.ally.indexOf(""+o.alliance)
+          if (options && options.ally)
+            - zIndex = 100 - options.ally.indexOf(""+o.alliance)
           if (i % 100 === 0)
             </div>
             <div class='townGroup#{(i/100)+1}'>
@@ -111,9 +112,6 @@ block content
 block scripts
   script(type='text/javascript').
     var server = '#{server}';
-    var town = !{JSON.stringify(towns[0])};
-    var ally = !{JSON.stringify(options.ally)}
-    console.log(!{options.ally.indexOf(""+towns[0].alliance)});
   script(type='text/javascript', src='/js/tipped.js')
   script(type='text/javascript', src='/js/map.js')
   script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.min.js')
