@@ -1,4 +1,5 @@
-var MapInstance;
+var MapInstance,
+    players = {};
 
 var Map = function (id) {
   this.stage = null;
@@ -285,10 +286,15 @@ Map.prototype.getTowns = function (callback) {
 };
 
 $(document).ready(function() {
-  var players = {};
 
   MapInstance = new Map(id);
   MapInstance.init();
+
+  if (playersArray.length) {
+    $.each(playersArray, function (i, o) {
+      players[o.name] = o.id;
+    });
+  }
 
   function loadColorPicker($el) {
     $el.spectrum({

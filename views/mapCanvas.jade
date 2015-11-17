@@ -63,7 +63,8 @@ block content
 block scripts
   script(type='text/javascript').
     var server = '#{server}',
-        id = '#{id}';
+        id = '#{id}',
+        playersArray = !{(options.player.length) ? JSON.stringify(options.player) : "''"};
   script(type='text/javascript', src='https://code.createjs.com/preloadjs-0.6.1.min.js')
   script(type='text/javascript', src='https://code.createjs.com/easeljs-0.8.1.min.js')
   script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.min.js')
