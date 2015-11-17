@@ -1,5 +1,6 @@
 var MapInstance,
-    players = {};
+    players = {},
+    selectedPlayers = [];
 
 var Map = function (id) {
   this.stage = null;
@@ -165,7 +166,8 @@ Map.prototype.drawTowns = function (data) {
     $.each(group, function (i, o) {
       var circle = new createjs.Shape(),
           color = (o.player !== 'ghost') ? o.color || "#FFF" : '#808080',
-          radius = (o.points < 6000) ? (o.points < 2000) ? 3 : 4.5 : 5.5;
+          radius = (o.points < 6000) ? (o.points < 2000) ? 3 : 4.5 : 5.5,
+          alpha = 1;
 
       // convert hsva to hsla, set alpha for transparency
       if (color.indexOf('hsv') !== -1) {
@@ -188,7 +190,6 @@ Map.prototype.drawTowns = function (data) {
       circle.graphics.setStrokeStyle(1).beginStroke('#333').beginFill(color).drawCircle(0,0,radius);
       circle.x = o.exactX * this.options.zoom;
       circle.y = o.exactY * this.options.zoom;
-      // circle.alpha = alpha;
 
       circle.on('rollover', function (town, evt) {
         evt.target.scaleX = evt.target.scaleY = 1.2;
@@ -200,8 +201,15 @@ Map.prototype.drawTowns = function (data) {
         this.destroyTooltop(town);
         this.update();
       }.bind(this, o));
-      
-      container.addChild(circle);
+
+      // Add selected players outside of the alliance container
+      if (selectedPlayers.indexOf(parseInt(o.playerid,10)) !== -1) {
+        circle.alpha = alpha;
+        console.log(alpha);
+        this.stage.addChild(circle);
+      } else {
+        container.addChild(circle);
+      }
     }.bind(this));
 
   }.bind(this));
@@ -293,7 +301,9 @@ $(document).ready(function() {
   if (playersArray.length) {
     $.each(playersArray, function (i, o) {
       players[o.name] = o.id;
+      selectedPlayers.push(parseInt(o.id,10));
     });
+    console.log(selectedPlayers);
   }
 
   function loadColorPicker($el) {
