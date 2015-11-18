@@ -22,11 +22,9 @@ var pgConfig = {
   ssl: true
 };
 
-function parseName(name) {
-  return urlencode.decode(name).replace(/\+/g, ' ');
-}
+var Data = {};
 
-function dbQuery (query, callback) {
+Data.query = function (query, callback) {
 
   pg.connect(pgConfig, function (err, client, done) {
     var handleError = function (err, callback) {
@@ -41,21 +39,17 @@ function dbQuery (query, callback) {
 
     if (handleError(err, callback)) return;
 
-    client.query(query, function (err, result) {
+    client.query({ text: query }, function (err, result) {
       if (err) { return callback(err); }
+      
       done();
       pg.end();
-      return callback(null, result);
+      
+      if (!result.rows)
+        return callback(null, result);
+
+      return callback(null, result.rows);
     });
-  });
-}
-
-var Data = {};
-
-Data.query = function (query, callback) {
-  dbQuery({ text: query }, function (err, result) {
-    if (err) { return callback(err); }
-    return callback(null, result.rows);
   });
 };
 
@@ -133,7 +127,7 @@ Data.islands = function (options, callback) {
   if (!options.where || (options.x && options.y))
     return callback('Missing required arguments.')
 
-  dbQuery({ text: query }, callback);
+  this.query(query, callback);
 };
 
 Data.players = function (options, callback) {
@@ -150,7 +144,7 @@ Data.players = function (options, callback) {
 
   query += " order by rank asc";
 
-  dbQuery({ text: query }, function (err, result) {
+  this.query(query, function (err, result) {
     if (err) { return res.send(500, err); }
     return res.send(200, result);
   });
@@ -161,6 +155,12 @@ Data.searches = function (options, callback) {
 
   if (options.id)
     query += util.format(" where id = '%s'", options.id);
+
+  this.query(query, callback);
+};
+
+Data.offsets = function (options, callback) {
+  var query = "select * from offsets";
 
   this.query(query, callback);
 };
@@ -417,7 +417,7 @@ exports.mapCanvas = function (req, res) {
 
       var query = util.format("select id, name from players where id in (%s)", data.options.player.join(', '));
 
-      dbQuery({ text: query }, function (err, result) {
+      Data.query(query, function (err, result) {
         if (err) { return callback(err); }
         var players = _.indexBy(result.rows, 'id');
         
@@ -448,9 +448,7 @@ exports.mapCanvas = function (req, res) {
 };
 
 exports.offsets = function (req, res) {
-  var query = "select * from offsets";
-
-  dbQuery({ text: query }, function (err, result) {
+  Data.offsets({}, function (err, result) {
     if (err) { return res.send(500, err); }
     return res.send(200, result);
   });
