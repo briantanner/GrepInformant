@@ -12,13 +12,15 @@ block content
       input.name(type='text', name='player[]', placeholder='Player Name')
       input(class='color startEmpty', type='text', name='playercolor[]', value='', autocomplete='off')
       ul.players(style='display:none;')
+      //- a.delete(href='#') Remove Player
   script(type='text/template', id='allyTemplate')
-    div.ally
-      select.allySelect(name='ally[]')
-        option(value='') Select Alliance
-        each o in alliances
-          option(value=o.id) #{o.name} (#{o.rank})
-      input(class='color startEmpty', type='text', name='allycolor[]', value='', autocomplete='off')
+    if alliances
+      div.ally
+        select.allySelect(name='ally[]')
+          option(value='') Select Alliance
+          each o in alliances
+            option(value=o.id) #{o.name} (#{o.rank})
+        input(class='color startEmpty', type='text', name='allycolor[]', value='', autocomplete='off')
 
   div.options
     form.optionsForm(method='get', action='/v1/'+server+'/map', autocomplete='off')
@@ -35,26 +37,29 @@ block content
                     option(value=o.id) #{o.name} (#{o.rank})
               input(class='color startEmpty', type='text', name='allycolor[]', value= (options.allycolor && options.allycolor[i]) ? options.allycolor[i] : '', autocomplete='off')
         else
-          div.ally
-            select.allySelect(name='ally[]')
-              option(value='') Select Alliance
-              each o in alliances
-                option(value=o.id) #{o.name} (#{o.rank})
-            input(class='color startEmpty', type='text', name='allycolor[]', value='', autocomplete='off')
-        a.addAlly(href='#') + Add Alliance
-        span.clear
+          if alliances
+            div.ally
+              select.allySelect(name='ally[]')
+                option(value='') Select Alliance
+                each o in alliances
+                  option(value=o.id) #{o.name} (#{o.rank})
+              input(class='color startEmpty', type='text', name='allycolor[]', value='', autocomplete='off')
+            a.addAlly(href='#') + Add Alliance
+            span.clear
       div.playerWrap
         if options && options.player && options.player.length
           each o, i in options.player
             div.player
-              input.name(type='text', name='player[]', placeholder='Player Name', value= o.name)
+              input.name(type='text', name='player[]', placeholder='Player Name', value= o.name, disabled='disabled')
               input(class='color startEmpty', type='text', name='playercolor[]', value=(options.playercolor && options.playercolor[i]) ? options.playercolor[i] : '', autocomplete='off')
               ul.players(style='display:none;')
+              //- a.delete(href='#') Remove Player
         else
           div.player
             input.name(type='text', name='player[]', placeholder='Player Name')
             input(class='color startEmpty', type='text', name='playercolor[]', value='', autocomplete='off')
             ul.players(style='display:none;')
+            //- a.delete(href='#') Remove Player
         a.addPlayer(href='#') + Add Player
       input(type='submit', value='Generate Map')
 
@@ -64,7 +69,7 @@ block scripts
   script(type='text/javascript').
     var server = '#{server}',
         id = '#{id}',
-        playersArray = !{(options.player.length) ? JSON.stringify(options.player) : "''"};
+        playersArray = !{(options && options.player.length) ? JSON.stringify(options.player) : "''"};
   script(type='text/javascript', src='https://code.createjs.com/preloadjs-0.6.1.min.js')
   script(type='text/javascript', src='https://code.createjs.com/easeljs-0.8.1.min.js')
   script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.min.js')

@@ -318,54 +318,6 @@ $(document).ready(function() {
     $el.niceSelect();
   }
 
-  $('.addAlly').on('click', function (e) {
-    e.preventDefault();
-    var $parent = $(this).prev('.ally'),
-        $div = $($('#allyTemplate').html());
-    $parent.after($div);
-    loadSelector($div.find('select'));
-    loadColorPicker($div.find('.color'));
-  });
-
-  $('.addPlayer').on('click', function (e) {
-    e.preventDefault();
-    var $parent = $(this).prev('.player'),
-        $div = $($('#playerTemplate').html());
-    $parent.after($div);
-    loadAutoComplete($div.find('input.name'));
-    loadColorPicker($div.find('.color'));
-  });
-
-  $('.optionsForm').on('submit', function (e) {
-    e.preventDefault();
-
-    var url = '/v1/api/' + server + '/search';
-    
-    $(this).find('.player .name').each(function () {
-      $el = $(this);
-      $el.attr('data-value', $el.val());
-      $el.val(players[$el.val()]);
-    });
-    
-    var data = $(this).serialize();
-    
-    $(this).find('.player .name').each(function () {
-      $el = $(this);
-      $el.val($el.attr('data-value'));
-    });
-
-    $.ajax( {
-      type: "POST",
-      url: url,
-      data: data,
-      success: function( response ) {
-        top.location.href = "/v1/" + server + "/map/" + response.id;
-      }
-    });
-
-    return false;
-  });
-
   function loadAutoComplete($el) {
     var options = {
 
@@ -399,9 +351,74 @@ $(document).ready(function() {
     $el.easyAutocomplete(options);
   }
 
+  function addRemovePlayer($parent) {
+    var $delete = $("<a href='#' class='delete'>Remove Player</a>");
+
+    $parent.append($delete);
+
+    $delete.on('click', function (e) {
+      e.preventDefault();
+      $(this).closest('.player').remove();
+    });
+  }
+
+  $('.addAlly').on('click', function (e) {
+    e.preventDefault();
+    var $parent = $(this).prev('.ally'),
+        $div = $($('#allyTemplate').html());
+    $parent.after($div);
+    loadSelector($div.find('select'));
+    loadColorPicker($div.find('.color'));
+  });
+
+  $('.addPlayer').on('click', function (e) {
+    e.preventDefault();
+    var $parent = $(this).prev('.player'),
+        $div = $($('#playerTemplate').html());
+
+    $parent.after($div);
+    loadAutoComplete($div.find('input.name'));
+    loadColorPicker($div.find('.color'));
+    addRemovePlayer($div);
+  });
+
+  $('.optionsForm').on('submit', function (e) {
+    e.preventDefault();
+
+    var url = '/v1/api/' + server + '/search';
+    
+    $(this).find('.player .name').each(function () {
+      $el = $(this);
+      $el.attr('data-value', $el.val());
+      $el.val(players[$el.val()]);
+    });
+    
+    var data = $(this).serialize();
+    
+    $(this).find('.player .name').each(function () {
+      $el = $(this);
+      $el.val($el.attr('data-value'));
+    });
+
+    $.ajax( {
+      type: "POST",
+      url: url,
+      data: data,
+      success: function( response ) {
+        top.location.href = "/v1/" + server + "/map/" + response.id;
+      }
+    });
+
+    return false;
+  });
+
   loadSelector($('select'));
   loadAutoComplete($('.player .name'));
   loadColorPicker($('.color'));
+  
+  $('.player').each(function() {
+    addRemovePlayer($(this));
+  });
 
 });
 

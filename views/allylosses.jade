@@ -3,10 +3,12 @@ extends layout
 block content
   h1= title
   h3 Cities Lost: #{totalLosses}
-  each o in lossCount
-    p
-      strong #{o.ally} - #{o.count}
-  if conquers
+  ol
+    each o in lossCount
+      li 
+        span(style='display: inline-block; min-width: 150px; margin-right: 10px;') #{o.ally} :
+        | #{o.count}
+  if losses
     table
       tr
         td <strong>Time</strong>
@@ -15,20 +17,20 @@ block content
         td <strong>Old Player</strong>
         td
           a(href="#", style="font-size: 10px; text-decoration: none; color: orange; float: right;", onclick="$('.townBb').toggle(); $('.townName').toggle(); $('.newPlayerBb').toggle(); $('.newPlayer').toggle(); $('.oldPlayerBb').toggle(); $('.oldPlayer').toggle(); $('.bbcodeLink').toggle(); return false;") bbcode all
-      each o in conquers
+      each o in losses
         tr
           td #{o.time}
           td 
-            span.townName(class='townName' + o.townId) #{o.town} 
-            span.townBb(class='townBb' + o.townId, style="display:none;") [town]#{o.townId}[/town] 
+            span.townName(class='townName' + o.town) #{o.townname} 
+            span.townBb(class='townBb' + o.town, style="display:none;") [town]#{o.town}[/town] 
             span.points (#{o.points} points) 
           td 
-            span.newPlayer(class='newPlayer' + o.newPlayerId + o.townId) #{o.newPlayer} 
-            span.newPlayerBb(class='newPlayerBb' + o.newPlayerId + o.townId, style="display:none;") [player]#{o.newPlayer}[/player] 
-            span.alliance (#{o.newAlly})
+            span.newPlayer(class='newPlayer' + o.newplayerid + o.town) #{o.newplayer} 
+            span.newPlayerBb(class='newPlayerBb' + o.newplayerid + o.town, style="display:none;") [player]#{o.newplayerid}[/player] 
+            span.alliance (#{o.newally})
           td
-            span.oldPlayer(class='oldPlayer' + o.oldPlayerId + o.townId) #{o.oldPlayer} 
-            span.oldPlayerBb(class='oldPlayerBb' + o.oldPlayerId + o.townId, style="display:none;") [player]#{o.oldPlayer}[/player] 
-            span.alliance (#{o.oldAlly})
+            span.oldPlayer(class='oldPlayer' + o.oldplayerid + o.town) #{o.oldplayer} 
+            span.oldPlayerBb(class='oldPlayerBb' + o.oldplayerid + o.town, style="display:none;") [player]#{o.oldplayerid}[/player] 
+            span.alliance (#{o.oldally})
           td
-            a.bbcodeLink(href="#", style="font-size: 10px; text-decoration: none; color: orange; float: right;", onclick="$('.townBb#{o.townId}').toggle(); $('.townName#{o.townId}').toggle(); $('.newPlayerBb#{o.newPlayerId}#{o.townId}').toggle(); $('.newPlayer#{o.newPlayerId}#{o.townId}').toggle(); $('.oldPlayerBb#{o.oldPlayerId}#{o.townId}').toggle(); $('.oldPlayer#{o.oldPlayerId}#{o.townId}').toggle(); return false;") bbcode
+            a.bbcodeLink(href="#", style="font-size: 10px; text-decoration: none; color: orange; float: right;", onclick="$('.townBb#{o.town}').toggle(); $('.townName#{o.town}').toggle(); $('.newPlayerBb#{o.newplayerid}#{o.town}').toggle(); $('.newPlayer#{o.newplayerid}#{o.town}').toggle(); $('.oldPlayerBb#{o.oldplayerid}#{o.town}').toggle(); $('.oldPlayer#{o.oldplayerid}#{o.town}').toggle(); return false;") bbcode

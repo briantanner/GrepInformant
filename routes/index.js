@@ -80,7 +80,6 @@ exports.towns = function (req, res) {
 
     return res.send(200, towns);
   });
-
 };
 
 exports.islands = function (req, res) {
@@ -99,7 +98,6 @@ exports.players = function (req, res) {
     if (err) { return res.send(500, err); }
     return res.send(200, data);
   });
-
 };
 
 exports.playerStats = function (req, res) {
@@ -110,7 +108,6 @@ exports.playerStats = function (req, res) {
     if (err) { return res.send(500, err); }
     return res.send(200, data);
   });
-
 };
 
 exports.alliances = function (req, res) {
@@ -120,7 +117,6 @@ exports.alliances = function (req, res) {
     if (err) { return res.send(500, err); }
     return res.send(200, data);
   });
-
 };
 
 exports.conquers = function (req, res) {
@@ -130,7 +126,6 @@ exports.conquers = function (req, res) {
     if (err) { return res.send(500, err); }
     return res.send(200, data);
   });
-
 };
 
 exports.alliancePlayers = function (req, res) {
@@ -142,7 +137,6 @@ exports.alliancePlayers = function (req, res) {
     data = _.filter(data, function (o) { return parseInt(o.alliance,10) == alliance; });
     return res.send(200, data);
   });
-
 };
 
 exports.battleGroupIds = function (req, res) {
@@ -250,7 +244,6 @@ exports.allianceConquers = function (req, res) {
 
       return res.render('allyconquers', _.extend(defaults, data));
     });
-
 };
 
 exports.allianceLosses = function (req, res) {
@@ -407,7 +400,7 @@ exports.bgConquers = function (req, res) {
       }.bind(data));
     },
 
-    function  (data, callback) {
+    function (data, callback) {
       _.map(data.conquers, function (battleGroup, i) {
         battleGroup.total = bgConquers[i];
         battleGroup.players = config.battlegroups[--i].join(', ');
@@ -454,7 +447,6 @@ exports.bgConquers = function (req, res) {
 
       return res.render('bgconquers', _.extend(defaults, data));
     });
-
 };
 
 exports.sharedIslands = function (req, res) {
@@ -542,7 +534,6 @@ exports.sharedIslands = function (req, res) {
     if (err) { return res.send(500, err); }
     return res.send(200, data);
   });
-
 };
 
 exports.compare = function (req, res) {

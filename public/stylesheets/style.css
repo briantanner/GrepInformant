@@ -140,6 +140,10 @@ div.result span {
   margin-right: 15px;
 }
 
+.easy-autocomplete-container {
+  top: 32px;
+}
+
 .color {
   display: none;
 }
@@ -160,7 +164,7 @@ div.result span {
   display: block;
 }
 
-.players {
+ul.players {
     background: #f0f0f0;
     position: relative;
     top: -18px;
@@ -171,7 +175,7 @@ div.result span {
     border: solid 1px #ddd;
 }
 
-.players li {
+ul.players li {
   height: 26px;
   line-height: 26px;
   color: #667;
@@ -179,8 +183,15 @@ div.result span {
   padding: 0 10px;
 }
 
-.players li:hover {
+ul.players li:hover {
   background-color: #fff;
+}
+
+.player a.delete {
+  clear: left;
+  display: block;
+  font-size: 10px;
+  text-decoration: none;
 }
 
 .map {
