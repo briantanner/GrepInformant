@@ -44,8 +44,8 @@ block content
                 each o in alliances
                   option(value=o.id) #{o.name} (#{o.rank})
               input(class='color startEmpty', type='text', name='allycolor[]', value='', autocomplete='off')
-            a.addAlly(href='#') + Add Alliance
-            span.clear
+        a.addAlly(href='#') + Add Alliance
+        span.clear
       div.playerWrap
         if options && options.player && options.player.length
           each o, i in options.player

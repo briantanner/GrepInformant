@@ -208,6 +208,7 @@ Map.prototype.drawTowns = function (data) {
         this.update();
       }.bind(this, o));
 
+      // this.towns[o.id] = circle;
       // Add selected players outside of the alliance container
       if (this.selectedPlayers.indexOf(parseInt(o.playerid,10)) !== -1) {
         circle.alpha = alpha;
