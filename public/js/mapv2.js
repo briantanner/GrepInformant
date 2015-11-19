@@ -1,10 +1,12 @@
-var MapInstance,
-    players = {},
-    selectedPlayers = [];
+function App() {
+  this.players = {};
+  return this;
+}
 
 var Map = function (id) {
   this.stage = null;
   this.towns = {};
+  this.selectedPlayers = [],
   this.tooltips = {};
   this.townsContainer = null;
   this.gridContainer = null;
@@ -107,7 +109,7 @@ Map.prototype.drawGrid = function () {
       textOffsetLeft = this.options.zoom,
       textOffsetRight = spacing - 20,
       canvasBottom = 1000 * this.options.zoom,
-      line, text;
+      line, text, bounds;
 
   // draw vertical lines
   for (var i = spacing; i < canvasBottom; i += spacing) {
@@ -127,14 +129,17 @@ Map.prototype.drawGrid = function () {
   for (var i = 0; i < 10; i++) {
     for (var n = 0; n < 10; n++) {
       num = n + "" + i;
-      this.drawText(container, num, "14px Helvetica", "#fff", (spacing * parseInt(n,10) + textOffsetLeft),   (spacing * parseInt(i,10) + textOffsetLeft));
+      this.drawText(container, num, "14px Helvetica", "#fff", (spacing * parseInt(n,10) + textOffsetLeft),  (spacing * parseInt(i,10) + textOffsetLeft));
       this.drawText(container, num, "14px Helvetica", "#fff", (spacing * parseInt(n,10) + textOffsetRight), (spacing * parseInt(i,10) + textOffsetRight));
       this.drawText(container, num, "14px Helvetica", "#fff", (spacing * parseInt(n,10) + textOffsetRight), (spacing * parseInt(i,10) + textOffsetLeft));
-      this.drawText(container, num, "14px Helvetica", "#fff", (spacing * parseInt(n,10) + textOffsetLeft),   (spacing * parseInt(i,10) + textOffsetRight));
+      this.drawText(container, num, "14px Helvetica", "#fff", (spacing * parseInt(n,10) + textOffsetLeft),  (spacing * parseInt(i,10) + textOffsetRight));
     }
   }
 
   this.stage.addChild(container);
+  // bounds = container.getBounds();
+  // container.cache(0, 0, bounds.x, bounds.y);
+
   this.resize = true;
   this.update();
 };
@@ -167,7 +172,8 @@ Map.prototype.drawTowns = function (data) {
       var circle = new createjs.Shape(),
           color = (o.player !== 'ghost') ? o.color || "#FFF" : '#808080',
           radius = (o.points < 6000) ? (o.points < 2000) ? 3 : 4.5 : 5.5,
-          alpha = 1;
+          alpha = 1,
+          bounds;
 
       // convert hsva to hsla, set alpha for transparency
       if (color.indexOf('hsv') !== -1) {
@@ -203,9 +209,8 @@ Map.prototype.drawTowns = function (data) {
       }.bind(this, o));
 
       // Add selected players outside of the alliance container
-      if (selectedPlayers.indexOf(parseInt(o.playerid,10)) !== -1) {
+      if (this.selectedPlayers.indexOf(parseInt(o.playerid,10)) !== -1) {
         circle.alpha = alpha;
-        console.log(alpha);
         this.stage.addChild(circle);
       } else {
         container.addChild(circle);
@@ -290,137 +295,148 @@ Map.prototype.getTowns = function (callback) {
       return callback(null, response);
     }
   });
-
 };
 
-$(document).ready(function() {
+App.prototype.Map = Map;
 
-  MapInstance = new Map(id);
-  MapInstance.init();
+function UI() {
+  this.players = {};
+  return this;
+}
 
-  if (playersArray.length) {
-    $.each(playersArray, function (i, o) {
-      players[o.name] = o.id;
-      selectedPlayers.push(parseInt(o.id,10));
-    });
-    console.log(selectedPlayers);
-  }
-
-  function loadColorPicker($el) {
-    $el.spectrum({
-      allowEmpty: true,
-      showAlpha: true,
-      showPalette: true
-    });
-  }
-
-  function loadSelector($el) {
-    $el.niceSelect();
-  }
-
-  function loadAutoComplete($el) {
-    var options = {
-
-      url: function(val) {
-        return "/v1/api/" + server + "/autocomplete/players?input=" + encodeURI(val);
-      },
-
-      getValue: function(element) {
-        if (!players[element.name]) {
-          players[element.name] = element.id;
-        }
-        return element.name;
-      },
-
-      ajaxSettings: {
-        dataType: "json",
-        method: "GET",
-        data: {
-          dataType: "json"
-        }
-      },
-
-      preparePostData: function(data) {
-        data.phrase = $el.val();
-        return data;
-      },
-
-      requestDelay: 400
-    };
-
-    $el.easyAutocomplete(options);
-  }
-
-  function addRemovePlayer($parent) {
-    var $delete = $("<a href='#' class='delete'>Remove Player</a>");
-
-    $parent.append($delete);
-
-    $delete.on('click', function (e) {
-      e.preventDefault();
-      $(this).closest('.player').remove();
-    });
-  }
-
-  $('.addAlly').on('click', function (e) {
-    e.preventDefault();
-    var $parent = $(this).prev('.ally'),
-        $div = $($('#allyTemplate').html());
-    $parent.after($div);
-    loadSelector($div.find('select'));
-    loadColorPicker($div.find('.color'));
+UI.prototype.loadColorPicker = function ($el) {
+  $el.spectrum({
+    allowEmpty: true,
+    showAlpha: true,
+    showPalette: true
   });
+};
 
-  $('.addPlayer').on('click', function (e) {
-    e.preventDefault();
-    var $parent = $(this).prev('.player'),
-        $div = $($('#playerTemplate').html());
+UI.prototype.loadSelector = function ($el) {
+  // load select dropdown
+  $el.niceSelect();
+};
 
-    $parent.after($div);
-    loadAutoComplete($div.find('input.name'));
-    loadColorPicker($div.find('.color'));
-    addRemovePlayer($div);
-  });
+UI.prototype.loadAutoComplete = function ($el) {
+  var options = {
 
-  $('.optionsForm').on('submit', function (e) {
-    e.preventDefault();
+    url: function(val) {
+      return "/v1/api/" + server + "/autocomplete/players?input=" + encodeURI(val);
+    },
 
-    var url = '/v1/api/' + server + '/search';
-    
-    $(this).find('.player .name').each(function () {
-      $el = $(this);
-      $el.attr('data-value', $el.val());
-      $el.val(players[$el.val()]);
-    });
-    
-    var data = $(this).serialize();
-    
-    $(this).find('.player .name').each(function () {
-      $el = $(this);
-      $el.val($el.attr('data-value'));
-    });
-
-    $.ajax( {
-      type: "POST",
-      url: url,
-      data: data,
-      success: function( response ) {
-        top.location.href = "/v1/" + server + "/map/" + response.id;
+    getValue: function(element) {
+      if (!this.players[element.name]) {
+        this.players[element.name] = element.id;
       }
+      return element.name;
+    }.bind(this),
+
+    ajaxSettings: {
+      dataType: "json",
+      method: "GET",
+      data: {
+        dataType: "json"
+      }
+    },
+
+    preparePostData: function(data) {
+      data.phrase = $el.val();
+      return data;
+    },
+
+    requestDelay: 400
+  };
+
+  $el.easyAutocomplete(options);
+};
+
+UI.prototype.addRemovePlayer = function ($parent) {
+  var $delete = $("<a href='#' class='delete'>Remove Player</a>");
+
+  $parent.append($delete);
+
+  $delete.on('click', function (e) {
+    e.preventDefault();
+    $(this).closest('.player').remove();
+  });
+};
+
+App.prototype.UI = UI;
+
+(function (App) {
+  $(document).ready(function() {
+    var Map = new App.Map(id),
+        UI = new App.UI();
+
+    Map.init();
+
+    if (playersArray.length) {
+      $.each(playersArray, function (i, o) {
+        UI.players[o.name] = o.id;
+        Map.selectedPlayers.push(parseInt(o.id,10));
+      });
+    }
+
+    $('.addAlly').on('click', function (e) {
+      e.preventDefault();
+      var $parent = $(this).prev('.ally'),
+          $div = $($('#allyTemplate').html());
+      
+      $parent.after($div);
+      UI.loadSelector($div.find('select'));
+      UI.loadColorPicker($div.find('.color'));
     });
 
-    return false;
-  });
+    $('.addPlayer').on('click', function (e) {
+      e.preventDefault();
+      var $parent = $(this).prev('.player'),
+          $div = $($('#playerTemplate').html());
 
-  loadSelector($('select'));
-  loadAutoComplete($('.player .name'));
-  loadColorPicker($('.color'));
-  
-  $('.player').each(function() {
-    addRemovePlayer($(this));
-  });
+      $parent.after($div);
+      UI.loadAutoComplete($div.find('input.name'));
+      UI.loadColorPicker($div.find('.color'));
+      UI.addRemovePlayer($div);
+    });
 
-});
+    $('.optionsForm').on('submit', function (e) {
+      e.preventDefault();
+
+      var url = '/v1/api/' + server + '/search';
+      
+      $(this).find('.player .name').each(function () {
+        $el = $(this);
+        $el.attr('data-value', $el.val());
+        $el.val(UI.players[$el.val()]);
+      });
+      
+      var data = $(this).serialize();
+      
+      $(this).find('.player .name').each(function () {
+        $el = $(this);
+        $el.val($el.attr('data-value'));
+      });
+
+      $.ajax( {
+        type: "POST",
+        url: url,
+        data: data,
+        success: function( response ) {
+          top.location.href = "/v1/" + server + "/map/" + response.id;
+        }
+      });
+
+      return false;
+    });
+
+    UI.loadSelector($('select'));
+    UI.loadAutoComplete($('.player .name'));
+    UI.loadColorPicker($('.color'));
+    
+    $('.player').each(function() {
+      UI.addRemovePlayer($(this));
+    });
+  });
+})(new App());
 
 /*
  * http://stackoverflow.com/questions/17242144/javascript-convert-hsb-hsv-color-to-rgb-accurately */
