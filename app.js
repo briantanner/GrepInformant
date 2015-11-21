@@ -55,6 +55,7 @@ app.get('/v1/:server/allianceLosses/:alliance', routes.allianceLosses)
 app.get('/v1/api/:server/autocomplete/:table', routes.autocomplete)
 app.get('/v1/api/:server/map', routes.getMap)
 app.post('/v1/api/:server/search', routes.search)
+app.get('/v1/api/:server/map/settings', routes.getMapSettings)
 
 
 http.createServer(app).listen(app.get('port'), function(){

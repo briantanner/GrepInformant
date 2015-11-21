@@ -187,6 +187,13 @@ exports.allianceLosses = function (req, res) {
   async.waterfall([
 
     function (callback) {
+      Data.alliances({}, function (err, result) {
+        if (err) return callback(err)
+        return callback(null, { alliances: result })
+      })
+    },
+
+    function (data, callback) {
       var whereString = util.format("oldally = %s and newally != %s and newally is not null", alliance, alliance),
           startArray = (start) ? start.split('-') : null,
           endArray   = (end)   ? end.split('-') : null,
@@ -200,7 +207,7 @@ exports.allianceLosses = function (req, res) {
 
       Data.conquers({ where: whereString }, function (err, result) {
         if (err) return callback(err)
-        return callback(null, { losses: result })
+        return callback(null, _.extend(data, { losses: result }))
       })
     },
 
@@ -217,7 +224,7 @@ exports.allianceLosses = function (req, res) {
 
   ], function (err, data) {
     if (err) return res.send(500, err)
-    // return res.send(200, data)
+    data.server = server;
     return res.render('allylosses', _.extend(defaults, data))
   })
 }
@@ -419,9 +426,23 @@ exports.search = function (req, res) {
   })
 }
 
-exports.getMap = function (req, res) {
+exports.getMapSettings = function (req, res) {
   var server = req.params.server,
       id = req.query.id || null
+
+  Data.searches({ id: id }, function (err, result) {
+    if (err) return callback(err)
+    var row = result.shift()
+    row.options = JSON.parse(row.options)
+    return res.send(null, row)
+  })
+}
+
+exports.getMap = function (req, res) {
+  var server = req.params.server,
+      id = req.query.id || null,
+      allyId = req.query.ally,
+      playerId = req.query.player
 
   async.waterfall([
 
@@ -528,6 +549,27 @@ exports.getMap = function (req, res) {
       })
     },
 
+    // get players/alliances
+    function (data, callback) {
+      if (id) { return callback(null, data) }
+      if (!playerId && !allyId) { return callback(null, data) }
+
+      var select = [ "t.id", "t.name", "t.points", "t.x", "t.y", "t.islandNo", "t.player as playerid", 
+                     "p.name as player", "p.alliance", "i.type", "o.offsetx", "o.offsety" ],
+          joins = [ "left join players p on t.player = p.id", "inner join islands i on t.x = i.x and t.y = i.y",
+                    "inner join offsets o on i.type = o.id and t.islandNo = o.pos" ],
+          query = util.format("select %s from towns t %s", select.join(', '), joins.join(' '))
+      
+      if (playerId) query += util.format(" where t.player = '%s'", playerId)
+      if (allyId) query += util.format(" where p.alliance = %s", allyId)
+      
+      Data.query(query, function (err, result) {
+        if (err) return callback(err)
+        data.towns = result
+        return callback(null, data)
+      })
+    },
+
     // get ghosts
     function (data, callback) {
       var select = [ "t.id", "t.name", "t.points", "t.x", "t.y", "t.islandNo", "t.player as playerid", 
@@ -548,14 +590,22 @@ exports.getMap = function (req, res) {
     if (err) return res.send(500, err)
 
     data.towns = _.map(data.towns, function (o) {
+      var town = {};
+
       // Island_X = x-coordinate from islands.txt * 128
       // Island_Y = y-coordinate from islands.txt * 128 if x is even
       // Island_Y = 64 + y-coordinate from islands.txt * 128 if x is odd
-      if (!o.player) o.player = 'ghost'
-      o.exactX = ( ((o.x * 128) + o.offsetx) / 128 )
-      o.exactY = ( ((o.y * 128) + o.offsety) / 128 ) // : ( (((64 + o.y) * 128) + o.offsety) / 128 )
+      town.id = o.id
+      town.name = o.name
+      town.points = o.points
+      town.alliance = o.alliance
+      town.player = o.player || 'ghost'
+      town.exactX = ( ((o.x * 128) + o.offsetx) / 128 )
+      town.exactY = ( ((o.y * 128) + o.offsety) / 128 ) // : ( (((64 + o.y) * 128) + o.offsety) / 128 )
+      town.color = o.color
+      town.island = o.islandno
 
-      return o
+      return town
     })
 
     data.server = server
