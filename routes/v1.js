@@ -212,6 +212,16 @@ exports.allianceLosses = function (req, res) {
     },
 
     function (data, callback) {
+      data.losses = _.map(data.losses, function (o) {
+        var x = Math.floor(o.x/100),
+            y = Math.floor(o.y/100)
+        o.ocean = util.format("%d%d", x, y)
+        return o
+      })
+      return callback(null, data)
+    },
+
+    function (data, callback) {
       data.title = "Alliance Losses"
       data.ally = _.sample(data.losses).oldally
       data.totalLosses = data.losses.length

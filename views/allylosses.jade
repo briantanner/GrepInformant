@@ -22,6 +22,7 @@ block content
       tr
         td <strong>Time</strong>
         td <strong>Town</strong>
+        td <strong>Ocean</strong>
         td <strong>New Player</strong>
         td <strong>Old Player</strong>
         td
@@ -33,6 +34,8 @@ block content
             span.townName(class='townName' + o.town) #{o.townname} 
             span.townBb(class='townBb' + o.town, style="display:none;") [town]#{o.town}[/town] 
             span.points (#{o.points} points) 
+          td
+            span.ocean #{o.ocean}
           td 
             span.newPlayer(class='newPlayer' + o.newplayerid + o.town) #{o.newplayer} 
             span.newPlayerBb(class='newPlayerBb' + o.newplayerid + o.town, style="display:none;") [player]#{o.newplayerid}[/player] 
