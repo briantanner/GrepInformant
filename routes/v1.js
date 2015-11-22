@@ -148,6 +148,13 @@ exports.allianceConquers = function (req, res) {
   async.waterfall([
 
     function (callback) {
+      Data.alliances({}, function (err, result) {
+        if (err) return callback(err)
+        return callback(null, { alliances: result })
+      })
+    },
+
+    function (data, callback) {
       var whereString = util.format("newally = %s", alliance),
           startArray = (start) ? start.split('-') : null,
           endArray   = (end)   ? end.split('-') : null,
@@ -164,15 +171,26 @@ exports.allianceConquers = function (req, res) {
 
       Data.conquers({ where: whereString }, function (err, result) {
         if (err) return callback(err)
-        return callback(null, { conquers: result })
+        return callback(null, _.extend(data, { conquers: result }))
       })
-    }
+    },
+
+    function (data, callback) {
+      data.conquers = _.map(data.conquers, function (o) {
+        var x = Math.floor(o.x/100),
+            y = Math.floor(o.y/100)
+        o.ocean = util.format("%d%d", x, y)
+        return o
+      })
+      return callback(null, data)
+    },
 
   ], function (err, data) {
     if (err) return res.send(500, err)
 
     data.title = "Alliance Conquers"
     data.ally = _.sample(data.conquers).newally
+    data.server = server
 
     return res.render('allyconquers', _.extend(defaults, data))
   })
@@ -304,7 +322,9 @@ exports.compare = function (req, res) {
 
   ], function (err, data) {
     if (err) return res.send(500, err)
-    return res.render('compare', _.extend(defaults, { alliances: data }))
+    data = _.extend(defaults, { alliances: data })
+    data.title = 'Compare Alliances'
+    return res.render('compare', data)
   })
 }
 

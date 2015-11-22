@@ -1,12 +1,22 @@
 extends layout
 
+block styles
+  link(rel='stylesheet', href='/stylesheets/nice-select.css')
+
 block content
   h1= title
+  div.ally
+    select.allySelect(name='ally[]')
+      option(value='') Select Alliance
+      each o in alliances
+        option(value=o.id) #{o.name} (#{o.rank})
+  span.clear
   if conquers
     table
       tr
         td <strong>Time</strong>
         td <strong>Town</strong>
+        td <strong>Ocean</strong>
         td <strong>New Player</strong>
         td <strong>Old Player</strong>
         td
@@ -18,6 +28,8 @@ block content
             span.townName(class='townName' + o.town) #{o.townname} 
             span.townBb(class='townBb' + o.town, style="display:none;") [town]#{o.town}[/town] 
             span.points (#{o.points} points) 
+          td
+            span.ocean o#{o.ocean}
           td 
             span.newPlayer(class='newPlayer' + o.newplayerid + o.town) #{o.newplayer} 
             span.newPlayerBb(class='newPlayerBb' + o.newplayerid + o.town, style="display:none;") [player]#{o.newPlayer}[/player] 
@@ -28,3 +40,18 @@ block content
             span.alliance (#{o.oldally})
           td
             a.bbcodeLink(href="#", style="font-size: 10px; text-decoration: none; color: orange; float: right;", onclick="$('.townBb#{o.town}').toggle(); $('.townName#{o.town}').toggle(); $('.newPlayerBb#{o.newplayerid}#{o.town}').toggle(); $('.newPlayer#{o.newplayerid}#{o.town}').toggle(); $('.oldPlayerBb#{o.oldplayerid}#{o.town}').toggle(); $('.oldPlayer#{o.oldplayerid}#{o.town}').toggle(); return false;") bbcode
+
+block scripts
+  script(type='text/javascript', src='/js/jquery.nice-select.min.js')
+  script(type='text/javascript', src='/js/ui.js')
+  script(type='text/javascript').
+    var server = '#{server}';
+    (function (UI) {
+      $(document).ready(function() {
+        UI.loadSelector($('select'));
+        $('.allySelect').on('change', function () {
+          var id = $(this).val();
+          top.location.href = '/v1/' + server + '/allianceConquers/' + id;
+        });
+      });
+    })(new UI());
