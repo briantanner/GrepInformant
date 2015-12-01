@@ -53,11 +53,33 @@ exports.players = function (req, res) {
 
 exports.player = function (req, res) {
   var server = req.params.server,
-      whereString = util.format("id = %s", req,params.playerId)
+      playerId = urlencode.decode(req.params.playerId).replace(/\+/g, ' ').replace(/\'/g, "''"),
+      column = (_.isNumber(playerId)) ? 'id' : 'name',
+      whereString = util.format("%s = '%s'", column, playerId)
 
-  Data.players({ where: whereString }, function (err, result) {
+  async.waterfall([
+
+    function (callback) {
+      Data.players({ where: whereString }, function (err, result) {
+        if (err) return callback(err)
+        return callback(null, result[0])
+      })
+    },
+
+    function (player, callback) {
+      if (!_.isNumber(playerId))
+        whereString = util.format("id = %s", player.id)
+
+      Data.playerUpdates({ where: whereString }, function (err, result) {
+        if (err) return callback(err)
+        player.updates = result
+        return callback(null, player)
+      })
+    }
+
+  ], function (err, player) {
     if (err) return res.send(500, err)
-    return res.send(200, result)
+    return res.send(200, player)
   })
 }
 
