@@ -70,7 +70,7 @@ exports.player = function (req, res) {
       if (!_.isNumber(playerId))
         whereString = util.format("id = %s", player.id)
 
-      Data.playerUpdates({ where: whereString }, function (err, result) {
+      Data.playerUpdates({ where: whereString, limit: 168 }, function (err, result) {
         if (err) return callback(err)
         player.updates = result
         return callback(null, player)
