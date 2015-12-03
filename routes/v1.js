@@ -60,120 +60,40 @@ exports.alliances = function (req, res) {
   })
 }
 
-exports.players = function (req, res) {
+exports.alliance = function (req, res) {
   var server = req.params.server
-
-  Data.players(server, {}, function (err, result) {
-    if (err) return res.send(500, err)
-    return res.send(200, result)
-  })
-}
-
-exports.player = function (req, res) {
-  var server = req.params.server,
-      playerId = urlencode.decode(req.params.playerId).replace(/\+/g, ' ').replace(/\'/g, "''"),
-      column = (_.isNumber(playerId)) ? 'id' : 'name',
-      whereString = util.format("%s = '%s'", column, playerId)
 
   async.waterfall([
 
     function (callback) {
-      Data.players(server, { where: whereString }, function (err, result) {
+      var allyId = urlencode.decode(req.params.alliance).replace(/\+/g, ' ').replace(/\'/g, "''"),
+          column = (_.isNumber(allyId)) ? 'id' : 'name',
+          whereString = util.format("%s = '%s'", column, allyId)
+
+      Data.alliances(server, { where: whereString }, function (err, result) {
         if (err) return callback(err)
         return callback(null, result[0])
       })
     },
 
-    function (player, callback) {
-      if (!_.isNumber(playerId))
-        whereString = util.format("id = %s", player.id)
+    function (alliance, callback) {
+      var whereString = util.format('alliance = %s', alliance.id)
 
-      Data.playerUpdates(server, { where: whereString, limit: 168 }, function (err, result) {
+      Data.players(server, { where: whereString }, function (err, result) {
         if (err) return callback(err)
-        player.updates = result
-        return callback(null, player)
-      })
-    }
-
-  ], function (err, player) {
-    if (err) return res.send(500, err)
-    return res.send(200, player)
-  })
-}
-
-exports.mapCanvas = function (req, res) {
-  var server = req.params.server,
-      id = req.params.id || req.query.id || req.query.q || null
-
-  async.waterfall([
-
-    // get alliances
-    function (callback) {
-      Data.alliances(server, {}, function (err, result) {
-        if (err) return callback(err)
-        return callback(null, { alliances: result })
+        alliance.memberCount = alliance.members
+        alliance.members = result
+        return callback(null, alliance)
       })
     },
 
-    function (data, callback) {
-      if (!id) return callback(null, data)
+    function (alliance, callback) {
 
-      var query = util.format("select * from searches where id = '%s'", id)
-
-      Data.searches({ id: id }, function (err, result) {
-        if (err) return callback(err)
-        
-        if (!result || !result.length) return callback(null, data)
-
-        var row = result[0]
-        data.options = JSON.parse(row.options)
-        
-        return callback(null, data)
-      })
-    },
-
-    function (data, callback) {
-      if (!id) return callback(null, data)
-      if (!data.options) return callback(null, data)
-      if (!data.options.player || data.options.player.length === 0)
-        return callback(null, data)
-
-      var query = util.format("select id, name from players where server = '%s' and id in (%s)", server, data.options.player.join(', '))
-
-      Data.query(query, function (err, result) {
-        if (err) return callback(err)
-        var players = _.indexBy(result, 'id')
-
-        data.options.player = _.map(data.options.player, function (id) {
-          return {
-            id: id,
-            name: players[id].name
-          }
-        })
-
-        return callback(null, data)
-      })
     }
 
-  ], function (err, data) {
+  ], function (err, alliance) {
     if (err) return res.send(500, err)
-    
-    data.id = id
-    data.server = server
-
-    if (!data.options) {
-      data.id = null
-      data.error = 'Your map has expired.'
-    }
-
-    return res.render('mapCanvas', data)
-  })
-}
-
-exports.offsets = function (req, res) {
-  Data.offsets({}, function (err, result) {
-    if (err) return res.send(500, err)
-    return res.send(200, result)
+    return res.send(200, alliance)
   })
 }
 
@@ -294,6 +214,122 @@ exports.allianceLosses = function (req, res) {
     if (err) return res.send(500, err)
     data.server = server;
     return res.render('allylosses', _.extend(defaults, data))
+  })
+}
+
+exports.players = function (req, res) {
+  var server = req.params.server
+
+  Data.players(server, {}, function (err, result) {
+    if (err) return res.send(500, err)
+    return res.send(200, result)
+  })
+}
+
+exports.player = function (req, res) {
+  var server = req.params.server,
+      playerId = urlencode.decode(req.params.playerId).replace(/\+/g, ' ').replace(/\'/g, "''"),
+      column = (_.isNumber(playerId)) ? 'id' : 'name',
+      whereString = util.format("%s = '%s'", column, playerId)
+
+  async.waterfall([
+
+    function (callback) {
+      Data.players(server, { where: whereString }, function (err, result) {
+        if (err) return callback(err)
+        return callback(null, result[0])
+      })
+    },
+
+    function (player, callback) {
+      whereString = util.format("id = %s", player.id)
+
+      Data.playerUpdates(server, { where: whereString, limit: 168 }, function (err, result) {
+        if (err) return callback(err)
+        player.updates = result
+        return callback(null, player)
+      })
+    }
+
+  ], function (err, player) {
+    if (err) return res.send(500, err)
+    return res.send(200, player)
+  })
+}
+
+exports.mapCanvas = function (req, res) {
+  var server = req.params.server,
+      id = req.params.id || req.query.id || req.query.q || null
+
+  async.waterfall([
+
+    // get alliances
+    function (callback) {
+      Data.alliances(server, {}, function (err, result) {
+        if (err) return callback(err)
+        return callback(null, { alliances: result })
+      })
+    },
+
+    function (data, callback) {
+      if (!id) return callback(null, data)
+
+      var query = util.format("select * from searches where id = '%s'", id)
+
+      Data.searches({ id: id }, function (err, result) {
+        if (err) return callback(err)
+        
+        if (!result || !result.length) return callback(null, data)
+
+        var row = result[0]
+        data.options = JSON.parse(row.options)
+        
+        return callback(null, data)
+      })
+    },
+
+    function (data, callback) {
+      if (!id) return callback(null, data)
+      if (!data.options) return callback(null, data)
+      if (!data.options.player || data.options.player.length === 0)
+        return callback(null, data)
+
+      var query = util.format("select id, name from players where server = '%s' and id in (%s)", server, data.options.player.join(', '))
+
+      Data.query(query, function (err, result) {
+        if (err) return callback(err)
+        var players = _.indexBy(result, 'id')
+
+        data.options.player = _.map(data.options.player, function (id) {
+          return {
+            id: id,
+            name: players[id].name
+          }
+        })
+
+        return callback(null, data)
+      })
+    }
+
+  ], function (err, data) {
+    if (err) return res.send(500, err)
+    
+    data.id = id
+    data.server = server
+
+    if (!data.options) {
+      data.id = null
+      data.error = 'Your map has expired.'
+    }
+
+    return res.render('mapCanvas', data)
+  })
+}
+
+exports.offsets = function (req, res) {
+  Data.offsets({}, function (err, result) {
+    if (err) return res.send(500, err)
+    return res.send(200, result)
   })
 }
 
@@ -585,14 +621,14 @@ exports.getMap = function (req, res) {
           query = util.format("select %s from towns t %s where t.server = '%s'", select.join(', '), joins.join(' '), server)
 
       if (ally.length) {
-        query += " and (p.alliance in (" + ally.join(", ") + ")"
+        query += " and ( p.alliance in (" + ally.join(", ") + ")"
       }
       if (player.length) {
-        query += (ally.length) ? " or" : " and"
+        query += (ally.length) ? " or" : " and ( "
         query += " t.player in (" + player.join(", ") + ")"
       }
 
-      query += ")"
+      query += " )"
 
       Data.query(query, function (err, result) {
         if (err) return callback(err)

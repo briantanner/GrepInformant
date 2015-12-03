@@ -28,6 +28,7 @@ if ('development' == app.get('env')) {
 
 app.get('/', routes.index)
 app.get('/:server/alliances', routes.alliances)
+app.get('/:server/alliance/:alliance', routes.alliance)
 app.get('/:server/players', routes.players)
 app.get('/:server/player/:playerId', routes.player)
 app.get('/:server/towns/:playerId?', routes.towns)
