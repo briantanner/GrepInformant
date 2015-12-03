@@ -157,7 +157,7 @@ Map.prototype.drawTowns = function (data) {
 
     if (i !== 0 && i !== "0") {
       color = group[0].color;
-      if (color.indexOf('hsv') !== -1 || color.indexOf('rgb') !== -1) {
+      if (color && (color.indexOf('hsv') !== -1 || color.indexOf('rgb') !== -1)) {
         colorMatch = color.replace(/%/g, '').match(/([\d\s\,\.]+)/g);
         colorMatch = colorMatch.shift().split(', ');
         alpha = (colorMatch.length === 4) ? colorMatch.pop() : 1;

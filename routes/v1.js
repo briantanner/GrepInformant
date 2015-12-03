@@ -17,7 +17,7 @@ exports.towns = function (req, res) {
   var server = req.params.server,
       playerId = req.params.playerId || null
 
-  Data.towns({ id: playerId }, function (err, result) {
+  Data.towns(server, { id: playerId }, function (err, result) {
     if (err) return res.send(500, err)
     return res.send(200, result)
   })
@@ -27,16 +27,34 @@ exports.islands = function (req, res) {
   var x = req.params.x || null,
       y = req.params.y || null
 
-  Data.islands({ x: x, y: y}, function (err, result) {
+  Data.islands(server, { x: x, y: y}, function (err, result) {
     if (err) return res.send(500, err)
     return res.send(200, result)
+  })
+}
+
+exports.farmableIslands = function (req, res) {
+  var x = req.params.ocean.split('').shift() * 100,
+      y = req.params.ocean.split('').pop() * 100,
+      server = req.params.server,
+      where = [
+        util.format("(x > %d and x < %d)", x, x+99),
+        util.format("(y > %d and y < %d)", y, y+99),
+        "( (type >= 1 and type <= 10) or (type >= 37 and type <= 46) )",
+        "availablespots > 0"
+      ],
+      whereString = where.join(' and ') + " order by availablespots desc"
+
+  Data.islands(server, { where: whereString }, function (err, result) {
+    if (err) return res.send(500, err)
+    return res.render('farmable', _.extend(defaults, { islands: result }))
   })
 }
 
 exports.alliances = function (req, res) {
   var server = req.params.server
 
-  Data.alliances(server, function (err, data) {
+  Data.alliances(server, {}, function (err, data) {
     if (err) return res.send(500, err)
     return res.send(200, data)
   })
@@ -45,7 +63,7 @@ exports.alliances = function (req, res) {
 exports.players = function (req, res) {
   var server = req.params.server
 
-  Data.players({}, function (err, result) {
+  Data.players(server, {}, function (err, result) {
     if (err) return res.send(500, err)
     return res.send(200, result)
   })
@@ -60,7 +78,7 @@ exports.player = function (req, res) {
   async.waterfall([
 
     function (callback) {
-      Data.players({ where: whereString }, function (err, result) {
+      Data.players(server, { where: whereString }, function (err, result) {
         if (err) return callback(err)
         return callback(null, result[0])
       })
@@ -70,7 +88,7 @@ exports.player = function (req, res) {
       if (!_.isNumber(playerId))
         whereString = util.format("id = %s", player.id)
 
-      Data.playerUpdates({ where: whereString, limit: 168 }, function (err, result) {
+      Data.playerUpdates(server, { where: whereString, limit: 168 }, function (err, result) {
         if (err) return callback(err)
         player.updates = result
         return callback(null, player)
@@ -91,7 +109,7 @@ exports.mapCanvas = function (req, res) {
 
     // get alliances
     function (callback) {
-      Data.alliances({}, function (err, result) {
+      Data.alliances(server, {}, function (err, result) {
         if (err) return callback(err)
         return callback(null, { alliances: result })
       })
@@ -120,7 +138,7 @@ exports.mapCanvas = function (req, res) {
       if (!data.options.player || data.options.player.length === 0)
         return callback(null, data)
 
-      var query = util.format("select id, name from players where id in (%s)", data.options.player.join(', '))
+      var query = util.format("select id, name from players where server = '%s' and id in (%s)", server, data.options.player.join(', '))
 
       Data.query(query, function (err, result) {
         if (err) return callback(err)
@@ -170,7 +188,7 @@ exports.allianceConquers = function (req, res) {
   async.waterfall([
 
     function (callback) {
-      Data.alliances({}, function (err, result) {
+      Data.alliances(server, {}, function (err, result) {
         if (err) return callback(err)
         return callback(null, { alliances: result })
       })
@@ -191,7 +209,7 @@ exports.allianceConquers = function (req, res) {
       if (endDate)
         whereString += util.format(" and time < %s", endDate)
 
-      Data.conquers({ where: whereString }, function (err, result) {
+      Data.conquers(server, { where: whereString }, function (err, result) {
         if (err) return callback(err)
         return callback(null, _.extend(data, { conquers: result }))
       })
@@ -227,7 +245,7 @@ exports.allianceLosses = function (req, res) {
   async.waterfall([
 
     function (callback) {
-      Data.alliances({}, function (err, result) {
+      Data.alliances(server, {}, function (err, result) {
         if (err) return callback(err)
         return callback(null, { alliances: result })
       })
@@ -245,7 +263,7 @@ exports.allianceLosses = function (req, res) {
       if (endDate)
         whereString += util.format(" and time < %s", endDate)
 
-      Data.conquers({ where: whereString }, function (err, result) {
+      Data.conquers(server, { where: whereString }, function (err, result) {
         if (err) return callback(err)
         return callback(null, _.extend(data, { losses: result }))
       })
@@ -296,7 +314,7 @@ exports.compare = function (req, res) {
   async.waterfall([
 
     function (callback) {
-      Data.alliances({ ids: _.flatten(comparedAlliances) }, function (err, data) {
+      Data.alliances(server, { ids: _.flatten(comparedAlliances) }, function (err, data) {
         if (err) return callback(err)
         var compareData = []
 
@@ -362,7 +380,7 @@ exports.bgConquers = function (req, res) {
   async.waterfall([
 
     function (callback) {
-      Data.alliances({ ids: [alliance, enemy] }, callback)
+      Data.alliances(server, { ids: [alliance, enemy] }, callback)
     },
 
     function (data, callback) {
@@ -379,7 +397,7 @@ exports.bgConquers = function (req, res) {
       if (endDate)
         whereString += util.format(" and time < %s", endDate)
 
-      Data.conquers({ where: whereString }, function (err, result) {
+      Data.conquers(server, { where: whereString }, function (err, result) {
         if (err) return callback(err)
         return callback(null, _.extend(data, { conquers: result }))
       })
@@ -446,7 +464,7 @@ exports.autocomplete = function (req, res) {
   if (!input || input.length < 3)
     return res.send(500, 'Input string must be at least 3 characters.')
 
-  var query = util.format("select * from %s where lower(name) like lower('%s%%') order by name asc limit 10", table, input)
+  var query = util.format("select * from %s where server = '%s' and lower(name) like lower('%s%%') order by name asc limit 10", table, server, input)
   Data.query(query, function (err, result) {
     if (err) return res.send(500, err)
     return res.send(200, result)
@@ -500,7 +518,7 @@ exports.getMap = function (req, res) {
 
     // get alliances
     function (callback) {
-      Data.alliances({}, function (err, result) {
+      Data.alliances(server, {}, function (err, result) {
         if (err) return callback(err)
         return callback(null, { alliances: result })
       })
@@ -539,7 +557,7 @@ exports.getMap = function (req, res) {
 
       var whereString = util.format("id in (%s)", data.options.player.join(', '))
 
-      Data.players({ where: whereString }, function (err, result) {
+      Data.players(server, { where: whereString }, function (err, result) {
         if (err) return callback(err)
         var players = _.indexBy(result, 'id')
 
@@ -564,15 +582,17 @@ exports.getMap = function (req, res) {
                      "p.name as player", "p.alliance", "i.type", "o.offsetx", "o.offsety" ],
           joins = [ "left join players p on t.player = p.id", "inner join islands i on t.x = i.x and t.y = i.y",
                     "inner join offsets o on i.type = o.id and t.islandNo = o.pos" ],
-          query = util.format("select %s from towns t %s", select.join(', '), joins.join(' '))
+          query = util.format("select %s from towns t %s where t.server = '%s'", select.join(', '), joins.join(' '), server)
 
       if (ally.length) {
-        query += " where p.alliance in (" + ally.join(", ") + ")"
+        query += " and (p.alliance in (" + ally.join(", ") + ")"
       }
       if (player.length) {
-        query += (ally.length) ? " or" : " where"
+        query += (ally.length) ? " or" : " and"
         query += " t.player in (" + player.join(", ") + ")"
       }
+
+      query += ")"
 
       Data.query(query, function (err, result) {
         if (err) return callback(err)
@@ -610,10 +630,10 @@ exports.getMap = function (req, res) {
                      "p.name as player", "p.alliance", "i.type", "o.offsetx", "o.offsety" ],
           joins = [ "left join players p on t.player = p.id", "inner join islands i on t.x = i.x and t.y = i.y",
                     "inner join offsets o on i.type = o.id and t.islandNo = o.pos" ],
-          query = util.format("select %s from towns t %s", select.join(', '), joins.join(' '))
+          query = util.format("select %s from towns t %s where t.server = '%s'", select.join(', '), joins.join(' '), server)
       
-      if (playerId) query += util.format(" where t.player = '%s'", playerId)
-      if (allyId) query += util.format(" where p.alliance = %s", allyId)
+      if (playerId) query += util.format(" and t.player = '%s'", playerId)
+      if (allyId) query += util.format(" and p.alliance = %s", allyId)
       
       Data.query(query, function (err, result) {
         if (err) return callback(err)
@@ -626,10 +646,14 @@ exports.getMap = function (req, res) {
     function (data, callback) {
       var select = [ "t.id", "t.name", "t.points", "t.x", "t.y", "t.islandNo", "t.player as playerid", 
                      "p.name as player", "p.alliance", "i.type", "o.offsetx", "o.offsety" ],
-          joins = [ "left join players p on t.player = p.id", "inner join islands i on t.x = i.x and t.y = i.y",
+          joins = [ "left join players p on t.server = p.server and t.player = p.id",
+                    "inner join islands i on t.server = i.server and t.x = i.x and t.y = i.y",
                     "inner join offsets o on i.type = o.id and t.islandNo = o.pos" ],
           where = "t.player = 0 and t.points > 1200",
-          query = util.format("select %s from towns t %s where %s", select.join(', '), joins.join(' '), where)
+          query = util.format("select %s from towns t %s where t.server = '%s' and %s", select.join(', '), joins.join(' '), server, where)
+
+      // query = util.format("select %s from towns t %s where t.server = '%s'", select.join(', '), joins.join(' '), server)
+      // console.log(query)
 
       Data.query(query, function (err, result) {
         if (err) return callback(err)

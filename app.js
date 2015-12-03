@@ -57,6 +57,8 @@ app.get('/v1/api/:server/map', routes.getMap)
 app.post('/v1/api/:server/search', routes.search)
 app.get('/v1/api/:server/map/settings', routes.getMapSettings)
 
+app.get('/v1/:server/farmableIslands/:ocean', routes.farmableIslands)
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'))

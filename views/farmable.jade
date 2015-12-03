@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1= title
+  ul
+    each island in islands
+      li [island]#{island.id}[/island] - #{island.availablespots}
