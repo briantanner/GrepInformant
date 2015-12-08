@@ -5,8 +5,8 @@
 var express = require('express'),
   	http = require('http'),
   	path = require('path'),
-    routes = require('./routes/v1'),
-    mustache = require('mustache-express')
+    routes = require('./routes/v1')
+    // mustache = require('mustache-express')
 
 var app = express()
 
