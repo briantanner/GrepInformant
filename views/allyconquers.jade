@@ -51,7 +51,7 @@ block scripts
         UI.loadSelector($('select'));
         $('.allySelect').on('change', function () {
           var id = $(this).val();
-          top.location.href = '/v1/' + server + '/allianceConquers/' + id;
+          top.location.href = '/' + server + '/allianceConquers/' + id;
         });
       });
     })(new UI());

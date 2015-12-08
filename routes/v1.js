@@ -115,19 +115,26 @@ exports.allianceConquers = function (req, res) {
     },
 
     function (data, callback) {
-      var whereString = util.format("newally = %s", alliance),
-          startArray = (start) ? start.split('-') : null,
+      var startArray = (start) ? start.split('-') : null,
           endArray   = (end)   ? end.split('-') : null,
           startDate  = (start) ? new Date(startArray[0], startArray[1]-1, startArray[2]).getTime() / 1000 : null,
-          endDate    = (end)   ? new Date(endArray[0], endArray[1]-1, endArray[2]).getTime() / 1000 : null
+          endDate    = (end)   ? new Date(endArray[0], endArray[1]-1, endArray[2]).getTime() / 1000 : null,
+          whereArray = [],
+          whereString = ""
+
+      if (alliance)
+        whereArray.push(util.format("newally = %s", alliance))
 
       if (hideInternals)
-        whereString += util.format(" and oldally != %s", alliance)
+        whereArray.push(util.format("oldally != %s", alliance))
 
       if (startDate)
-        whereString += util.format(" and time > %s", startDate)
+        whereArray.push(util.format("time > %s", startDate))
       if (endDate)
-        whereString += util.format(" and time < %s", endDate)
+        whereArray.push(util.format("time < %s", endDate))
+
+      if (whereArray.length)
+        whereString = whereArray.join(" and ")
 
       Data.conquers(server, { where: whereString }, function (err, result) {
         if (err) return callback(err)
@@ -230,7 +237,14 @@ exports.player = function (req, res) {
   var server = req.params.server,
       playerId = urlencode.decode(req.params.playerId).replace(/\+/g, ' ').replace(/\'/g, "''"),
       column = (_.isNumber(playerId)) ? 'id' : 'name',
-      whereString = util.format("%s = '%s'", column, playerId)
+      whereString = util.format("%s = '%s'", column, playerId),
+      start = req.query.start || null,
+      end = req.query.end || null
+
+  var startArray = (start) ? start.split('-') : null,
+      endArray   = (end)   ? end.split('-') : null,
+      startDate  = (start) ? new Date(startArray[0], startArray[1]-1, startArray[2]).getTime() / 1000 : null,
+      endDate    = (end)   ? new Date(endArray[0], endArray[1]-1, endArray[2]).getTime() / 1000 : null
 
   async.waterfall([
 

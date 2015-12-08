@@ -57,7 +57,7 @@ block scripts
         UI.loadSelector($('select'));
         $('.allySelect').on('change', function () {
           var id = $(this).val();
-          top.location.href = '/v1/' + server + '/allianceLosses/' + id;
+          top.location.href = '/' + server + '/allianceLosses/' + id;
         });
       });
     })(new UI());

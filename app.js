@@ -5,12 +5,14 @@
 var express = require('express'),
   	http = require('http'),
   	path = require('path'),
-    routes = require('./routes/v1')
+    routes = require('./routes/v1'),
+    mustache = require('mustache-express')
 
 var app = express()
 
 // all environments
 app.set('port', process.env.PORT || 8080)
+// app.engine('mustache', mustache())
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'jade')
 app.use(express.favicon())
@@ -37,7 +39,7 @@ app.get('/:server/islands', routes.islands)
 app.get('/:server/map/:id?', routes.mapCanvas)
 app.get('/:server/compare', routes.compare)
 app.get('/:server/bgConquers', routes.bgConquers)
-app.get('/:server/allianceConquers/:alliance', routes.allianceConquers)
+app.get('/:server/allianceConquers/:alliance?', routes.allianceConquers)
 app.get('/:server/allianceLosses/:alliance', routes.allianceLosses)
 
 app.get('/', routes.index)
@@ -50,7 +52,7 @@ app.get('/v1/:server/islands', routes.islands)
 app.get('/v1/:server/map/:id?', routes.mapCanvas)
 app.get('/v1/:server/compare', routes.compare)
 app.get('/v1/:server/bgConquers', routes.bgConquers)
-app.get('/v1/:server/allianceConquers/:alliance', routes.allianceConquers)
+app.get('/v1/:server/allianceConquers/:alliance?', routes.allianceConquers)
 app.get('/v1/:server/allianceLosses/:alliance', routes.allianceLosses)
 
 app.get('/v1/api/:server/autocomplete/:table', routes.autocomplete)
