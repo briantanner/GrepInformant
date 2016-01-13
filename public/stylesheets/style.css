@@ -5,7 +5,7 @@ body {
 }
 
 div.content {
-  width: 80%;
+  width: 90%;
   background-color: rgba(255,250,226, 0.8);
   margin: 0 auto;
   border-radius: 25px;
@@ -14,7 +14,12 @@ div.content {
 }
 
 a {
-  color: #00B7FF;
+  /*color: #00B7FF;*/
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 td,th {
@@ -45,19 +50,24 @@ div.calculator {
   moz-border-radius: 12px;
 }
 
+table.updates td, table.updates th {
+  text-align: center;
+  padding-right: 2em;
+}
+
 div.compare {
-  background: #efefef;
+  /*background: #efefef;*/
   /*max-width: 600px;*/
-  margin: 15px;
+  /*margin: 15px;
   padding: 12px;
   margin-left: 0;
   border-radius: 12px;
   webkit-border-radius: 12px;
-  moz-border-radius: 12px;
+  moz-border-radius: 12px;*/
 }
 
 div.compare div.stats {
-  width: 250px;
+  width: 240px;
   height: 160px;
   float: left;
 }

@@ -1,0 +1,49 @@
+extends layout
+
+block styles
+  link(rel='stylesheet', href='/stylesheets/nice-select.css')
+
+block content
+  h3= title
+  table
+    tr
+      td Name
+      td #{player.name}
+    tr
+      td Alliance
+      td #{player.alliancename}
+    tr
+      td Rank
+      td #{player.rank}
+    tr
+      td Towns
+      td #{player.towns}
+    tr
+      td Points
+      td #{player.points}
+    tr
+      td ABP
+      td #{player.abp}
+    tr
+      td DBP
+      td #{player.dbp}
+
+  h3 Updates (hourly)
+  table.updates
+    tr
+      th Date/Time
+      th Name
+      th Rank
+      th Points
+      th Towns
+      th ABP
+      th DBP
+    each o in player.updates
+      tr
+        td #{o.time}
+        td #{o.name}
+        td #{o.rank}
+        td #{o.points_delta}
+        td #{o.towns_delta}
+        td #{o.abp_delta}
+        td #{o.dbp_delta}

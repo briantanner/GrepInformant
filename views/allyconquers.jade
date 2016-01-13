@@ -12,7 +12,7 @@ block content
         option(value=o.id) #{o.name} (#{o.rank})
   span.clear
   if conquers
-    table.conquers
+    table
       tr
         td <strong>Time</strong>
         td <strong>Town</strong>
@@ -31,11 +31,19 @@ block content
           td
             span.ocean o#{o.ocean}
           td 
-            span.newPlayer(class='newPlayer' + o.newplayerid + o.town) #{o.newplayer} 
+            if (o.newplayerid === 0)
+              span.newPlayer(class='newPlayer' + o.newplayerid + o.town) #{o.newplayer} 
+            else
+              span.newPlayer(class='newPlayer' + o.newplayerid + o.town) 
+                a(href='/' + server + '/player/' + o.newplayerid) #{o.newplayer} 
             span.newPlayerBb(class='newPlayerBb' + o.newplayerid + o.town, style="display:none;") [player]#{o.newPlayer}[/player] 
             span.alliance (#{o.newally})
           td
-            span.oldPlayer(class='oldPlayer' + o.oldplayerid + o.town) #{o.oldplayer} 
+            if (o.oldplayerid === 0)
+              span.oldPlayer(class='oldPlayer' + o.oldplayerid + o.town) #{o.oldplayer} 
+            else
+              span.oldPlayer(class='oldPlayer' + o.oldplayerid + o.town) 
+                a(href='/' + server + '/player/' + o.oldplayerid) #{o.oldplayer} 
             span.oldPlayerBb(class='oldPlayerBb' + o.oldplayerid + o.town, style="display:none;") [player]#{o.oldPlayer}[/player] 
             span.alliance (#{o.oldally})
           td

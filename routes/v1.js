@@ -3,6 +3,7 @@ var _ = require('underscore'),
   urlencode = require('urlencode'),
   async = require('async'),
   crypto = require('crypto'),
+  moment = require('moment'),
   accounting = require('accounting'),
   Data = require('../lib/model'),
   config = require('../config.json'),
@@ -67,7 +68,7 @@ exports.alliance = function (req, res) {
 
     function (callback) {
       var allyId = urlencode.decode(req.params.alliance).replace(/\+/g, ' ').replace(/\'/g, "''"),
-          column = (_.isNumber(allyId)) ? 'id' : 'name',
+          column = (!isNaN(allyId)) ? 'id' : 'name',
           whereString = util.format("%s = '%s'", column, allyId)
 
       Data.alliances(server, { where: whereString }, function (err, result) {
@@ -236,7 +237,7 @@ exports.players = function (req, res) {
 exports.player = function (req, res) {
   var server = req.params.server,
       playerId = urlencode.decode(req.params.playerId).replace(/\+/g, ' ').replace(/\'/g, "''"),
-      column = (_.isNumber(playerId)) ? 'id' : 'name',
+      column = (!isNaN(playerId)) ? 'id' : 'name',
       whereString = util.format("%s = '%s'", column, playerId),
       start = req.query.start || null,
       end = req.query.end || null
@@ -256,6 +257,19 @@ exports.player = function (req, res) {
     },
 
     function (player, callback) {
+      if (player.alliance === 0) {
+        player.alliancename = ''
+        return callback(null, player)
+      }
+
+      Data.alliances(server, { ids: player.alliance }, function (err, result) {
+        if (err) return callback(err)
+        player.alliancename = result[0].name
+        return callback(null, player)
+      })
+    },
+
+    function (player, callback) {
       whereString = util.format("id = %s", player.id)
 
       Data.playerUpdates(server, { where: whereString, limit: 168 }, function (err, result) {
@@ -263,11 +277,33 @@ exports.player = function (req, res) {
         player.updates = result
         return callback(null, player)
       })
+    },
+
+    function (player, callback) {
+      player.points = accounting.formatNumber(player.points)
+      player.abp = accounting.formatNumber(player.abp)
+      player.dbp = accounting.formatNumber(player.dbp)
+
+      _.map(player.updates, function (o) {
+        o.time = moment.unix(o.time).format("DD/MM/Y HH") + ":00"
+        o.points_delta = accounting.formatNumber(o.points_delta)
+        o.abp_delta = accounting.formatNumber(o.abp_delta)
+        o.dbp_delta = accounting.formatNumber(o.dbp_delta)
+      })
+
+      return callback(null, player)
     }
 
   ], function (err, player) {
     if (err) return res.send(500, err)
-    return res.send(200, player)
+
+    var data = {
+      title: util.format('Player: %s (%s)', player.name, server),
+      player: player
+    }
+
+    return res.render('player', data)
+    // return res.send(200, player)
   })
 }
 
