@@ -1,6 +1,16 @@
 body {
   padding: 10px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background: #000 url('../images/bg.jpg') top center no-repeat;
+}
+
+div.content {
+  width: 80%;
+  background-color: rgba(255,250,226, 0.8);
+  margin: 0 auto;
+  border-radius: 25px;
+  padding: 20px;
+  box-shadow: 0 0 10px 5px rgba(0,0,0,0.4);
 }
 
 a {
@@ -66,6 +76,10 @@ div.compare li span {
   width: 90px;
   font-weight: bold;
   float: left;
+}
+
+.conquers td {
+  font-weight: bold;
 }
 
 div.calculator h4.title {
