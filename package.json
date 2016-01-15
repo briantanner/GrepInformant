@@ -24,6 +24,7 @@
     "express": "3.4.7",
     "jade": "*",
     "moment": "^2.11.1",
+    "morgan": "^1.6.1",
     "mustache-express": "^1.2.1",
     "pg": "^4.4.3",
     "pg-copy-streams": "^0.3.0",

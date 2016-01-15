@@ -5,28 +5,44 @@
 var express = require('express'),
   	http = require('http'),
   	path = require('path'),
-    routes = require('./routes/v1')
-    // mustache = require('mustache-express')
+    morgan = require('morgan'),
+    routes = require('./routes/v1'),
+    Data = require('./lib/model'),
+    middleware = require('./lib/middleware')
 
 var app = express()
 
 // all environments
 app.set('port', process.env.PORT || 8080)
-// app.engine('mustache', mustache())
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'jade')
 app.use(express.favicon())
-app.use(express.logger('dev'))
+// app.use(express.logger('dev'))
+app.use(morgan('short'))
 app.use(express.json())
 app.use(express.urlencoded())
 app.use(express.methodOverride())
-app.use(app.router)
 app.use(express.static(path.join(__dirname, 'public')))
 
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler())
 }
+
+app.locals({
+  site: {
+    title: "Grepolis Informant"
+  },
+  author: {
+    name: "Noob Lance (Lance The Strange)",
+    email: "lance@grepinformant.com"
+  }
+})
+
+app.use(middleware.all)
+app.all('/:server/*', middleware.server)
+
+app.use(app.router)
 
 app.get('/', routes.index)
 app.get('/:server/alliances', routes.alliances)

@@ -50,10 +50,7 @@ block content
             a.bbcodeLink(href="#", style="font-size: 10px; text-decoration: none; color: orange; float: right;", onclick="$('.townBb#{o.town}').toggle(); $('.townName#{o.town}').toggle(); $('.newPlayerBb#{o.newplayerid}#{o.town}').toggle(); $('.newPlayer#{o.newplayerid}#{o.town}').toggle(); $('.oldPlayerBb#{o.oldplayerid}#{o.town}').toggle(); $('.oldPlayer#{o.oldplayerid}#{o.town}').toggle(); return false;") bbcode
 
 block scripts
-  script(type='text/javascript', src='/js/jquery.nice-select.min.js')
-  script(type='text/javascript', src='/js/ui.js')
   script(type='text/javascript').
-    var server = '#{server}';
     (function (UI) {
       $(document).ready(function() {
         UI.loadSelector($('select'));
