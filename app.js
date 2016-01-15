@@ -6,7 +6,8 @@ var express = require('express'),
   	http = require('http'),
   	path = require('path'),
     morgan = require('morgan'),
-    routes = require('./routes/v1'),
+    web = require('./routes/v1'),
+    api = require('./routes/api/v1'),
     Data = require('./lib/model'),
     middleware = require('./lib/middleware')
 
@@ -44,39 +45,41 @@ app.all('/:server/*', middleware.server)
 
 app.use(app.router)
 
-app.get('/', routes.index)
-app.get('/:server/alliances', routes.alliances)
-app.get('/:server/alliance/:alliance', routes.alliance)
-app.get('/:server/players', routes.players)
-app.get('/:server/player/:playerId', routes.player)
-app.get('/:server/towns/:playerId?', routes.towns)
-app.get('/:server/offsets', routes.offsets)
-app.get('/:server/islands', routes.islands)
-app.get('/:server/map/:id?', routes.mapCanvas)
-app.get('/:server/compare', routes.compare)
-app.get('/:server/bgConquers', routes.bgConquers)
-app.get('/:server/allianceConquers/:alliance?', routes.allianceConquers)
-app.get('/:server/allianceLosses/:alliance', routes.allianceLosses)
+app.get('/', web.index)
+app.get('/:server/alliances', web.alliances)
+app.get('/:server/alliance/:alliance', web.alliance)
+app.get('/:server/players', web.players)
+app.get('/:server/player/:playerId', web.player)
+app.get('/:server/towns/:playerId?', web.towns)
+app.get('/:server/offsets', web.offsets)
+app.get('/:server/islands', web.islands)
+app.get('/:server/map/:id?', web.mapCanvas)
+app.get('/:server/compare', web.compare)
+app.get('/:server/bgConquers', web.bgConquers)
+app.get('/:server/allianceConquers/:alliance?', web.allianceConquers)
+app.get('/:server/allianceLosses/:alliance', web.allianceLosses)
 
-app.get('/', routes.index)
-app.get('/v1/:server/alliances', routes.alliances)
-app.get('/v1/:server/players', routes.players)
-app.get('/v1/:server/player/:playerId', routes.player)
-app.get('/v1/:server/towns/:playerId?', routes.towns)
-app.get('/v1/:server/offsets', routes.offsets)
-app.get('/v1/:server/islands', routes.islands)
-app.get('/v1/:server/map/:id?', routes.mapCanvas)
-app.get('/v1/:server/compare', routes.compare)
-app.get('/v1/:server/bgConquers', routes.bgConquers)
-app.get('/v1/:server/allianceConquers/:alliance?', routes.allianceConquers)
-app.get('/v1/:server/allianceLosses/:alliance', routes.allianceLosses)
+// app.get('/', web.index)
+// app.get('/v1/:server/alliances', web.alliances)
+// app.get('/v1/:server/players', web.players)
+// app.get('/v1/:server/player/:playerId', web.player)
+// app.get('/v1/:server/towns/:playerId?', web.towns)
+// app.get('/v1/:server/offsets', web.offsets)
+// app.get('/v1/:server/islands', web.islands)
+// app.get('/v1/:server/map/:id?', web.mapCanvas)
+// app.get('/v1/:server/compare', web.compare)
+// app.get('/v1/:server/bgConquers', web.bgConquers)
+// app.get('/v1/:server/allianceConquers/:alliance?', web.allianceConquers)
+// app.get('/v1/:server/allianceLosses/:alliance', web.allianceLosses)
+// app.get('/v1/:server/farmableIslands/:ocean', web.farmableIslands)
 
-app.get('/v1/api/:server/autocomplete/:table', routes.autocomplete)
-app.get('/v1/api/:server/map', routes.getMap)
-app.post('/v1/api/:server/search', routes.search)
-app.get('/v1/api/:server/map/settings', routes.getMapSettings)
-
-app.get('/v1/:server/farmableIslands/:ocean', routes.farmableIslands)
+app.get('/api/v1/lastHour', api.getLastHour)
+app.get('/api/v1/:server/playerUpdates', api.playerUpdates)
+app.get('/api/v1/:server/conquers', api.conquers)
+app.get('/v1/api/:server/autocomplete/:table', api.autocomplete)
+app.get('/v1/api/:server/map', api.getMap)
+app.post('/v1/api/:server/search', api.search)
+app.get('/v1/api/:server/map/settings', api.getMapSettings)
 
 
 http.createServer(app).listen(app.get('port'), function(){
