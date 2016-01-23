@@ -23,7 +23,7 @@ block content
         input(class='color startEmpty', type='text', name='allycolor[]', value='', autocomplete='off')
 
   div.options
-    form.optionsForm(method='get', action='/v1/'+server+'/map', autocomplete='off')
+    form.optionsForm(method='get', action='/'+server+'/map', autocomplete='off')
       div.allyWrap
         if options && options.ally && options.ally.length
           each id, i in options.ally

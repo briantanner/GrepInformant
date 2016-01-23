@@ -360,7 +360,7 @@ App.prototype.UI = UI;
         url: url,
         data: data,
         success: function( response ) {
-          top.location.href = "/v1/" + server + "/map/" + response.id;
+          top.location.href = "/" + server + "/map/" + response.id;
         }
       });
 
