@@ -14,6 +14,11 @@ exports.index = function (req, res) {
   return res.send(200, "Hello! :)")
 }
 
+exports.home = function (req, res) {
+  var server = req.params.server
+  return res.render('world')
+}
+
 exports.towns = function (req, res) {
   var server = req.params.server,
       playerId = req.params.playerId || null
@@ -86,11 +91,11 @@ exports.alliance = function (req, res) {
         alliance.members = result
         return callback(null, alliance)
       })
-    },
-
-    function (alliance, callback) {
-
     }
+
+    // function (alliance, callback) {
+
+    // }
 
   ], function (err, alliance) {
     if (err) return res.send(500, err)
@@ -381,6 +386,44 @@ exports.offsets = function (req, res) {
     if (err) return res.send(500, err)
     return res.send(200, result)
   })
+}
+
+exports.mailingList = function (req, res) {
+  var server = req.params.server,
+      alliance = req.params.alliance || null,
+      options = {}
+
+  async.waterfall([
+
+    function (callback) {
+      Data.alliances(server, {}, function (err, result) {
+        if (err) return callback(err)
+        return callback(null, { alliances: result })
+      })
+    },
+
+    function (data, callback) {
+
+      if (alliance) {
+        options.where = util.format("alliance = %d", alliance)
+      }
+
+      Data.players(server, options, function (err, result) {
+        if (err) return res.send(500, err)
+
+        result = _.filter(result, function (o) { return o.name.indexOf('guest') === -1 && o.points > 1000 })
+
+        data.list = _.pluck(result, 'name').join('; ')
+
+        return callback(null, data)
+      })
+
+    }
+
+    ], function (err, data) {
+      if (err) return res.send(500, err)
+      return res.render('mailingList', data)
+    })
 }
 
 exports.compare = function (req, res) {

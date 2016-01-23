@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  h1= title
+  div.ally
+    select.allySelect(name='ally[]')
+      option(value='') Select Alliance
+      each o in alliances
+        option(value=o.id) #{o.name} (#{o.rank})
+  span.clear
+  pre(style='width:100%;word-wrap:break-word;') #{list}
+
+block scripts
+  script(type='text/javascript').
+    (function (UI) {
+      $(document).ready(function() {
+        UI.loadSelector($('select'));
+        $('.allySelect').on('change', function () {
+          var id = $(this).val();
+          top.location.href = '/' + server + '/mailingList/' + id;
+        });
+      });
+    })(new UI());

@@ -249,6 +249,13 @@ exports.getLastHour = function (req, res) {
   return res.send(200, timestamp)
 }
 
+exports.getLastTime = function (req, res) {
+  var count = req.query.count,
+      metric = req.query.metric,
+      timestamp = moment().subtract(count, metric).format('X')
+  return res.send(200, timestamp)
+}
+
 exports.playerUpdates = function (req, res) {
   if (!req.query || !req.query.time)
     return res.send(500, "Time parameter required.")
