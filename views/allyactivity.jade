@@ -57,9 +57,10 @@ block content
           strong #{accounting.formatNumber(sum.allbp)}
 
     textarea.bbcode(style='width:600px;height:200px;white-space:pre-wrap;display:none;')
-      | [table][**]Rank[||]Name[||]Towns[||]Towns Delta[||]Att BP[||]Def BP[||]Total BP[/**]&#13;&#10;
+      | [table][**]Rank[||]Name[||]Towns[||]Towns Delta[||]Point Growth[||]Att BP[||]Def BP[||]Total BP[/**]&#13;&#10;
       each o, i in players
-        [*]#{i+1}[|]#{o.name}[|]#{o.towns}[|]#{o.towns_delta}[|]#{o.abp}[|][b]#{o.allbp}[/b][/*]&#13;&#10;
+        [*]#{i+1}[|][player]#{o.name}[/player][|]#{accounting.formatNumber(o.towns)}[|]#{accounting.formatNumber(o.towns_delta)}[|]#{accounting.formatNumber(o.points)}[|]#{accounting.formatNumber(o.abp)}[|][b]#{accounting.formatNumber(o.allbp)}[/b][/*]&#13;&#10;
+      | [**][||]Total[||]#{accounting.formatNumber(sum.towns)}[||]#{accounting.formatNumber(sum.towns_delta)}[||]#{accounting.formatNumber(sum.points)}[||]#{accounting.formatNumber(sum.abp)}[||]#{accounting.formatNumber(sum.dbp)}[||]#{accounting.formatNumber(sum.allbp)}[/**]
       | [/table]
 
 block scripts
