@@ -29,7 +29,7 @@ block content
         td 
           strong Total BP
       each o, i in players
-        tr
+        tr(class=(o.towns > 5 && o.allbp < 2000 || (o.points < 1000 && o.allbp < 1000) || (o.points === 0 && o.abp === 0)) ? 'red' : '')
           td #{i+1}
           td
             a(href='/' + server + '/player/' + o.id) #{o.name}

@@ -308,3 +308,13 @@ span.townInfo {
   max-height: 300px;
   overflow: scroll;
 }
+
+tr.red td {
+  font-weight: bold;
+  color: red;
+}
+
+tr.red a {
+  font-weight: bold;
+  color: red;
+}
