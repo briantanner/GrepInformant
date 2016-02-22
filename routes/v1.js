@@ -103,6 +103,106 @@ exports.alliance = function (req, res) {
   })
 }
 
+exports.allianceActivity = function (req, res) {
+  var server = req.params.server,
+      alliance = req.params.alliance,
+      start = req.query.start || null,
+      end = req.query.end || null,
+      hours = 168
+
+  async.waterfall([
+  
+    function (callback) {
+      Data.alliances(server, {}, function (err, result) {
+        if (err) return callback(err)
+        return callback(null, { alliances: result })
+      })
+    },
+
+    function (data, callback) {
+      var whereString = util.format("alliance = %s", alliance)
+
+      Data.players(server, { where: whereString }, function (err, result) {
+        if (err) return callback(err)
+        data.players = _.pluck(result, 'id')
+        return callback(null, data)
+      })
+    },
+
+    function (data, callback) {
+      var startArray = (start)  ? start.split('-') : null,
+          endArray = (end)      ? end.split('-'): null,
+          startDate  = (start) ? new Date(startArray[0], startArray[1]-1, startArray[2]).getTime() / 1000 : null,
+          endDate    = (end)   ? new Date(endArray[0], endArray[1]-1, endArray[2]).getTime() / 1000 : null,
+          whereArray = [],
+          whereString = "",
+          startDate = (start) ? startDate : ((new Date() / 1000) - (hours * 60 * 60)) - 300
+
+      whereArray.push(util.format("id in (%s)", data.players.join(',')))
+      
+      if (startDate)
+        whereArray.push(util.format("time > %d", startDate))
+      if (endDate)
+        whereArray.push(util.format("time < %d", endDate))
+
+      if (whereArray.length)
+        whereString = whereArray.join(" and ")
+
+      console.log(whereString)
+
+      Data.playerUpdates(server, { where: whereString }, function (err, result) {
+        if (err) return callback(err)
+        return callback(null, _.extend(data, { updates: result }))
+      })
+
+    },
+
+    function (data, callback) {
+      var players = {}
+
+      _.each(data.updates, function (o) {
+        if (!players[o.id])
+          players[o.id] = []
+        
+        players[o.id].push(o)
+      })
+
+      // console.log(_.where(data.alliances, { id: alliance }))
+
+      players = _.map(players, function (a, key) {
+        a = _.sortBy(a, function (o) { return o.time })
+        return {
+          id: _.first(a).id,
+          name: _.first(a).name,
+          abp: _.reduce(a, function (num,o) { return num + parseInt(o.abp_delta,10) }, 0),
+          dbp: _.reduce(a, function (num,o) { return num + parseInt(o.dbp_delta,10) }, 0),
+          allbp: _.reduce(a, function (num,o) { return num + parseInt(o.abp_delta,10) + parseInt(o.dbp_delta,10)}, 0),
+          points: _.reduce(a, function (num,o) { return num + parseInt(o.points_delta,10) }, 0),
+          towns: _.last(a).towns,
+          towns_delta: _.reduce(a, function (num,o) { return num + parseInt(o.towns_delta,10) }, 0)
+        }
+      })
+
+      players = _.sortBy(players, function (o) { return o.allbp }).reverse()
+
+      data.players = players
+      delete data.updates
+
+      return callback(null, data)
+  }
+
+  ], function (err, data) {
+    if (err) return res.send(500, err)
+
+    data.alliance = _.first(_.where(data.alliances, { id: parseInt(alliance,0) }))
+    data.title = util.format("Alliance Activity: %s", data.alliance.name)
+    data.server = server
+
+    // return res.send(200, data)
+    return res.render('allyactivity', data)
+  })
+}
+
 exports.allianceConquers = function (req, res) {
 
   var server = req.params.server,
