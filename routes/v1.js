@@ -142,7 +142,7 @@ exports.allianceActivity = function (req, res) {
           whereString = "",
           startDate = (start) ? startDate : ((new Date() / 1000) - (hours * 60 * 60)) - 300
 
-      whereArray.push(util.format("id = ANY(ARRAY[%s])", data.players.join(',')))
+      whereArray.push(util.format("id = ANY(ARRAY[%s]::int[])", data.players.join(',')))
       
       if (startDate)
         whereArray.push(util.format("time > %d", startDate))
