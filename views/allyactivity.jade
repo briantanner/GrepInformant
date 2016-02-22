@@ -31,7 +31,8 @@ block content
       each o, i in players
         tr
           td #{i+1}
-          td #{o.name}
+          td
+            a(href='/' + server + '/player/' + o.id) #{o.name}
           td #{o.towns}
           td #{o.towns_delta}
           td #{accounting.formatNumber(o.points)}
