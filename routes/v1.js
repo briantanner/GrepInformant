@@ -142,7 +142,7 @@ exports.allianceActivity = function (req, res) {
           whereString = "",
           startDate = (start) ? startDate : ((new Date() / 1000) - (hours * 60 * 60)) - 300
 
-      whereArray.push(util.format("id in (%s)", data.players.join(',')))
+      whereArray.push(util.format("id = ANY(ARRAY[%s])", data.players.join(',')))
       
       if (startDate)
         whereArray.push(util.format("time > %d", startDate))
@@ -201,6 +201,16 @@ exports.allianceActivity = function (req, res) {
     data.alliance = (alliance) ? _.first(_.where(data.alliances, { id: parseInt(alliance,0) })) : null
     data.title = (alliance) ? util.format("Alliance Activity: %s", data.alliance.name) : "Alliance Activity"
     data.server = server
+    data.accounting = accounting
+
+    if (alliance)
+      data.sum = {
+        towns: _.reduce(data.players, function (n,o) { return n + o.towns }, 0),
+        towns_delta: _.reduce(data.players, function (n,o) { return n + o.towns_delta }, 0),
+        abp: _.reduce(data.players, function (n,o) { return n + o.abp }, 0),
+        dbp: _.reduce(data.players, function (n,o) { return n + o.dbp }, 0),
+        allbp: _.reduce(data.players, function (n,o) { return n + o.allbp }, 0)
+      }
 
     // return res.send(200, data)
     return res.render('allyactivity', data)

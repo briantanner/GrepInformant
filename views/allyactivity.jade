@@ -32,10 +32,25 @@ block content
           td #{o.name}
           td #{o.towns}
           td #{o.towns_delta}
-          td #{o.abp}
-          td #{o.dbp}
+          td #{accounting.formatNumber(o.abp)}
+          td #{accounting.formatNumber(o.dbp)}
           td 
-            strong #{o.allbp}
+            strong #{accounting.formatNumber(o.allbp)}
+      tr
+        td
+        td
+          strong Total
+        td
+          strong #{accounting.formatNumber(sum.towns)}
+        td
+          strong #{accounting.formatNumber(sum.towns_delta)}
+        td
+          strong #{accounting.formatNumber(sum.abp)}
+        td
+          strong #{accounting.formatNumber(sum.dbp)}
+        td
+          strong #{accounting.formatNumber(sum.allbp)}
+
     textarea.bbcode(style='width:600px;height:200px;white-space:pre-wrap;display:none;')
       | [table][**]Rank[||]Name[||]Towns[||]Towns Delta[||]Att BP[||]Def BP[||]Total BP[/**]&#13;&#10;
       each o, i in players
