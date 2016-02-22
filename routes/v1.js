@@ -205,6 +205,7 @@ exports.allianceActivity = function (req, res) {
 
     if (alliance)
       data.sum = {
+        points: _.reduce(data.players, function (n,o) { return n + o.points }, 0),
         towns: _.reduce(data.players, function (n,o) { return n + o.towns }, 0),
         towns_delta: _.reduce(data.players, function (n,o) { return n + o.towns_delta }, 0),
         abp: _.reduce(data.players, function (n,o) { return n + o.abp }, 0),

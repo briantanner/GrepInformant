@@ -20,6 +20,8 @@ block content
           strong Towns
         td 
           strong Towns Delta
+        td
+          strong Point Growth
         td 
           strong Att BP
         td 
@@ -32,6 +34,7 @@ block content
           td #{o.name}
           td #{o.towns}
           td #{o.towns_delta}
+          td #{accounting.formatNumber(o.points)}
           td #{accounting.formatNumber(o.abp)}
           td #{accounting.formatNumber(o.dbp)}
           td 
@@ -44,6 +47,8 @@ block content
           strong #{accounting.formatNumber(sum.towns)}
         td
           strong #{accounting.formatNumber(sum.towns_delta)}
+        td
+          strong #{accounting.formatNumber(sum.points)}
         td
           strong #{accounting.formatNumber(sum.abp)}
         td
