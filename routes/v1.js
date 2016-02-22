@@ -120,6 +120,10 @@ exports.allianceActivity = function (req, res) {
     },
 
     function (data, callback) {
+      if (!alliance) {
+        return callback(true, data)
+      }
+
       var whereString = util.format("alliance = %s", alliance)
 
       Data.players(server, { where: whereString }, function (err, result) {
@@ -192,10 +196,10 @@ exports.allianceActivity = function (req, res) {
   }
 
   ], function (err, data) {
-    if (err) return res.send(500, err)
+    if (err && err !== true) return res.send(500, err)
 
-    data.alliance = _.first(_.where(data.alliances, { id: parseInt(alliance,0) }))
-    data.title = util.format("Alliance Activity: %s", data.alliance.name)
+    data.alliance = (alliance) ? _.first(_.where(data.alliances, { id: parseInt(alliance,0) })) : null
+    data.title = (alliance) ? util.format("Alliance Activity: %s", data.alliance.name) : "Alliance Activity"
     data.server = server
 
     // return res.send(200, data)

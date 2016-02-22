@@ -58,7 +58,7 @@ app.get('/:server/map/:id?', web.mapCanvas)
 app.get('/:server/compare', web.compare)
 app.get('/:server/bgConquers', web.bgConquers)
 app.get('/:server/allianceConquers/:alliance?', web.allianceConquers)
-app.get('/:server/allianceActivity/:alliance', web.allianceActivity)
+app.get('/:server/allianceActivity/:alliance?', web.allianceActivity)
 app.get('/:server/allianceLosses/:alliance', web.allianceLosses)
 app.get('/:server/mailingList/:alliance?', web.mailingList)
 
