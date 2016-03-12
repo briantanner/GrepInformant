@@ -1,17 +1,17 @@
 {
-  "name": "Grepolis-Calculator",
+  "name": "Grepolis-Grepolis-Tools",
   "version": "0.1.1",
-  "homepage": "https://github.com/briantanner/Grepolis-Calculator",
+  "homepage": "https://github.com/briantanner/Grepolis-Grepolis-Tools",
   "author": {
     "name": "Brian Tanner",
     "email": "brian@tanner.io"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/briantanner/Grepolis-Calculator.git"
+    "url": "https://github.com/briantanner/Grepolis-Grepolis-Tools.git"
   },
   "bugs": {
-    "url": "https://github.com/briantanner/Grepolis-Calculator/issues"
+    "url": "https://github.com/briantanner/Grepolis-Grepolis-Tools/issues"
   },
   "private": true,
   "scripts": {
@@ -19,19 +19,24 @@
   },
   "dependencies": {
     "accounting": "~0.3.2",
-    "async": "*",
+    "async": "^1.5.2",
+    "bluebird": "^3.3.4",
     "dotenv": "^1.2.0",
     "express": "3.4.7",
     "jade": "*",
     "moment": "^2.11.1",
     "morgan": "^1.6.1",
     "mustache-express": "^1.2.1",
-    "pg": "^4.4.3",
+    "pg": "^4.5.1",
     "pg-copy-streams": "^0.3.0",
     "pg-escape": "^0.1.0",
     "pg-format": "^1.0.1",
+    "pg-hstore": "^2.3.2",
     "pg-native": "^1.9.0",
+    "sequelize": "^3.19.3",
     "underscore": "^1.6.0",
-    "urlencode": "^1.1.0"
+    "urlencode": "^1.1.0",
+    "winston": "^2.2.0",
+    "winston-loggly": "^1.3.1"
   }
 }

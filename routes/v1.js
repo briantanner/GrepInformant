@@ -154,7 +154,7 @@ exports.allianceActivity = function (req, res) {
 
       console.log(whereString)
 
-      Data.playerUpdates(server, { where: whereString }, function (err, result) {
+      Data.playerUpdates(server, 'hourly', { where: whereString }, function (err, result) {
         if (err) return callback(err)
         return callback(null, _.extend(data, { updates: result }))
       })
@@ -279,6 +279,10 @@ exports.allianceConquers = function (req, res) {
     data.title = "Alliance Conquers"
     data.ally = _.sample(data.conquers).newally
     data.server = server
+    data.totalConquers = data.conquers.length
+    data.cqCount = _.countBy(data.conquers, function (o) { return o.oldally })
+    data.cqCount = _.map(data.cqCount, function (k,o) { return { ally: o, count: k } })
+    data.cqCount = _.sortBy(data.cqCount, 'count').reverse()
 
     return res.render('allyconquers', _.extend(defaults, data))
   })
@@ -392,7 +396,7 @@ exports.player = function (req, res) {
     function (player, callback) {
       whereString = util.format("id = %s", player.id)
 
-      Data.playerUpdates(server, { where: whereString, limit: 168 }, function (err, result) {
+      Data.playerUpdates(server, 'daily', { where: whereString, limit: 168 }, function (err, result) {
         if (err) return callback(err)
         player.updates = result
         return callback(null, player)

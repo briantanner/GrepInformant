@@ -1,7 +1,12 @@
-var _ = require('underscore'),
-    Import = require('../lib/import')
+'use strict';
 
-Import.init('hourly', function (err, result) {
+var _ = require('underscore'),
+    logger = require('../lib/logger'),
+    Import = require('../lib/import');
+
+var arg = process.argv[2];
+
+Import.init(arg || 'hourly', function (err, result) {
 	if (err) { console.error(err); }
-	console.log(result)
+	console.log(result);
 });

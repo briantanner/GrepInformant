@@ -8,6 +8,12 @@ block content
       each o in alliances
         option(value=o.id) #{o.name} (#{o.rank})
   span.clear
+  h3 Cities Gained: #{totalConquers}
+  ol
+    each o in cqCount
+      li 
+        span(style='display: inline-block; min-width: 150px; margin-right: 10px;') #{o.ally} :
+        | #{o.count}
   if conquers
     table
       tr
