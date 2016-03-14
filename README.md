@@ -12,6 +12,7 @@ All notable changes to this project will be documented here.
 
 #### Changed
 - Changed alliance activity, conquers, losses routes
+- Fixed readdirRecursive not returning files in subdirectories
 
 ### [0.2.0] - 2016-03-14
 #### Added
