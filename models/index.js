@@ -1,33 +1,30 @@
 'use strict';
 
-var fs = require('fs'),
-    path = require('path'),
-    Sequelize = require('sequelize'),
-    basename = path.basename(module.filename),
+const fs = require('fs');
+const path = require('path');
+const Sequelize = require('sequelize');
+
+let basename = path.basename(module.filename),
     db = {};
 
 require('dotenv').load();
 
-var sequelize = new Sequelize(process.env.HEROKU_POSTGRESQL_CHARCOAL_URL, {
-  dialectOptions: {
-    ssl: true
-  },
-  define: {
-    timestamps: false
-  }
+let sequelize = new Sequelize(process.env.HEROKU_POSTGRESQL_CHARCOAL_URL, {
+  dialectOptions: { ssl: true },
+  define: { timestamps: false }
 });
 
 fs
   .readdirSync(__dirname)
-  .filter(function(file) {
+  .filter(file => {
     return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
   })
-  .forEach(function(file) {
-    var model = sequelize['import'](path.join(__dirname, file));
+  .forEach(file => {
+    let model = sequelize['import'](path.join(__dirname, file));
     db[model.name] = model;
   });
 
-Object.keys(db).forEach(function(modelName) {
+Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
