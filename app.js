@@ -72,18 +72,14 @@ function createRoutes(routes) {
 }
 
 // load controllers
-utils.readdirRecursive(controllerPath)
-  .then(files => {
-    files.forEach(file => {
-      if (file.indexOf('v1') !== -1) {
-        return;
-      }
-      return createRoutes(require(file));
-    });
-  })
-  .catch(err => {
-    logger.error(err);
+utils.readdirRecursive(controllerPath, files => {
+  files.forEach(file => {
+    if (file.indexOf('v1') !== -1) {
+      return;
+    }
+    return createRoutes(require(file));
   });
+});
 
 // create server
 http.createServer(app).listen(app.get('port'), () => {
