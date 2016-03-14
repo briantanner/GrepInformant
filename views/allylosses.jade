@@ -13,7 +13,7 @@ block content
   span.clear
   h3 Cities Lost: #{totalLosses}
   ol
-    each o in lossCount
+    each o in cqCount
       li 
         span(style='display: inline-block; min-width: 150px; margin-right: 10px;') #{o.ally} :
         | #{o.count}
@@ -31,21 +31,21 @@ block content
         tr
           td #{o.time}
           td 
-            span.townName(class='townName' + o.town) #{o.townname} 
-            span.townBb(class='townBb' + o.town, style="display:none;") [town]#{o.town}[/town] 
+            span.townName(class='townName' + o.town.id) #{o.town.name} 
+            span.townBb(class='townBb' + o.town.id, style="display:none;") [town]#{o.town.id}[/town] 
             span.points (#{o.points} points) 
           td
             span.ocean o#{o.ocean}
           td 
-            span.newPlayer(class='newPlayer' + o.newplayerid + o.town) #{o.newplayer} 
-            span.newPlayerBb(class='newPlayerBb' + o.newplayerid + o.town, style="display:none;") [player]#{o.newplayerid}[/player] 
-            span.alliance (#{o.newally})
+            span.newPlayer(class='newPlayer' + o.newplayer.id + o.town.id) #{o.newplayer.name} 
+            span.newPlayerBb(class='newPlayerBb' + o.newplayer.id + o.town.id, style="display:none;") [player]#{o.newplayer.name}[/player] 
+            span.alliance (#{o.newally.name})
           td
-            span.oldPlayer(class='oldPlayer' + o.oldplayerid + o.town) #{o.oldplayer} 
-            span.oldPlayerBb(class='oldPlayerBb' + o.oldplayerid + o.town, style="display:none;") [player]#{o.oldplayerid}[/player] 
-            span.alliance (#{o.oldally})
+            span.oldPlayer(class='oldPlayer' + o.oldplayer.id + o.town.id) #{o.oldplayer.name} 
+            span.oldPlayerBb(class='oldPlayerBb' + o.oldplayer.id + o.town.id, style="display:none;") [player]#{o.oldplayer.name}[/player] 
+            span.alliance (#{o.oldally.name})
           td
-            a.bbcodeLink(href="#", style="font-size: 10px; text-decoration: none; color: orange; float: right;", onclick="$('.townBb#{o.town}').toggle(); $('.townName#{o.town}').toggle(); $('.newPlayerBb#{o.newplayerid}#{o.town}').toggle(); $('.newPlayer#{o.newplayerid}#{o.town}').toggle(); $('.oldPlayerBb#{o.oldplayerid}#{o.town}').toggle(); $('.oldPlayer#{o.oldplayerid}#{o.town}').toggle(); return false;") bbcode
+            a.bbcodeLink(href="#", style="font-size: 10px; text-decoration: none; color: orange; float: right;", onclick="$('.townBb#{o.town.id}').toggle(); $('.townName#{o.town.id}').toggle(); $('.newPlayerBb#{o.newplayer.id}#{o.town.id}').toggle(); $('.newPlayer#{o.newplayer.id}#{o.town.id}').toggle(); $('.oldPlayerBb#{o.oldplayer.id}#{o.town.id}').toggle(); $('.oldPlayer#{o.oldplayer.id}#{o.town.id}').toggle(); return false;") bbcode
 
 block scripts
   script(type='text/javascript', src='/js/jquery.nice-select.min.js')

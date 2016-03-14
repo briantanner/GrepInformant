@@ -1,29 +1,35 @@
 {
-  "name": "Grepolis-Grepolis-Tools",
+  "name": "Grepolis-Tools",
   "version": "0.1.1",
-  "homepage": "https://github.com/briantanner/Grepolis-Grepolis-Tools",
+  "homepage": "https://github.com/briantanner/Grepolis-Tools",
   "author": {
     "name": "Brian Tanner",
     "email": "brian@tanner.io"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/briantanner/Grepolis-Grepolis-Tools.git"
+    "url": "https://github.com/briantanner/Grepolis-Tools.git"
   },
   "bugs": {
-    "url": "https://github.com/briantanner/Grepolis-Grepolis-Tools/issues"
+    "url": "https://github.com/briantanner/Grepolis-Tools/issues"
   },
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "test:hint": "jshint **",
+    "test:lint": "eslint **",
+    "test:mocha": "./node_modules/.bin/mocha --reporter spec --recursive",
+    "start": "node app.js",
+    "test": "npm run test:hint && npm run test:lint && npm run test:mocha"
   },
   "dependencies": {
     "accounting": "~0.3.2",
     "async": "^1.5.2",
     "bluebird": "^3.3.4",
+    "chai": "^3.5.0",
     "dotenv": "^1.2.0",
     "express": "3.4.7",
     "jade": "*",
+    "mocha": "^2.4.5",
     "moment": "^2.11.1",
     "morgan": "^1.6.1",
     "mustache-express": "^1.2.1",
@@ -33,6 +39,7 @@
     "pg-format": "^1.0.1",
     "pg-hstore": "^2.3.2",
     "pg-native": "^1.9.0",
+    "request": "^2.69.0",
     "sequelize": "^3.19.3",
     "underscore": "^1.6.0",
     "urlencode": "^1.1.0",
