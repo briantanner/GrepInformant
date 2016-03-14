@@ -6,7 +6,7 @@ const moment = require('moment');
 
 let models = require('../../models'),
     sequelize = models.sequelize,
-    logger = require('../../logger')({
+    logger = require('../../lib/logger')({
       consoleLabel: 'web',
       tags: ['web']
     });

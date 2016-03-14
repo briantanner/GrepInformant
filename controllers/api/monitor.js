@@ -4,7 +4,7 @@ const _ = require('underscore');
 const BaseController = require('../base');
 
 let models = require('../../models'),
-    logger = require('../lib/logger')({
+    logger = require('../../lib/logger')({
       consoleLabel: 'web',
       tags: ['web']
     });
@@ -17,13 +17,18 @@ class Monitor extends BaseController {
     return {
       playerUpdates: {
         method: 'get',
-        uri: '/api/v1/monitor/playerUpdates',
+        uri: '/api/v1/:server/monitor/playerUpdates',
         handler: this.playerUpdates.bind(this)
       },
       conquers: {
         method: 'get',
-        uri: '/api/v1/monitor/conquers',
+        uri: '/api/v1/:server/monitor/conquers',
         handler: this.conquers.bind(this)
+      },
+      allianceChanges: {
+        method: 'get',
+        uri: '/api/v1/:server/monitor/allianceChanges',
+        handler: this.allianceChanges.bind(this)
       }
     };
   }
@@ -77,13 +82,13 @@ class Monitor extends BaseController {
     if (alliances) {
       where = _.extend(where, {
         $or: [
-          { newally: { $in: alliances } },
-          { oldally: { $in: alliances } }
+          { newally: { $in: alliances.split(',') } },
+          { oldally: { $in: alliances.split(',') } }
         ]
       });
     }
 
-    super.getConquers({ where: where })
+    super.getConquers(where)
     .then(conquers => {
       let data = {
         count: conquers.length,
@@ -91,6 +96,38 @@ class Monitor extends BaseController {
       };
 
       return res.send(200, data);
+    })
+    .catch(err => {
+      logger.error(err);
+      return res.send(500, err);
+    });
+  }
+
+  allianceChanges(req, res) {
+    let server = req.params.server,
+        time = req.query.time || null,
+        alliances = req.query.alliances || null,
+        where = { server: server };
+
+    if (!time) {
+      return res.send(500, 'Time parameter required.');
+    }
+
+    where.time = { $gte: time };
+    if (alliances) {
+      where = _.extend(where, {
+        $or: [
+          { new_alliance: { $in: alliances.split(',') } },
+          { old_alliance: { $in: alliances.split(',') } }
+        ]
+      });
+    }
+
+    models.AllianceMemberChanges.findAll({
+      where: where
+    })
+    .then(changes => {
+      return res.send(200, changes);
     })
     .catch(err => {
       logger.error(err);
