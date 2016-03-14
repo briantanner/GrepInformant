@@ -21,6 +21,7 @@
     "test:mocha": "./node_modules/.bin/mocha --reporter spec --recursive",
     "test": "npm run test:hint && npm run test:lint && npm run test:mocha"
   },
+  "engine": "node >= 5.0.0",
   "dependencies": {
     "accounting": "~0.3.2",
     "async": "^1.5.2",
