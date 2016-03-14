@@ -53,7 +53,8 @@ class Monitor extends BaseController {
 
     models.PlayerUpdates.findAll({
       where: where,
-      order: 'time DESC'
+      order: 'time DESC',
+      limit: 3000
     })
     .then(updates => {
       updates = updates.map(o => { return o.toJSON(); });
@@ -130,7 +131,12 @@ class Monitor extends BaseController {
       where: where
     })
     .then(changes => {
-      return res.send(200, changes);
+      let data = {
+        count: changes.length,
+        updates: changes
+      };
+
+      return res.send(200, data);
     })
     .catch(err => {
       logger.error(err);
