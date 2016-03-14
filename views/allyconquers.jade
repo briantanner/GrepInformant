@@ -8,7 +8,10 @@ block content
       each o in alliances
         option(value=o.id) #{o.name} (#{o.rank})
   span.clear
-  h3 Cities Gained: #{totalConquers}
+  if (!hasStartTime)
+    h3 #{subtitle}: #{totalConquers} (30 day)
+  else
+    h3 #{subtitle}: #{totalConquers}
   ol
     each o in cqCount
       li 
@@ -59,7 +62,7 @@ block scripts
         UI.loadSelector($('select'));
         $('.allySelect').on('change', function () {
           var id = $(this).val();
-          top.location.href = '/' + server + '/alliance/' + id + '/conquers';
+          top.location.href = '/' + server + '/alliance/' + id + '/#{routeType}';
         });
       });
     })(new UI());

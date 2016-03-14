@@ -210,12 +210,17 @@ class Alliance extends BaseController {
         end = req.query.end || null,
         hideInternals = req.query.hideinternals || null,
         where = { server: server },
+        hasStart = start,
         startTime, endTime;
 
     let handleError = function (err) {
       logger.error(err);
       return res.send(500, err);
     };
+
+    if (!start) {
+      start = moment.unix(moment().format('X') - 2592000); // 30 day limit
+    }
 
     startTime = (start) ? moment(start).format('X') : null;
     endTime = (end) ? moment(end).format('X') : null;
@@ -234,10 +239,13 @@ class Alliance extends BaseController {
     .then(conquers => {
       let data = {
         title: "Alliance Conquers",
+        subtitle: "Cities Gained",
         ally: _.sample(conquers).newally,
         server: server,
         totalConquers: conquers.length,
-        conquers: conquers
+        conquers: conquers,
+        hasStartTime: hasStart,
+        routeType: 'conquers'
       };
 
       data.cqCount = _.countBy(conquers, o => { return o.oldally.name; });
@@ -262,12 +270,17 @@ class Alliance extends BaseController {
         start = req.query.start || null,
         end = req.query.end || null,
         where = { server: server },
+        hasStart = start,
         startTime, endTime;
 
     let handleError = function (err) {
       logger.error(err);
       return res.send(500, err);
     };
+
+    if (!start) {
+      start = moment.unix(moment().format('X') - 2592000); // 30 day limit
+    }
 
     startTime = (start) ? moment(start).format('X') : null;
     endTime = (end) ? moment(end).format('X') : null;
@@ -287,13 +300,16 @@ class Alliance extends BaseController {
     .then(conquers => {
       let data = {
         title: "Alliance Losses",
+        subtitle: "Cities Lost",
         ally: _.sample(conquers).newally,
         server: server,
-        totalLosses: conquers.length,
-        losses: conquers
+        totalConquers: conquers.length,
+        conquers: conquers,
+        hasStartTime: hasStart,
+        routeType: 'losses'
       };
 
-      data.cqCount = _.countBy(conquers, o => { return o.oldally.name; });
+      data.cqCount = _.countBy(conquers, o => { return o.newally.name; });
       data.cqCount = _.chain(data.cqCount)
         .map((o,i) => { return { ally: i, count: o }; })
         .filter(o => { return o.count >= 10; })
@@ -301,7 +317,7 @@ class Alliance extends BaseController {
         .reverse()
         .value();
 
-      return res.render('allylosses', _.extend(defaults, data));
+      return res.render('allyconquers', _.extend(defaults, data));
 
     })
     .catch(handleError);
