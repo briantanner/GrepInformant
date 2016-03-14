@@ -71,7 +71,7 @@ block scripts
         UI.loadSelector($('select'));
         $('.allySelect').on('change', function () {
           var id = $(this).val();
-          top.location.href = '/' + server + '/allianceActivity/' + id;
+          top.location.href = '/' + server + '/alliance/' + id + '/activity';
         });
       });
     })(new UI());

@@ -4,16 +4,22 @@ const http = require('http');
 const path = require('path');
 const morgan = require('morgan');
 const express = require('express');
+const Router = require('named-routes');
 
 let app = express(),
     utils = require('./lib/utils'),
     middleware = require('./lib/middleware'),
+    redirects = require('./redirects.json'),
     logger = require('./lib/logger')({
       consoleLabel: 'web',
       tags: ['web']
     }),
+    router = new Router(),
     controllerPath = require("path").join(__dirname, "controllers"),
     routes = [];
+
+router.extendExpress(app);
+router.registerAppHelpers(app);
 
 // create write stream for morgan logs to winston
 logger.stream = {
@@ -61,13 +67,13 @@ app.locals({
 app.use(middleware.worlds);
 app.all('/:server/*', middleware.server);
 
-app.use(app.router);
+// app.use(app.router);
 
 // create routes
 function createRoutes(routes) {
   for (let o in routes) {
     let route = routes[o];
-    app[route.method](route.uri, route.handler);
+    app[route.method](route.uri, route.name, route.handler);
   }
 }
 
@@ -78,6 +84,14 @@ utils.readdirRecursive(controllerPath, files => {
       return;
     }
     return createRoutes(require(file));
+  });
+});
+
+// create 301 redirects
+redirects.forEach(redirect => {
+  app.get(redirect.route, function (req, res) {
+    let url = app.namedRoutes.build(redirect.namedRoute, req.params);
+    res.redirect(301, url);
   });
 });
 

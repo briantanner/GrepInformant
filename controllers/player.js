@@ -22,11 +22,13 @@ class Player extends BaseController {
     return {
       players: {
         method: 'get',
+        name: 'players',
         uri: '/:server/players',
         handler: this.players.bind(this)
       },
       player: {
         method: 'get',
+        name: 'player',
         uri: '/:server/player/:playerId',
         handler: this.player.bind(this)
       }

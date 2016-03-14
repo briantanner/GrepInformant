@@ -19,6 +19,7 @@ class Map {
     return {
       map: {
         method: 'get',
+        name: 'map',
         uri: '/:server/map/:id?',
         handler: this.getMap.bind(this)
       }

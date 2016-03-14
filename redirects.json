@@ -1,0 +1,14 @@
+[
+  {
+    "route": "/:server/allianceActivity/:alliance",
+    "namedRoute": "alliance.activity"
+  },
+  {
+    "route": "/:server/allianceConquers/:alliance",
+    "namedRoute": "alliance.conquers"
+  },
+  {
+    "route": "/:server/allianceLosses/:alliance",
+    "namedRoute": "alliance.losses"
+  }
+]

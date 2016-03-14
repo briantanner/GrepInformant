@@ -25,27 +25,32 @@ class Alliance extends BaseController {
     return {
       alliances: {
         method: 'get',
+        name: 'alliances',
         uri: '/:server/alliances',
         handler: this.alliances.bind(this)
       },
       alliance: {
         method: 'get',
+        name: 'alliance',
         uri: '/:server/alliance/:alliance',
         handler: this.alliance.bind(this)
       },
       allianceActivity: {
         method: 'get',
-        uri: '/:server/allianceActivity/:alliance',
+        name: 'alliance.activity',
+        uri: '/:server/alliance/:alliance/activity',
         handler: this.allianceActivity.bind(this)
       },
       allianceConquers: {
         method: 'get',
-        uri: '/:server/allianceConquers/:alliance',
+        name: 'alliance.conquers',
+        uri: '/:server/alliance/:alliance/conquers',
         handler: this.allianceConquers.bind(this)
       },
       allianceLosses: {
         method: 'get',
-        uri: '/:server/allianceLosses/:alliance',
+        name: 'alliance.losses',
+        uri: '/:server/alliance/:alliance/losses',
         handler: this.allianceLosses.bind(this)
       }
     };

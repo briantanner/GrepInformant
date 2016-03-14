@@ -17,16 +17,19 @@ class Map {
     return {
       map: {
         method: 'get',
+        name: 'api.map',
         uri: '/api/v1/:server/map',
         handler: this.getMap.bind(this)
       },
       createSearch: {
         method: 'post',
+        name: 'api.map.search',
         uri: '/api/v1/:server/map/search',
         handler: this.createSearch.bind(this)
       },
       settings: {
         method: 'get',
+        name: 'api.map.settings',
         uri: '/api/v1/:server/map/settings',
         handler: this.getSettings.bind(this)
       }

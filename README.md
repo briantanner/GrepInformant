@@ -5,6 +5,14 @@ Grepolis-Tools
 ## Change Log
 All notable changes to this project will be documented here.
 
+### [Unreleased]
+#### Added
+- allianceChanges api method
+- Named routes and 301 redirect support
+
+#### Changed
+- Changed alliance activity, conquers, losses routes
+
 ### [0.2.0] - 2016-03-14
 #### Added
 - Sequelize models for database interaction

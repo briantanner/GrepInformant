@@ -13,6 +13,7 @@ class Index {
     return {
       autocomplete: {
         method: 'get',
+        name: 'api.autocomplete',
         uri: '/api/v1/:server/autocomplete/:table',
         handler: this.autocomplete.bind(this)
       }

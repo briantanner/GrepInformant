@@ -9,11 +9,13 @@ class Index {
     return {
       index: {
         method: 'get',
+        name: 'index',
         uri: '/',
         handler: this.index.bind(this)
       },
       home: {
         method: 'get',
+        name: 'home',
         uri: '/:server',
         handler: this.home.bind(this)
       }

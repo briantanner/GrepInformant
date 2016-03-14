@@ -17,16 +17,19 @@ class Monitor extends BaseController {
     return {
       playerUpdates: {
         method: 'get',
-        uri: '/api/v1/:server/monitor/playerUpdates',
+        name: 'api.monitor.updates',
+        uri: '/api/v1/:server/monitor/updates',
         handler: this.playerUpdates.bind(this)
       },
       conquers: {
         method: 'get',
+        name: 'api.monitor.conquers',
         uri: '/api/v1/:server/monitor/conquers',
         handler: this.conquers.bind(this)
       },
       allianceChanges: {
         method: 'get',
+        name: 'api.monitor.allianceChanges',
         uri: '/api/v1/:server/monitor/allianceChanges',
         handler: this.allianceChanges.bind(this)
       }
