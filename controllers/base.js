@@ -32,6 +32,7 @@ class BaseController {
       models.Conquers.findAll({
         where: where,
         order: 'time DESC',
+        limit: 3000,
         include: [
           { model: models.Player, as: 'newPlayerObj',
             where: sequelize.literal('"Conquers".newplayer = "newPlayerObj".id'),
