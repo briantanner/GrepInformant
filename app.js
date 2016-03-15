@@ -5,6 +5,7 @@ const path = require('path');
 const morgan = require('morgan');
 const express = require('express');
 const Router = require('named-routes');
+const exphbs  = require('express-handlebars');
 
 let app = express(),
     utils = require('./lib/utils'),
@@ -37,7 +38,15 @@ logger.stream = {
 
 app.set('port', process.env.PORT || 8080);
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+
+app.engine('hbs', exphbs({
+  extname: '.hbs',
+  defaultLayout: 'main',
+  partialsDir: 'views/partials/'
+}));
+
+app.set('view engine', 'hbs');
+
 app.use(express.favicon());
 
 // use morgan for better access logs
@@ -65,7 +74,8 @@ app.locals({
 });
 
 app.use(middleware.worlds);
-app.all('/:server/*', middleware.server);
+app.all('/:server*', middleware.server);
+app.all('/:server/alliance/:alliance/*?', middleware.alliances);
 
 // app.use(app.router);
 

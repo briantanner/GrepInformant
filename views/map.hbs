@@ -1,0 +1,73 @@
+<!-- TODO: Fix unsupported jade extends -->
+extends layout
+<link rel="stylesheet" href="/stylesheets/tipped.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.min.css">
+<link rel="stylesheet" href="/stylesheets/nice-select.css">
+<link rel="stylesheet" href="/stylesheets/easy-autocomplete.min.css">
+<script type="text/template" id="playerTemplate">
+  <div class="player"><input type="text" name="player[]" placeholder="Player Name" class="name"><input type="text" name="playercolor[]" value="{{''}}" autocomplete="off" class="color startEmpty">
+    <ul style="display:none;" class="players"></ul>
+  </div>
+</script>
+<script type="text/template" id="allyTemplate">
+  <div class="ally"><select name="ally[]" class="allySelect"><option value="{{''}}">Select Alliance</option>{{#each alliances as |o|}}<option value="{{o.id}}">{{o.name}} ({{o.rank}})</option>{{/each}}</select><input type="text" name="allycolor[]" value="{{''}}" autocomplete="off"
+      class="color startEmpty"></div>
+</script>
+<div class="options">
+  <form method="get" action="/v1/{{server}}/map" autocomplete="off" class="optionsForm">
+    <div class="allyWrap">
+      {{#if options && options.ally && options.ally.length}}
+        {{#each options.ally as |id|}}
+          <div class="ally"><select name="ally[]" class="allySelect"><option value="{{''}}">Select Alliance</option>{{#each alliances as |o|}}{{if ( (parseInt(id,10) === parseInt(o.id,10)))}}{{else}}
+<option value="{{o.id}}">{{o.name}} ({{o.rank}})</option>{{/if}}{{/each}}</select><input type="text" name="allycolor[]" value="{{(options.allycolor && options.allycolor[i]) ? options.allycolor[i] : ''}}" autocomplete="off" class="color startEmpty"></div>
+        {{/each}}
+      {{else}}
+        <div class="ally"><select name="ally[]" class="allySelect"><option value="{{''}}">Select Alliance</option>{{#each alliances as |o|}}<option value="{{o.id}}">{{o.name}} ({{o.rank}})</option>{{/each}}</select><input type="text" name="allycolor[]" value="{{''}}" autocomplete="off"
+            class="color startEmpty"></div>
+      {{/if}}<a href="#" class="addAlly">+ Add Alliance</a><span class="clear"></span></div>
+    <div class="playerWrap">
+      {{#if options && options.player && options.player.length}}
+        {{#each options.player as |o|}}
+          <div class="player"><input type="text" name="player[]" placeholder="Player Name" value="{{o.name}}" class="name"><input type="text" name="playercolor[]" value="{{(options.playercolor && options.playercolor[i]) ? options.playercolor[i] : ''}}" autocomplete="off"
+              class="color startEmpty">
+            <ul style="display:none;" class="players"></ul>
+          </div>
+        {{/each}}
+      {{else}}
+        <div class="player"><input type="text" name="player[]" placeholder="Player Name" class="name"><input type="text" name="playercolor[]" value="{{''}}" autocomplete="off" class="color startEmpty">
+          <ul style="display:none;" class="players"></ul>
+        </div>
+      {{/if}}<a href="#" class="addPlayer">+ Add Player</a></div><input type="submit" value="Generate Map"></form>
+</div>
+<div class="map-container">
+  <div class="map">
+    <div class="grid">{{var v = 200}}{{while ((v
+      < 2000))}} {{var h = 200}} {{while ((h < 2000))}} {{var num = ""}} {{for (var i = 0; i < 10; i++) {}} {{}} }</div>
+        {{#if towns}}
+          {{var zIndex = 100;}}
+          <div class='townGroup1'>
+            {{#each towns as |o|}}
+              {{#if options && options.ally}}
+                {{zIndex = 100 - options.ally.indexOf(""+o.alliance)}}{{/if}}
+              {{#if i % 100===0 }}
+          </div>
+          <div class='townGroup{{(i/100)+1}}'>
+            {{/if}}
+            {{#if o.points < 2000}}
+              <span style="left: {{(o.exactX * 2)}}px; top: {{(o.exactY * 2)}}px; {{((o.color && o.color.length) ? 'background-color: '}}{{o.color : '')}}; z-index: {{zIndex}}" class="town townSmall {{o.player}}"></span>{{/if}}{{else if ( (o.points
+            <
+              6000))}} {{else}} <span style="left: {{(o.exactX * 2)}}px; top: {{(o.exactY * 2)}}px; {{((o.color && o.color.length) ? 'background-color: '}}{{o.color : '')}}; z-index: {{zIndex}}" class="town {{o.player}}">
+              </span>
+        {{/if}}<span class="townInfo">{{o.name}}<br>{{o.player}}<br>{{o.points}}<br>[town]{{o.id}}[/town]</span>{{/each}}
+        </div>
+        {{/if}}
+    </div>
+  </div>
+  <script type="text/javascript">
+    var server = '{{server}}';
+  </script>
+  <script type="text/javascript" src="/js/tipped.js"></script>
+  <script type="text/javascript" src="/js/map.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.min.js"></script>
+  <script type="text/javascript" src="/js/jquery.nice-select.min.js"></script>
+  <script type="text/javascript" src="/js/jquery.easy-autocomplete.min.js"></script>

@@ -1,0 +1,56 @@
+<h3>{{title}}</h3>
+<table>
+  <tr>
+    <td>Name</td>
+    <td>{{player.name}}</td>
+  </tr>
+  <tr>
+    <td>Alliance</td>
+    <td>{{player.alliance.name}}</td>
+  </tr>
+  <tr>
+    <td>Rank</td>
+    <td>{{player.rank}}</td>
+  </tr>
+  <tr>
+    <td>Towns</td>
+    <td>{{player.towns}}</td>
+  </tr>
+  <tr>
+    <td>Points</td>
+    <td>{{player.points}}</td>
+  </tr>
+  <tr>
+    <td>ABP</td>
+    <td>{{player.abp}}</td>
+  </tr>
+  <tr>
+    <td>DBP</td>
+    <td>{{player.dbp}}</td>
+  </tr>
+</table>
+<h3>Updates (hourly)</h3>
+<table class="updates">
+  <tr>
+    <th>Date/Time</th>
+    <th>Name</th>
+    <th>Rank</th>
+    <th>Points</th>
+    <th>Towns</th>
+    <th>ABP</th>
+    <th>DBP</th>
+  </tr>
+  {{#each player.updates}}
+    <tr>
+      <td>{{time}}</td>
+      <td>{{name}}</td>
+      <td>{{rank}}</td>
+      <td>{{points_delta}}</td>
+      <td>{{towns_delta}}</td>
+      <td>{{abp_delta}}</td>
+      <td>{{dbp_delta}}</td>
+    </tr>
+  {{/each}}
+</table>
+
+{{>footer}}

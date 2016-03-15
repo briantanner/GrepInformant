@@ -1,0 +1,76 @@
+  <h1>{{title}}</h1>
+
+  {{>allyselect}}
+
+  {{#unless hasStartTime}}
+    <h3>{{subtitle}}: {{totalConquers}} (30 day)</h3>
+  {{else}}
+    <h3>{{subtitle}}: {{totalConquers}}</h3>
+  {{/unless}}
+  <ol>
+    {{#each cqCount}}
+      <li>
+        <span style="display: inline-block; min-width: 150px; margin-right: 10px;">{{ally}} :</span>{{count}}
+      </li>
+    {{/each}}
+  </ol>
+  {{#if conquers}}
+    <table>
+      <tr>
+        <td><strong>Time</strong></td>
+        <td><strong>Town</strong></td>
+        <td><strong>Ocean</strong></td>
+        <td><strong>New Player</strong></td>
+        <td><strong>Old Player</strong></td>
+        <td><a href="#" style="font-size: 10px; text-decoration: none; color: orange; float: right;" onclick="$('.townBb').toggle(); $('.townName').toggle(); $('.newPlayerBb').toggle(); $('.newPlayer').toggle(); $('.oldPlayerBb').toggle(); $('.oldPlayer').toggle(); $('.bbcodeLink').toggle(); return false;">bbcode all</a></td>
+      </tr>
+      {{#each conquers}}
+        <tr>
+          <td>{{time}}</td>
+          <td>
+            <span class="townName townName{{town.id}}">{{town.name}}</span>
+            <span style="display:none;" class="townBb townBb{{town.id}}">
+              [town]{{town.id}}[/town]
+            </span>
+            <span class="points">({{points}} points) </span>
+          </td>
+          <td>
+            <span class="ocean">o{{ocean}}</span>
+          </td>
+          <td>
+            {{#if newplayer.id}}
+              <span class="newPlayer newPlayer{{newplayer.id}}{{town.id}}">
+                <a href="/{{server}}/player/{{newplayer.id}}">{{newplayer.name}}</a>
+              </span>
+            {{else}}
+              <span class="newPlayer newPlayer{{newplayer.id}}{{town.id}}">{{newplayer.name}}</span>
+            {{/if}}
+            <span style="display:none;" class="newPlayerBb newPlayerBb{{newplayer.id}}{{town.id}}">
+              [player]{{newplayer.name}}[/player]
+            </span>
+            <span class="alliance">({{newally.name}})</span>
+          </td>
+          <td>
+            {{#if oldplayer.id}}
+              <span class="oldPlayer oldPlayer{{oldplayer.id}}{{town.id}}">
+                <a href="/{{server}}/player/{{oldplayer.id}}">{{oldplayer.name}}</a>
+              </span>
+            {{else}}
+              <span class="oldPlayer oldPlayer{{oldplayer.id}}{{town.id}}">{{oldplayer.name}} </span>
+            {{/if}}
+            <span style="display:none;" class="oldPlayerBb oldPlayerBb{{oldplayer.id}}{{town.id}}">
+              [player]{{oldplayer.name}}[/player]
+            </span>
+            <span class="alliance">({{oldally.name}})</span>
+          </td>
+          <td><a href="#" style="font-size: 10px; text-decoration: none; color: orange; float: right;" onclick="$('.townBb{{town.id}}').toggle(); $('.townName{{town.id}}').toggle(); $('.newPlayerBb{{newplayer.id}}{{town.id}}').toggle(); $('.newPlayer{{newplayer.id}}{{town.id}}').toggle(); $('.oldPlayerBb{{oldplayer.id}}{{town.id}}').toggle(); $('.oldPlayer{{oldplayer.id}}{{town.id}}').toggle(); return false;" class="bbcodeLink">bbcode</a></td>
+        </tr>
+      {{/each}}
+    </table>
+  {{/if}}
+
+{{>footer}}
+
+  <script type="text/javascript">
+    var allyEndpoint = '/conquers';
+  </script>

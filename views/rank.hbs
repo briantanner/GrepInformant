@@ -1,0 +1,65 @@
+<!-- TODO: Fix unsupported jade extends -->
+extends layout
+{{#if players}}
+  <table>
+    <tr>
+      <th>Rank</th>
+      <th>Name</th>
+      <th>Cities</th>
+      <th>Points</th>
+      <th>ABP</th>
+      <th>DBP</th>
+      <th>Total BP</th>
+      <th>ABP Rank</th>
+      <th>DBP Rank</th>
+      <th>World Rank</th>
+      <th>World ABP</th>
+      <th>World DBP</th>
+      <th>Point Score</th>
+      <th>ABP Score</th>
+      <th>DBP Score</th>
+      <th>Total Score</th>
+    </tr>
+    {{#each players as |o|}}
+      {{#if o.alliance_rank % 2==0 }}
+        <tr class="alt">
+          <td>{{o.alliance_rank}}</td>
+          <td>{{o.name}}</td>
+          <td class="center">{{o.towns}}</td>
+          <td class="center">{{o.points}}</td>
+          <td class="center">{{o.abp}}</td>
+          <td class="center">{{o.dbp}}</td>
+          <td class="center">{{o.tbp}}</td>
+          <td class="center">{{o.abp_rank}}</td>
+          <td class="center">{{o.dbp_rank}}</td>
+          <td class="center">{{o.rank_world}}</td>
+          <td class="center">{{o.abp_rank_world}}</td>
+          <td class="center">{{o.dbp_rank_world}}</td>
+          <td class="center">{{o.rank_points}}</td>
+          <td class="center">{{o.abp_points}}</td>
+          <td class="center">{{o.dbp_points}}</td>
+          <td class="center bold">{{o.total_points}}</td>
+        </tr>
+      {{else}}
+        <tr>
+          <td>{{o.alliance_rank}}</td>
+          <td>{{o.name}}</td>
+          <td class="center">{{o.towns}}</td>
+          <td class="center">{{o.points}}</td>
+          <td class="center">{{o.abp}}</td>
+          <td class="center">{{o.dbp}}</td>
+          <td class="center">{{o.tbp}}</td>
+          <td class="center">{{o.abp_rank}}</td>
+          <td class="center">{{o.dbp_rank}}</td>
+          <td class="center">{{o.rank_world}}</td>
+          <td class="center">{{o.abp_rank_world}}</td>
+          <td class="center">{{o.dbp_rank_world}}</td>
+          <td class="center">{{o.rank_points}}</td>
+          <td class="center">{{o.abp_points}}</td>
+          <td class="center">{{o.dbp_points}}</td>
+          <td class="center bold">{{o.total_points}}</td>
+        </tr>
+      {{/if}}
+    {{/each}}
+  </table>
+{{/if}}

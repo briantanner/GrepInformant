@@ -94,7 +94,8 @@ module.exports = (sequelize, DataTypes) => {
                 attributes: ["id", "name", "x", "y"],
                 required: false
               }
-            ]
+            ],
+            attributes: ['id', 'time', 'town', 'points', 'newplayer', 'oldplayer', 'newally', 'oldally']
           })
           .then(conquers => {
             // format data

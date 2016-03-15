@@ -28,7 +28,7 @@ class Index {
 
   home(req, res) {
     let server = req.params.server;
-    return res.render('world');
+    return res.render('home');
   }
 }
 

@@ -18,9 +18,10 @@ UI.prototype.loadSelector = function ($el) {
 
 UI.prototype.loadAutoComplete = function ($el) {
   var options = {
+    minCharNumber: 3,
 
     url: function(val) {
-      return "/v1/api/" + server + "/autocomplete/players?input=" + encodeURI(val);
+      return "/api/v1/" + server + "/autocomplete/players?input=" + encodeURI(val);
     },
 
     getValue: function(element) {
@@ -43,10 +44,22 @@ UI.prototype.loadAutoComplete = function ($el) {
       return data;
     },
 
+    list: {
+      onClickEvent: function () {
+        $el.attr('data-value', ($el.getSelectedItemData().id));
+      }
+    },
+
     requestDelay: 400
   };
 
   $el.easyAutocomplete(options);
+
+  $('.player-select').on('click', function (e) {
+    var id = $(this).closest('div').find('input.name').attr('data-value'),
+        url = '/' + server + '/player/' + id;
+    top.location.href = url;
+  });
 };
 
 UI.prototype.addRemovePlayer = function ($parent) {

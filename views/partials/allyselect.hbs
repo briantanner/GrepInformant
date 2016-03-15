@@ -1,0 +1,9 @@
+<div class="ally">
+  <select name="ally[]" class="allySelect">
+    <option value="">Select Alliance</option>
+    {{#each alliances}}
+      <option value="{{id}}"{{#if isActive}} selected="selected"{{/if}}>{{name}} ({{rank}})</option>
+    {{/each}}
+  </select>
+</div>
+<span class="clear"></span>

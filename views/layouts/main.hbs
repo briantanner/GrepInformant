@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="/stylesheets/easy-autocomplete.min.css">
+  <link rel="stylesheet" href="/stylesheets/nice-select.css">
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script type="text/javascript">
+    var server = '{{server}}';
+  </script>
+</head>
+
+<body>
+  <div class="header">
+    <h1>Grepolis Informant</h1>
+    <div class="header-right">
+      <select class="worldSelect">
+        <option value="">Select World</option>
+        {{#each worlds}}
+          <option value="{{server}}"{{#if isActive}}selected="selected"{{/if}}>{{name}} ({{server}})</option>
+        {{/each}}
+      </select>
+    </div>
+  </div>
+  <div class="content">
+    {{{body}}}
+  </div>
+</body>
+
+</html>

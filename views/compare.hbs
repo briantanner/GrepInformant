@@ -1,0 +1,21 @@
+<!-- TODO: Fix unsupported jade extends -->
+extends layout
+<h1>{{title}}</h1>
+{{#if alliances}}
+  <div class="compare">
+    {{#each alliances as |obj|}}
+      <div class="stats">
+        <h5 class="alliance">{{obj.name}}</h5>
+        <ul>
+          <li><span>Points: </span>{{obj.points}}</li>
+          <li><span>Cities: </span>{{obj.towns}}</li>
+          <li><span>Members: </span>{{obj.members}}</li>
+          <li><span>Avg Points: </span>{{obj.average.points}}</li>
+          <li><span>Avg Cities: </span>{{obj.average.towns}}</li>
+          <li><span>Avg City Size:</span>{{obj.average.town_size}}</li>
+        </ul>
+      </div>
+    {{/each}}
+    <div class="clear"></div>
+  </div>
+{{/if}}

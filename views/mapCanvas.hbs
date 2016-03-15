@@ -1,0 +1,56 @@
+<!-- TODO: Fix unsupported jade extends -->
+extends layout
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.min.css">
+<link rel="stylesheet" href="/stylesheets/nice-select.css">
+<link rel="stylesheet" href="/stylesheets/easy-autocomplete.min.css">
+<script type="text/template" id="playerTemplate">
+  <div class="player"><input type="text" name="player[]" placeholder="Player Name" class="name"><input type="text" name="playercolor[]" value="{{''}}" autocomplete="off" class="color startEmpty">
+    <ul style="display:none;" class="players"></ul>{{!--  a.delete(href='#') Remove Player--}}</div>
+</script>
+<script type="text/template" id="allyTemplate">
+  {{#if alliances}}
+    <div class="ally"><select name="ally[]" class="allySelect"><option value="{{''}}">Select Alliance</option>{{#each alliances as |o|}}<option value="{{o.id}}">{{o.name}} ({{o.rank}})</option>{{/each}}</select><input type="text" name="allycolor[]" value="{{''}}" autocomplete="off"
+        class="color startEmpty"></div>
+  {{/if}}
+</script>
+<div class="options">
+  <form method="get" action="/{{server}}/map" autocomplete="off" class="optionsForm">
+    <div class="allyWrap">
+      {{#if options && options.ally && options.ally.length}}
+        {{#each options.ally as |id|}}
+          <div class="ally"><select name="ally[]" class="allySelect"><option value="{{''}}">Select Alliance</option>{{#each alliances as |o|}}{{if ( (parseInt(id,10) === parseInt(o.id,10)))}}{{else}}
+<option value="{{o.id}}">{{o.name}} ({{o.rank}})</option>{{/if}}{{/each}}</select><input type="text" name="allycolor[]" value="{{(options.allycolor && options.allycolor[i]) ? options.allycolor[i] : ''}}" autocomplete="off" class="color startEmpty"></div>
+        {{/each}}
+      {{else}}
+        {{#if alliances}}
+          <div class="ally"><select name="ally[]" class="allySelect"><option value="{{''}}">Select Alliance</option>{{#each alliances as |o|}}<option value="{{o.id}}">{{o.name}} ({{o.rank}})</option>{{/each}}</select><input type="text" name="allycolor[]" value="{{''}}"
+              autocomplete="off" class="color startEmpty"></div>
+        {{/if}}
+      {{/if}}<a href="#" class="addAlly">+ Add Alliance</a><span class="clear"></span></div>
+    <div class="playerWrap">
+      {{#if options && options.player && options.player.length}}
+        {{#each options.player as |o|}}
+          <div class="player"><input type="text" name="player[]" placeholder="Player Name" value="{{o.name}}" disabled="disabled" class="name"><input type="text" name="playercolor[]" value="{{(options.playercolor && options.playercolor[i]) ? options.playercolor[i] : ''}}"
+              autocomplete="off" class="color startEmpty">
+            <ul style="display:none;" class="players"></ul>{{!--  a.delete(href='#') Remove Player--}}</div>
+        {{/each}}
+      {{else}}
+        <div class="player"><input type="text" name="player[]" placeholder="Player Name" class="name"><input type="text" name="playercolor[]" value="{{''}}" autocomplete="off" class="color startEmpty">
+          <ul style="display:none;" class="players"></ul>{{!--  a.delete(href='#') Remove Player--}}</div>
+      {{/if}}<a href="#" class="addPlayer">+ Add Player</a></div><input type="submit" value="Generate Map"></form>
+</div><canvas id="mapCanvas" width="2000" height="2000"></canvas>
+<script type="text/javascript">
+  var server = '{{server}}',
+    id = '{{id}}',
+    <!-- TODO: Fix unsupported jade inline javascript -->
+    playersArray = !{
+      (options && options.player.length) ? JSON.stringify(options.player) : "''"
+    };
+</script>
+<script type="text/javascript" src="https://code.createjs.com/preloadjs-0.6.1.min.js"></script>
+<script type="text/javascript" src="https://code.createjs.com/easeljs-0.8.1.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.min.js"></script>
+<script type="text/javascript" src="/js/jquery.nice-select.min.js"></script>
+<script type="text/javascript" src="/js/jquery.easy-autocomplete.min.js"></script>
+<script type="text/javascript" src="/js/ui.js"></script>
+<script type="text/javascript" src="/js/mapv2.js"></script>

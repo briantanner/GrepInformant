@@ -1,5 +1,7 @@
 'use strict';
 
+const util = require('util');
+
 let models = require('../../models'),
     sequelize = models.sequelize,
     logger = require('../../lib/logger')({
@@ -29,8 +31,16 @@ class Index {
       return res.send(200, null);
     }
 
+    console.log(input);
+
     models.Player.findAll({
-      where: { $like: sequelize.fn('lower', sequelize.col('name'), input.toLowerString()) },
+      where: {
+        $and: [
+          { server: server },
+          sequelize.literal(util.format("lower(name) like '%s%%'", input.toLowerCase()))
+        ]
+      },
+      // where: sequelize.fn('lower', sequelize.col('name'), input.toLowerCase()),
       attributes: ['id', 'name']
     })
     .then(players => {
