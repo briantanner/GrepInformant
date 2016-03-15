@@ -150,12 +150,8 @@ class Map {
       }
 
       models.Player.findAll({
-        where: {
-          $in: [search.options.player]
-        },
-        include: [{
-          model: models.Town,
-          as: 'Town',
+        where: { $in: [search.options.player] },
+        include: [{ model: models.Town, as: 'Town',
           where: sequelize.literal('"Towns".player = "Player".id'),
           attributes: ['id', 'name', 'x', 'y']
         }],

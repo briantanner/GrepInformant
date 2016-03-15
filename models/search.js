@@ -1,7 +1,7 @@
 'use strict';
 
-module.exports = function (sequelize, DataTypes) {
-  var Search = sequelize.define('Search', {
+module.exports = (sequelize, DataTypes) => {
+  let Search = sequelize.define('Search', {
     id: {
       type: DataTypes.STRING,
       primaryKey: true,

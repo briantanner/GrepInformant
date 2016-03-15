@@ -9,7 +9,7 @@ block content
         option(value=o.id) #{o.name} (#{o.rank})
   span.clear
   a(href="#", style="width: 100px;font-size: 10px;display:block; margin-bottom: 1em;", onclick='$("table.players").toggle(); $("textarea.bbcode").toggle(); return false;') bbcode
-  if players
+  if alliance.Members
     table.players
       tr
         td 
@@ -28,40 +28,40 @@ block content
           strong Def BP
         td 
           strong Total BP
-      each o, i in players
+      each o, i in alliance.Members
         tr(class=((o.towns > 5 && o.allbp < 2000) || (o.points < 1000 && o.allbp < 1000) || (o.points < 1 && o.abp === 0)) ? 'red' : '')
           td #{i+1}
           td
             a(href='/' + server + '/player/' + o.id) #{o.name}
           td #{o.towns}
           td #{o.towns_delta}
-          td #{accounting.formatNumber(o.points)}
-          td #{accounting.formatNumber(o.abp)}
-          td #{accounting.formatNumber(o.dbp)}
+          td #{o.points}
+          td #{o.abp}
+          td #{o.dbp}
           td 
-            strong #{accounting.formatNumber(o.allbp)}
+            strong #{o.allbp}
       tr
         td
         td
           strong Total
         td
-          strong #{accounting.formatNumber(sum.towns)}
+          strong #{totals.towns}
         td
-          strong #{accounting.formatNumber(sum.towns_delta)}
+          strong #{totals.towns_delta}
         td
-          strong #{accounting.formatNumber(sum.points)}
+          strong #{totals.points}
         td
-          strong #{accounting.formatNumber(sum.abp)}
+          strong #{totals.abp}
         td
-          strong #{accounting.formatNumber(sum.dbp)}
+          strong #{totals.dbp}
         td
-          strong #{accounting.formatNumber(sum.allbp)}
+          strong #{totals.allbp}
 
     textarea.bbcode(style='width:600px;height:200px;white-space:pre-wrap;display:none;')
       | [table][**]Rank[||]Name[||]Towns[||]Towns Delta[||]Point Growth[||]Att BP[||]Def BP[||]Total BP[/**]&#13;&#10;
-      each o, i in players
-        [*]#{i+1}[|][player]#{o.name}[/player][|]#{accounting.formatNumber(o.towns)}[|]#{accounting.formatNumber(o.towns_delta)}[|]#{accounting.formatNumber(o.points)}[|]#{accounting.formatNumber(o.abp)}[|][b]#{accounting.formatNumber(o.allbp)}[/b][/*]&#13;&#10;
-      | [**][||]Total[||]#{accounting.formatNumber(sum.towns)}[||]#{accounting.formatNumber(sum.towns_delta)}[||]#{accounting.formatNumber(sum.points)}[||]#{accounting.formatNumber(sum.abp)}[||]#{accounting.formatNumber(sum.dbp)}[||]#{accounting.formatNumber(sum.allbp)}[/**]
+      each o, i in alliance.Members
+        [*]#{i+1}[|][player]#{o.name}[/player][|]#{o.towns}[|]#{o.towns_delta}[|]#{o.points}[|]#{o.abp}[|][b]#{o.allbp}[/b][/*]&#13;&#10;
+      | [**][||]Total[||]#{totals.towns}[||]#{totals.towns_delta}[||]#{totals.points}[||]#{totals.abp}[||]#{totals.dbp}[||]#{totals.allbp}[/**]
       | [/table]
 
 block scripts

@@ -1,7 +1,7 @@
 'use strict';
 
-module.exports = function (sequelize, DataTypes) {
-  var Town = sequelize.define('Town', {
+module.exports = (sequelize, DataTypes) => {
+  let Town = sequelize.define('Town', {
     server: {
       type: DataTypes.STRING,
       primaryKey: true,

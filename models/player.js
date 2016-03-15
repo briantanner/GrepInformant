@@ -1,7 +1,7 @@
 'use strict';
 
-module.exports = function (sequelize, DataTypes) {
-  var Player = sequelize.define('Player', {
+module.exports = (sequelize, DataTypes) => {
+  let Player = sequelize.define('Player', {
     server: {
       type: DataTypes.STRING,
       primaryKey: true,
@@ -45,9 +45,10 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     tableName: 'players',
     classMethods: {
-      associate: function (models) {
+      associate: (models) => {
         Player.hasOne(models.Alliance, { foreignKey: 'server', as: 'Alliance' });
         Player.hasMany(models.Town, { foreignKey: 'server', as: 'Towns' });
+        Player.hasMany(models.PlayerUpdates, { foreignKey: 'server', as: 'PlayerUpdates' });
       }
     }
   });

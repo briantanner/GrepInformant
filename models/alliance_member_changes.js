@@ -1,7 +1,7 @@
 'use strict';
 
-module.exports = function (sequelize, DataTypes) {
-  var AllianceMemberChanges = sequelize.define('AllianceMemberChanges', {
+module.exports = (sequelize, DataTypes) => {
+  let AllianceMemberChanges = sequelize.define('AllianceMemberChanges', {
     server: {
       type: DataTypes.STRING,
       primaryKey: true,

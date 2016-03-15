@@ -113,90 +113,43 @@ class Alliance extends BaseController {
         end = req.query.end || null,
         hours = 168;
 
+    start = ((new Date() / 1000) - (168 * 60 * 60)) - 300;
+
     let handleError = function (err) {
       logger.error(err);
       return res.send(500, err);
     };
 
-    // get alliance and members
-    models.Alliance.find({
-      where: {
-        server: server,
-        id: allyId
-      },
-      include: [{
-        model: models.Player,
-        as: 'Members',
-        where: { alliance: allyId }
-      }]
+    // build query
+    models.Alliance.getActivity({
+      where: { server: server, id: allyId },
+      include: [{ model: models.Player, as: 'Members',
+        where: { alliance: allyId },
+        include: [{ model: models.PlayerUpdates, as: 'PlayerUpdates',
+          where: {
+            time: { $gte: start },
+            id: sequelize.literal('"Members.PlayerUpdates".id = "Members".id')
+          },
+          attributes: ['id', 'time', 'points_delta', 'abp_delta', 'dbp_delta', 'towns_delta'],
+          required: false,
+        }],
+        attributes: ['id', 'name', 'towns'],
+        required: false
+      }],
+      attributes: ['id', 'name']
     })
     .then(alliance => {
 
-      let playerIds  = _.pluck(alliance.Members, 'id'), // player ids array
-          start = ((new Date() / 1000) - (168 * 60 * 60)) - 300, // 7 days, 168 hours : null,
-          data = {},
-          options = {};
-
-      options = {
-        where: {
-          server: server,
-          alliance: alliance.id,
-          time: { $gte: start }
-          // id: { $any: playerIds } // removed for performance
-        }
+      // build template context
+      let data = {
+        title: util.format("Alliance Activity: %s", alliance.name),
+        alliance: alliance,
+        server: server,
+        totals: alliance.totals
       };
 
-      // get player updates
-      super.getPlayerUpdates(options)
-      .then(updates => {
-        let players = {};
-
-        // map updates to players
-        _.each(updates, o => {
-          if (!players[o.id]) {
-            players[o.id] = [];
-          }
-          players[o.id].push(o.toJSON());
-        });
-
-        // reduce updates and sum values
-        players = _.map(players, (arr, key) => {
-          arr = _.sortBy(arr, o => { return o.time; });
-
-          return {
-            id: _.first(arr).id,
-            name: _.first(arr).name,
-            abp: _.reduce(arr, (num,o) => { return num + parseInt(o.abp_delta,10); }, 0),
-            dbp: _.reduce(arr, (num,o) => { return num + parseInt(o.dbp_delta,10); }, 0),
-            allbp: _.reduce(arr, (num,o) => { return num + parseInt(o.abp_delta,10) + parseInt(o.dbp_delta,10); }, 0),
-            points: _.reduce(arr, (num,o) => { return num + parseInt(o.points_delta,10); }, 0),
-            towns: _.last(arr).towns,
-            towns_delta: _.reduce(arr, (num,o) => { return num + parseInt(o.towns_delta,10); }, 0)
-          };
-
-        });
-
-        // build template context data
-        data = {
-          title: util.format("Alliance Activity: %s", alliance.name),
-          alliance: alliance,
-          players: _.sortBy(players, o => { return o.allbp; }).reverse(),
-          server: server,
-          accounting: accounting,
-          sum: {
-            points: _.reduce(players, (n,o) => { return n + o.points; }, 0),
-            towns: _.reduce(players, (n,o) => { return n + o.towns; }, 0),
-            towns_delta: _.reduce(players, (n,o) => { return n + o.towns_delta; }, 0),
-            abp: _.reduce(players, (n,o) => { return n + o.abp; }, 0),
-            dbp: _.reduce(players, (n,o) => { return n + o.dbp; }, 0),
-            allbp: _.reduce(players, (n,o) => { return n + o.allbp; }, 0)
-          }
-        };
-
-        // render view
-        return res.render('allyactivity', data);
-      })
-      .catch(handleError);
+      // render view
+      return res.render('allyactivity', data);
     })
     .catch(handleError);
   }
@@ -209,9 +162,9 @@ class Alliance extends BaseController {
         start = req.query.start || null,
         end = req.query.end || null,
         hideInternals = req.query.hideinternals || null,
-        where = { server: server },
         hasStart = start,
-        startTime, endTime;
+        where = { server: server },
+        options, startTime, endTime;
 
     let handleError = function (err) {
       logger.error(err);
@@ -235,7 +188,7 @@ class Alliance extends BaseController {
     if (endTime)
       where.time = { $lte: endTime };
 
-    super.getConquers(where)
+    models.Conquers.getConquers({ where: where })
     .then(conquers => {
       let data = {
         title: "Alliance Conquers",
@@ -296,7 +249,7 @@ class Alliance extends BaseController {
     if (endTime)
       where.time = { $lte: endTime };
 
-    super.getConquers(where)
+    models.Conquers.getConquers({ where: where })
     .then(conquers => {
       let data = {
         title: "Alliance Losses",
