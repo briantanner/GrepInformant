@@ -29,6 +29,7 @@
     "chai": "^3.5.0",
     "dotenv": "^1.2.0",
     "express": "3.4.7",
+    "express-handlebars": "^3.0.0",
     "jade": "*",
     "mocha": "^2.4.5",
     "moment": "^2.11.1",
