@@ -1,3 +1,4 @@
+{{!-- TODO: Remove inline styles/scripts --}}
   <h2>{{title}}</h2>
 
   {{>allyselect}}
@@ -26,18 +27,31 @@
       {{/each}}
     </table>
     <div id="towns" style="margin: 1em; display: inline-block; vertical-align: top;">
+      <a href="#" onclick="$('.plaintext').toggle(); $('.bbcode').toggle(); return false;" style="width: 100px;font-size: 10px;display:block; margin-bottom: 1em;">
+        [bbcode]
+      </a>
       {{#each alliance.Members}}
         <table id="towns-{{id}}" style="display:none;">
           <tr>
-            <td colspan="3"><strong>{{name}}</strong></td>
+            <td colspan="2" class="plaintext"><strong>{{name}}</strong></td>
+            <td colspan="2" class="bbcode" style="display:none;">[player]{{name}}[/player]</td>
+          </tr>
+          <tr>
+            <td colspan="2" class="bbcode" style="display:none;">[table]</td>
           </tr>
           {{#each Towns}}
-          <tr>
+          <tr class="plaintext">
             <td>{{name}}</td>
             <td>[town]{{id}}[/town]</td>
             <td>{{points}} points</td>
           </tr>
+          <tr class="bbcode" style="display:none;">
+            <td colspan="3">[*]{{name}}[|][town]{{id}}[/town][|]{{points}} points[/*]
+          </tr>
           {{/each}}
+          <tr>
+            <td colspan="2" class="bbcode" style="display:none;">[/table]</td>
+          </tr>
         </table>
       {{/each}}
     </div>
