@@ -364,6 +364,7 @@ class Alliance extends BaseController {
         title: "Alliance Targets:",
         alliance: alliance,
         server: server,
+        bounds: bounds,
         quad: quad,
         ocean: ocean,
         quads: [ 'nw', 'nc', 'ne', 'cw', 'cc', 'ce', 'sw', 'sc', 'se' ]
