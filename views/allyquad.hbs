@@ -1,0 +1,50 @@
+  <h2>{{title}}</h2>
+
+  {{>allyselect}}
+
+  {{#if alliance.name}}
+    <h4>{{alliance.name}} - {{quad}}{{ocean}}</h4>
+  {{/if}}
+
+  {{#if alliance.Members}}
+    <table class="players" style="display: inline-block; vertical-align: top;">
+      <tr>
+        <td><strong>Player</strong></td>
+        <td><strong>Towns</strong></td>
+        <td><strong>Towns In Quad</strong></td>
+        <td><strong>Ratio</strong></td>
+        <td></td>
+      </tr>
+      {{#each alliance.Members}}
+        <tr>
+          <td>{{name}}</td>
+          <td>{{towns}}</td>
+          <td>{{townsInQuad}}</td>
+          <td>{{ratio}}%</td>
+          <td><a href="#" onclick="$('#towns-{{id}}').toggle(); return false;">Towns</a></td>
+        </tr>
+      {{/each}}
+    </table>
+    <div id="towns" style="margin: 1em; display: inline-block; vertical-align: top;">
+      {{#each alliance.Members}}
+        <table id="towns-{{id}}" style="display:none;">
+          <tr>
+            <td colspan="3"><strong>{{name}}</strong></td>
+          </tr>
+          {{#each Towns}}
+          <tr>
+            <td>{{name}}</td>
+            <td>[town]{{id}}[/town]</td>
+            <td>{{points}} points</td>
+          </tr>
+          {{/each}}
+        </table>
+      {{/each}}
+    </div>
+  {{/if}}
+
+  <script type="text/javascript">
+    var allyEndpoint = '/{{quad}}/{{ocean}}';
+  </script>
+  
+  {{>footer}}

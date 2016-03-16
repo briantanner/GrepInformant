@@ -52,8 +52,43 @@ class Alliance extends BaseController {
         name: 'alliance.losses',
         uri: '/:server/alliance/:alliance/losses',
         handler: this.allianceLosses.bind(this)
+      },
+      townsByQuad: {
+        method: 'get',
+        name: 'alliance.towns.byquad',
+        uri: '/:server/alliance/:alliance/:quad/:ocean',
+        handler: this.townsByQuad.bind(this)
       }
     };
+  }
+
+  getBounds(quad, ocean) {
+    let x = parseInt(ocean.split('')[0],10),
+        y = parseInt(ocean.split('')[1],10),
+        w = 33,
+        h = 33,
+        quads = {
+          'nw': [0,0],
+          'nc': [33,0],
+          'ne': [67,0],
+          'cw': [0,33],
+          'cc': [33,33],
+          'ce': [67,33],
+          'sw': [0,67],
+          'sc': [33,67],
+          'se': [67,67]
+        },
+        bounds;
+
+    quad = quads[quad];
+    bounds = {
+      x1: (x*100)+quad[0],
+      y1: (y*100)+quad[1],
+      x2: (x*100)+quad[0]+w,
+      y2: (y*100)+quad[1]+h
+    };
+
+    return bounds;
   }
 
   // alliances route handler
@@ -274,6 +309,74 @@ class Alliance extends BaseController {
 
     })
     .catch(handleError);
+  }
+
+  townsByQuad(req, res) {
+    let server = req.params.server,
+        allyId = req.params.alliance,
+        quad = req.params.quad,
+        ocean = req.params.ocean;
+
+    // build query
+    models.Alliance.find({
+      where: { server: server, id: allyId },
+      include: [{ model: models.Player, as: 'Members',
+        where: { alliance: allyId },
+        include: [{ model: models.Town, as: 'Towns',
+          where: {
+            id: sequelize.literal('"Members.Towns".player = "Members".id')
+          },
+          required: false,
+        }],
+        attributes: ['id', 'name', 'towns'],
+        required: false
+      }],
+      attributes: ['id', 'name']
+    })
+    .then(alliance => {
+      let bounds = this.getBounds(quad, ocean);
+
+      alliance = alliance.toJSON();
+
+      alliance.Members = alliance.Members.map(player => {
+        // filter towns outside of quad
+        player.Towns = player.Towns.filter(town => {
+          let filter = town.x >= bounds.x1 &&
+                       town.x < bounds.x2 &&
+                       town.y >= bounds.y1 &&
+                       town.y < bounds.y2;
+          return filter;
+        });
+
+        // count towns in quad
+        player.townsInQuad = player.Towns.length;
+        player.ratio = Math.round((player.townsInQuad / player.towns) * 100);
+
+        return player;
+      });
+
+      alliance.Members = _.chain(alliance.Members)
+        .filter(o => { return o.townsInQuad > 0; })
+        .sortBy(o => { return o.townsInQuad; }).value().reverse();
+
+      // build template context
+      let data = {
+        title: "Alliance Targets:",
+        alliance: alliance,
+        server: server,
+        quad: quad,
+        ocean: ocean
+      };
+      // console.log(data);
+      // return res.send(200, data);
+
+      // render view
+      return res.render('allyquad', data);
+    })
+    .catch(err => {
+      console.error(err);
+      return res.send(500, err);
+    });
   }
 }
 
