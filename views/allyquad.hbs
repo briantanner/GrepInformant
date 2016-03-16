@@ -1,7 +1,23 @@
 {{!-- TODO: Remove inline styles/scripts --}}
   <h2>{{title}}</h2>
 
-  {{>allyselect}}
+  <div class="ally">
+    <select name="ally[]" class="allySelect">
+      <option value="">Select Alliance</option>
+      {{#each alliances}}
+        <option value="{{id}}"{{#if isActive}} selected="selected"{{/if}}>{{name}} ({{rank}})</option>
+      {{/each}}
+    </select>
+  </div>
+  <div class="quad">
+    <select name="quad" class="quadSelect">
+      <option value="">Select Quad</option>
+      {{#each quads}}
+        <option value="{{this}}">{{this}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <span class="clear"></span>
 
   {{#if alliance.name}}
     <h4>{{alliance.name}} - {{quad}}{{ocean}}</h4>

@@ -365,7 +365,8 @@ class Alliance extends BaseController {
         alliance: alliance,
         server: server,
         quad: quad,
-        ocean: ocean
+        ocean: ocean,
+        quads: [ 'nw', 'nc', 'ne', 'cw', 'cc', 'ce', 'sw', 'sc', 'se' ]
       };
       // console.log(data);
       // return res.send(200, data);

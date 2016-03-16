@@ -160,18 +160,20 @@ div.result span {
   min-height: 65px;
 }
 
-.ally, .player {
+.ally, .player, .quad {
   margin: 0 15px 15px 0;
   float: left;
 }
 
-.allySelect {
+.allySelect,
+.quadSelect {
   height: 32px;
   line-height: 30px;
   margin-right: 15px;
 }
 
-.allySelect .option {
+.allySelect .option,
+.quadSelect .option {
   min-height: 30px;
   line-height: 30px;
 }
