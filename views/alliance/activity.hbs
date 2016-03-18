@@ -1,0 +1,49 @@
+  <h2>{{title}}</h2>
+
+  {{>allyselect}}
+  
+  <a href="#" class="bbtoggle">bbcode</a>
+  {{#if alliance.Members}}
+    <table class="players">
+      <tr>
+        <td><strong>Rank</strong></td>
+        <td><strong>Name</strong></td>
+        <td><strong>Towns</strong></td>
+        <td><strong>Towns Delta</strong></td>
+        <td><strong>Point Growth</strong></td>
+        <td><strong>Att BP</strong></td>
+        <td><strong>Def BP</strong></td>
+        <td><strong>Total BP</strong></td>
+      </tr>
+      {{#each alliance.Members}}
+        <tr>
+          <td>{{rank}}</td>
+          <td><a href="/{{../server}}/player/{{id}}">{{name}}</a></td>
+          <td>{{towns}}</td>
+          <td>{{towns_delta}}</td>
+          <td>{{points}}</td>
+          <td>{{abp}}</td>
+          <td>{{dbp}}</td>
+          <td> <strong>{{allbp}}</strong></td>
+        </tr>
+      {{/each}}
+      <tr>
+        <td></td>
+        <td><strong>Total</strong></td>
+        <td><strong>{{sum.towns}}</strong></td>
+        <td><strong>{{sum.towns_delta}}</strong></td>
+        <td><strong>{{sum.points}}</strong></td>
+        <td><strong>{{sum.abp}}</strong></td>
+        <td><strong>{{sum.dbp}}</strong></td>
+        <td><strong>{{sum.allbp}}</strong></td>
+      </tr>
+    </table><!-- .players -->
+    
+    <textarea class="bbtable codearea">{{>bbtables/activity}}</textarea>
+  {{/if}}
+
+  <script type="text/javascript">
+    var allyEndpoint = '/activity';
+  </script>
+
+  {{>footer}}

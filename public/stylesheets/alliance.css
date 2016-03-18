@@ -1,0 +1,58 @@
+ .bbcode {
+  width: 600px;
+  height: 200px;
+  white-space: pre-wrap;
+  display: none;
+}
+
+.cq-count {
+  display: inline-block;
+  min-width: 150px;
+  margin-right: 10px;
+}
+
+.players {
+  display: inline-block;
+  vertical-align: top;
+}
+
+#towns {
+  margin: 0 1em;
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+  top: -1.5em;
+}
+
+.bbtable {
+  display: none;
+  min-width: 400px;
+  min-height: 400px;
+}
+
+.bbtoggle, .bbtoggle-all {
+  width: 100px;
+  font-size: 10px;
+  display: block;
+  margin-bottom: 1em;
+}
+
+.player-towns {
+  display: none;
+}
+
+.change-ocean {
+  display: block;
+  float: left;
+  height: 32px;
+  background-color: #fff;
+  border: solid 1px #c9c9c9;
+  border-radius: 6px;
+  padding: 0 12px;
+  margin-left: 8px;
+  outline: none;
+}
+
+.change-ocean:hover {
+  background-color: #e6e6e6;
+}

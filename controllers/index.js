@@ -46,8 +46,14 @@ class Index {
   }
 
   test(req, res) {
-    http.get('http://localhost:8080/', response => {
-      let data = { body: '' };
+    let url = req.protocol + '://' + req.get('host');
+
+    http.get(url, response => {
+      let data = {
+        url,
+        statusCode: response.statusCode,
+        body: ''
+      };
 
       data.headers = response.headers;
 
@@ -56,7 +62,7 @@ class Index {
       });
 
       response.on('end', () => {
-        return res.send(200, data);
+        return res.send(200, response);
       });
     });
   }
