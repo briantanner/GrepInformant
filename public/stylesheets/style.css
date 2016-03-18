@@ -197,7 +197,7 @@ div.result span {
   display: none;
 }
 
-.player .name {
+input[type=text] {
   -webkit-tap-highlight-color: transparent;
   background-color: #fff;
   border-radius: 5px;
@@ -234,6 +234,10 @@ ul.players li {
 
 ul.players li:hover {
   background-color: #fff;
+}
+
+.player .name {
+  float: left;
 }
 
 .player a.delete {
@@ -319,4 +323,20 @@ tr.red td {
 tr.red a {
   font-weight: bold;
   color: red;
+}
+
+.changeOcean {
+  display: block;
+  float: left;
+  height: 32px;
+  background-color: #fff;
+  border: solid 1px #c9c9c9;
+  border-radius: 6px;
+  padding: 0 12px;
+  margin-left: 8px;
+  outline: none;
+}
+
+.changeOcean:hover {
+  background-color: #e6e6e6;
 }

@@ -53,6 +53,12 @@ class Alliance extends BaseController {
         uri: '/:server/alliance/:alliance/losses',
         handler: this.allianceLosses.bind(this)
       },
+      intel: {
+        method: 'get',
+        name: 'alliance.intel',
+        uri: '/:server/alliance/:alliance/intel',
+        handler: this.intel.bind(this)
+      },
       townsByQuad: {
         method: 'get',
         name: 'alliance.towns.byquad',
@@ -369,14 +375,70 @@ class Alliance extends BaseController {
         ocean: ocean,
         quads: [ 'nw', 'nc', 'ne', 'cw', 'cc', 'ce', 'sw', 'sc', 'se' ]
       };
-      // console.log(data);
-      // return res.send(200, data);
 
       // render view
       return res.render('allyquad', data);
     })
     .catch(err => {
       console.error(err);
+      return res.send(500, err);
+    });
+  }
+
+  // get/updload intel
+  intel(req, res) {
+    let server = req.params.server,
+        allyId = req.params.alliance;
+
+    // build query
+    models.Alliance.find({
+      where: { server: server, id: allyId },
+      include: [{ model: models.Player, as: 'Members',
+        where: { alliance: allyId },
+        include: [{ model: models.Town, as: 'Towns',
+          where: { id: sequelize.literal('"Members.Towns".player = "Members".id') },
+          include: [{ model: models.TownIntel, as: 'Intel',
+            where: { id: sequelize.literal('"Members.Towns".id = "Members.Towns.Intel".id') },
+            required: false
+          }],
+          required: false
+        }],
+        attributes: ['id', 'name', 'towns'],
+        required: false
+      }],
+      attributes: ['id', 'name']
+    })
+    .then(alliance => {
+      alliance = alliance.toJSON();
+
+      let sort = {
+        LS: '01', Tris: '02', OLU: '03', OLUSlings: '04', OLUHorse: '05', OLUHops: '06', Chariots: '07', 
+        Mantis: '08', Griffins: '09', Harpies: '09', Erinys: '010', Birs: '011', DLU: '012', Hydra: '013', Pegs: '014'
+      };
+
+      alliance.Members = alliance.Members.map(player => {
+        player.Towns = _.sortBy(player.Towns, town => {
+
+          if (town.Intel) {
+            return sort[town.Intel.intel.replace('/', '')];
+          }
+          return 'Z' + town.name;
+        });
+        return player;
+      });
+
+      // build template context
+      let data = {
+        title: util.format("Alliance Intel: %s", alliance.name),
+        alliance: alliance,
+        members: alliance.Members,
+        server: server
+      };
+
+      return res.render('allyintel', data);
+    })
+    .catch(err => {
+      logger.error(err);
       return res.send(500, err);
     });
   }

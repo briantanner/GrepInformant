@@ -17,6 +17,10 @@
       {{/each}}
     </select>
   </div>
+  <div class="ocean">
+    <input type="text" name="ocean" value="{{ocean}}" size="2" placeholder="Ocean" />
+    <input class="changeOcean" type="button" value="Search" />
+  </div>
   <span class="clear"></span>
 
   {{#if alliance.name}}
@@ -78,3 +82,12 @@
   </script>
   
   {{>footer}}
+
+  <script type="text/javascript">
+  $(document).ready(function () {
+    $('.changeOcean').on('click', function (e) {
+      var ocean = $(this).prev().val();
+      top.location.href = '/{{server}}/alliance/{{alliance.id}}/{{quad}}/' + ocean;
+    });
+  });
+  </script>

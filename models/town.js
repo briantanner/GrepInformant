@@ -37,7 +37,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     }
   }, {
-    tableName: 'towns'
+    tableName: 'towns',
+    classMethods: {
+      associate: models => {
+        Town.hasOne(models.TownIntel, { foreignKey: 'server', as: 'Intel' });
+      }
+    }
   });
 
   return Town;

@@ -1,0 +1,151 @@
+{{!-- TODO: Remove inline styles/scripts --}}
+
+  <script type="text/template" id="intelSelect">
+    <select class="intelSelect" data-value="">
+      <option value="">----</option>
+      <option value="LS">LS</option>
+      <option value="Tris">Tris</option>
+      <option value="OLU">OLU</option>
+      <option value="OLU/Slings">OLU/Slings</option>
+      <option value="OLU/Horse">OLU/Horse</option>
+      <option value="OLU/Hops">OLU/Hops</option>
+      <option value="Chariots">Chariots</option>
+      <option value="Mantis">Mantis</option>
+      <option value="Griffins">Griffins</option>
+      <option value="Harpies">Harpies</option>
+      <option value="Erinys">Erinys</option>
+      <option value="Birs">Birs</option>
+      <option value="DLU">DLU</option>
+      <option value="Hydra">Hydra</option>
+      <option value="Pegs">Pegs</option>
+    </select>
+  </script>
+
+  <h2>{{title}}</h2>
+
+  <div class="ally">
+    <select name="ally[]" class="allySelect">
+      <option value="">Select Alliance</option>
+      {{#each alliances}}
+        <option value="{{id}}"{{#if isActive}} selected="selected"{{/if}}>{{name}} ({{rank}})</option>
+      {{/each}}
+    </select>
+  </div>
+  <span class="clear"></span>
+
+  {{#if alliance.Members}}
+    <table class="players" style="display: inline-block; vertical-align: top;">
+      <tr>
+        <td><strong>Player</strong></td>
+        <td><strong>Towns</strong></td>
+        <td><strong>Summary</strong></td>
+        <td></td>
+      </tr>
+      {{#each alliance.Members}}
+        <tr>
+          <td><a href="/{{../server}}/player/{{id}}" title="{{name}}">{{name}}</a></td>
+          <td>{{towns}}</td>
+          <td>{{summary}}%</td>
+          <td><a href="#" class="showTowns" data-value="{{id}}">Towns</a></td>
+        </tr>
+      {{/each}}
+    </table>
+    <div id="towns" style="margin: 1em; display: inline-block; vertical-align: top;">
+      <a href="#" onclick="$('.plaintext').toggle(); $('.bbcode').toggle(); return false;" style="width: 100px;font-size: 10px;display:block; margin-bottom: 1em;">
+        [bbcode]
+      </a>
+      {{#each alliance.Members}}
+        <table id="towns-{{id}}" class="townsTable" style="display:none;">
+          <tr>
+            <td colspan="2" class="plaintext"><strong>{{name}}</strong></td>
+            <td colspan="2" class="bbcode" style="display:none;">[player]{{name}}[/player]</td>
+          </tr>
+          <tr>
+            <td colspan="2" class="bbcode" style="display:none;">[table]</td>
+          </tr>
+          {{#each Towns}}
+          <tr class="plaintext">
+            <td>{{name}}</td>
+            <td>[town]{{id}}[/town]</td>
+            <td>{{points}} points</td>
+            <td id="townSelect-{{id}}" class="intelSelectTd" data-value="{{Intel.intel}}" data-id="{{id}}">
+            </td>
+          </tr>
+          <tr class="bbcode" style="display:none;">
+            <td colspan="3">[*][town]{{id}}[/town][|]{{points}} points[|]{{Intel.intel}}[/*]
+          </tr>
+          {{/each}}
+          <tr>
+            <td colspan="2" class="bbcode" style="display:none;">[/table]</td>
+          </tr>
+        </table>
+      {{/each}}
+    </div>
+  {{/if}}
+
+  <script type="text/javascript">
+    var allyEndpoint = '/intel';
+  </script>
+  
+  {{>footer}}
+
+  <script type="text/javascript">
+    function bindHandler($el) {
+      $el.on('change', function () {
+        var town = $(this).attr('data-value'),
+            intel = $(this).val(),
+            url = '/api/v1/{{server}}/town/' + town + '/intel',
+            data = { intel: intel };
+
+        $.ajax({
+          type: "POST",
+          url: url,
+          data: data,
+          success: function( response ) {
+            console.log(response);
+          }
+        });
+      });
+    }
+
+    function loadSelectors($el, id) {
+      $elSelectors = $('#towns-' + id).find('.intelSelectTd');
+
+      $.each($elSelectors, function (i, wrapper) {
+        var id = $(wrapper).attr('data-id'),
+            intel = $(wrapper).attr('data-value') || null,
+            $selector = $($('#intelSelect').html());
+
+        if ($(wrapper).hasClass('hasSelector')) {
+          return;
+        }
+
+        // add class to prevent selector duplication
+        $(wrapper).addClass('hasSelector');
+        
+        $(wrapper).append($selector);
+        $selector.attr('data-value', id);
+        $selector.find('option').each(function () {
+          if (this.value === intel) {
+            $(this).attr('selected', 'selected');
+          }
+        });
+
+        // bind on change event
+        bindHandler($selector);
+
+        $selector.css('display', 'block');
+      });
+    }
+
+    $(document).ready(function() {
+      $('.showTowns').on('click', function (e) {
+        var $el = $(this),
+            id = $(this).attr('data-value');
+
+        e.preventDefault();
+        loadSelectors($el, id);
+        $('#towns-' + id).toggle();
+      });
+    });
+  </script>
