@@ -1,5 +1,7 @@
 'use strict';
 
+const http = require('http');
+
 // Index Controller
 class Index {
 
@@ -12,6 +14,12 @@ class Index {
         name: 'index',
         uri: '/',
         handler: this.index.bind(this)
+      },
+      test: {
+        method: 'get',
+        name: 'test',
+        uri: '/test',
+        handler: this.test.bind(this)
       },
       home: {
         method: 'get',
@@ -35,6 +43,22 @@ class Index {
   home(req, res) {
     let server = req.params.server;
     return res.render('home');
+  }
+
+  test(req, res) {
+    http.get('http://localhost:8080/', response => {
+      let data = { body: '' };
+
+      data.headers = response.headers;
+
+      response.on('data', d => {
+        data.body += d;
+      });
+
+      response.on('end', () => {
+        return res.send(200, data);
+      });
+    });
   }
 
   quad(req, res) {
