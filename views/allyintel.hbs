@@ -71,9 +71,11 @@
             <td id="townSelect-{{id}}" class="intelSelectTd" data-value="{{Intel.intel}}" data-id="{{id}}">
             </td>
           </tr>
-          <tr class="bbcode" style="display:none;">
-            <td colspan="3">[*][town]{{id}}[/town][|]{{points}} points[|]{{Intel.intel}}[/*]
-          </tr>
+          {{#if Intel.intel}}
+            <tr class="bbcode" style="display:none;">
+              <td colspan="3">[*][town]{{id}}[/town][|]{{Intel.intel}}[/*]
+            </tr>
+          {{/if}}
           {{/each}}
           <tr>
             <td colspan="2" class="bbcode" style="display:none;">[/table]</td>
