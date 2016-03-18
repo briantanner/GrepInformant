@@ -424,8 +424,17 @@ class Alliance extends BaseController {
           }
           return 'Z' + town.name;
         });
+        
+        player.intelCount = _.reduce(player.Towns, (num, town) => {
+          return num + ((town.Intel) ? 1 : 0);
+        }, 0);
+
+        player.intelCoverage = Math.round((player.intelCount / player.towns) * 100);
+
         return player;
       });
+
+      alliance.Members = _.sortBy(alliance.Members, 'intelCount').reverse();
 
       // build template context
       let data = {
@@ -434,6 +443,8 @@ class Alliance extends BaseController {
         members: alliance.Members,
         server: server
       };
+
+      // return res.send(200, data);
 
       return res.render('allyintel', data);
     })

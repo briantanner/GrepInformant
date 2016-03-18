@@ -38,14 +38,14 @@
       <tr>
         <td><strong>Player</strong></td>
         <td><strong>Towns</strong></td>
-        <td><strong>Summary</strong></td>
+        <td><strong>Intel</strong></td>
         <td></td>
       </tr>
       {{#each alliance.Members}}
         <tr>
           <td><a href="/{{../server}}/player/{{id}}" title="{{name}}">{{name}}</a></td>
           <td>{{towns}}</td>
-          <td>{{summary}}%</td>
+          <td>{{intelCount}} ({{intelCoverage}}%)</td>
           <td><a href="#" class="showTowns" data-value="{{id}}">Towns</a></td>
         </tr>
       {{/each}}
