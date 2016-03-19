@@ -47,16 +47,21 @@ class Monitor extends BaseController {
       return res.send(500, 'Time parameter required.');
     }
 
+    if (time == 0) {
+      // default to 24 hours
+      time = (new Date() / 1000) - 86400;
+    }
+
     where.time = { $gte: time };
     if (alliances) {
       alliances = _.map(alliances.split(','), id => { return parseInt(id, 10); });
       where.alliance = { $any: alliances };
     }
 
+    // build query
     models.PlayerUpdates.findAll({
       where: where,
       order: 'time DESC',
-      limit: 3000,
       attributes: ['id', 'server', 'name', 'alliance', 'abp_delta', 'dbp_delta', 'towns_delta', 'points_delta'],
       include: [{
         model: models.Alliance,
@@ -67,10 +72,41 @@ class Monitor extends BaseController {
       }]
     })
     .then(updates => {
+
+      // parse updates
       updates = _.chain(updates)
         .map(o => { return o.toJSON(); })
-        .filter(o => { return o.abp_delta > 0 && o.dbp_delta > 0 })
+        .filter(o => { return o.abp_delta > 0 && o.dbp_delta > 0 }) // remove 0 bp updates
         .groupBy('alliance')
+        .map(oAlly => {
+          // group by player id
+          oAlly = _.groupBy(oAlly, 'id');
+          oAlly = _.map(oAlly, player => {
+            let first = _.sample(player);
+            
+            // In the event the name is stored in the db as 'name', remove quotes (postgres)
+            if (first.name.indexOf("'") === 0 && first.name.indexOf("'") === 0) {
+              first.name = first.name.slice(1,-1);
+            }
+
+            // sum deltas if there are multiple updates
+            player = {
+              id: first.id,
+              server: first.server,
+              name: first.name,
+              alliance: first.alliance,
+              alliance_name: first.Alliance.name,
+              abp_delta: _.reduce(player, (num, o) => { return num + parseInt(o.abp_delta,10); }, 0),
+              dbp_delta: _.reduce(player, (num, o) => { return num + parseInt(o.dbp_delta,10); }, 0),
+              towns_delta: _.reduce(player, (num, o) => { return num + parseInt(o.towns_delta,10); }, 0),
+              points_delta: _.reduce(player, (num, o) => { return num + parseInt(o.points_delta,10); }, 0)
+            }
+
+            return player;
+          });
+          return oAlly;
+        })
+        .indexBy(o => { return _.sample(o).alliance; }) // index resulting collection by alliance id
         .value();
       
       let data = {
