@@ -324,3 +324,15 @@ tr.red a {
   font-weight: bold;
   color: red;
 }
+
+.search-btn {
+  display: block;
+  float: left;
+  height: 32px;
+  background-color: #fff;
+  border: solid 1px #c9c9c9;
+  border-radius: 6px;
+  padding: 0 12px;
+  margin-left: 8px;
+  outline: none;
+}
