@@ -14,6 +14,9 @@
     $('.allySelect').on('change', function() {
       var id = $(this).val(),
           url = '/' + server + '/alliance/' + id + allyEndpoint || null;
+
+      if ($(this).hasClass('static')) { return; }
+      
       top.location.href = url;
     });
 

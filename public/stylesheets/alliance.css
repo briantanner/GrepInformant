@@ -41,7 +41,7 @@
   display: none;
 }
 
-.change-ocean {
+.search-btn {
   display: block;
   float: left;
   height: 32px;
@@ -53,6 +53,6 @@
   outline: none;
 }
 
-.change-ocean:hover {
+.search-btn:hover {
   background-color: #e6e6e6;
 }

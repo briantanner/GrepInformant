@@ -395,13 +395,25 @@ class Alliance extends BaseController {
   intel(req, res) {
 
     let server = req.params.server,
-        allyId = req.params.alliance;
+        alliance = req.params.alliance,
+        allyIds = req.query.alliances || alliance,
+        where = {};
+
+    // normalize alliance id input
+    allyIds = allyIds.split(',');
+    allyIds = _.map(allyIds, a => { return parseInt(a); });
+
+    if (typeof allyIds === 'string') {
+      where = { server: server, id: allyIds };
+    } else {
+      where = { server: server, id: { $any: allyIds } };
+    }
 
     // build query
-    models.Alliance.find({
-      where: { server: server, id: allyId },
+    models.Alliance.findAll({
+      where: where,
       include: [{ model: models.Player, as: 'Members',
-        where: { alliance: allyId },
+        where: { alliance: sequelize.literal('"Members".alliance = "Alliance".id') },
         include: [{ model: models.Town, as: 'Towns',
           where: { id: sequelize.literal('"Members.Towns".player = "Members".id') },
           include: [{ model: models.TownIntel, as: 'Intel',
@@ -415,44 +427,72 @@ class Alliance extends BaseController {
       }],
       attributes: ['id', 'name']
     })
-    .then(alliance => {
+    .then(alliances => {
 
       // sort order of known intel
       let sort = {
         LS: '001', Tris: '002', OLU: '003', OLUSlings: '004', OLUHorse: '005', OLUHops: '006', Chariots: '007', 
         Mantis: '008', Griffins: '009', Harpies: '09', Erinys: '010', Birs: '011', DLU: '012', Hydra: '013', Pegs: '014'
-      };
+      },
+      members = {};
 
-      alliance = alliance.toJSON();
-      alliance.Members = alliance.Members.map(player => {
-        // sort towns by known intel
-        player.Towns = _.sortBy(player.Towns, town => {
-          if (town.Intel) {
-            return sort[town.Intel.intel.replace('/', '')] + town.name;
+      alliances = alliances.map(ally => { return ally.toJSON(); });
+      alliances = alliances.map(alliance => {
+        let _alliances = _.map(res.app.locals.alliances, _.clone);
+
+        // set active alliance for alliance selector
+        alliance.alliances = _alliances.map(o => {
+          delete o.isActive;
+
+          if (o.id === alliance.id) {
+            o.isActive = true;
           }
 
-          return 'Z' + town.name;
+          return o;
         });
-        
-        // add number of towns with intel
-        player.intelCount = _.reduce(player.Towns, (num, town) => {
-          return num + ((town.Intel) ? 1 : 0);
-        }, 0);
 
-        // percentage of known towns
-        player.intelCoverage = Math.round((player.intelCount / player.towns) * 100);
+        alliance.Members = alliance.Members.map(player => {
+          // sort towns by known intel
+          player.Towns = _.sortBy(player.Towns, town => {
+            if (town.Intel) {
+              return sort[town.Intel.intel.replace('/', '')] + town.name;
+            }
 
-        return player;
+            return 'Z' + town.name;
+          });
+          
+          // add number of towns with intel
+          player.intelCount = _.reduce(player.Towns, (num, town) => {
+            return num + ((town.Intel) ? 1 : 0);
+          }, 0);
+
+          // percentage of known towns
+          player.intelCoverage = Math.round((player.intelCount / player.towns) * 100);
+
+          return player;
+        });
+
+        // sort members by known intel count
+        // alliance.Members = _.sortBy(alliance.Members, 'intelCount').reverse();
+
+        // console.log(alliance.alliances.slice(0,10));
+
+        return alliance;
       });
 
-      // sort members by known intel count
-      alliance.Members = _.sortBy(alliance.Members, 'intelCount').reverse();
+      // pull members from alliances, merge and sort
+      members = _.chain(alliances).pluck('Members').flatten(true)
+        .sortBy('intelCount').reverse().value();
+
+      // remove members from alliances
+      alliances = alliances.map(o => { return _.omit(o, 'Members'); });
 
       // build template context
       let data = _.extend(defaults, {
-        title: util.format("Alliance Intel: %s", alliance.name),
+        title: "Alliance Intel",
         alliance: alliance,
-        members: alliance.Members,
+        intelAlliances: alliances,
+        members: members,
         server: server
       });
 

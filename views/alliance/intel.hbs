@@ -1,4 +1,14 @@
-{{!-- TODO: Remove inline styles/scripts --}}
+
+  <script type="text/template" id="allyTemplate">
+    <div class="ally">
+      <select name="ally[]" class="allySelect static">
+        <option value="">Select Alliance</option>
+        {{#each alliances}}
+          <option value="{{id}}">{{name}} ({{rank}})</option>
+        {{/each}}
+      </select>
+    <div>
+  </script>
 
   <script type="text/template" id="intelSelect">
     <select class="intel-selector" data-value="">
@@ -23,63 +33,71 @@
 
   <h2>{{title}}</h2>
 
-  <div class="ally">
-    <select name="ally[]" class="allySelect">
-      <option value="">Select Alliance</option>
-      {{#each alliances}}
-        <option value="{{id}}"{{#if isActive}} selected="selected"{{/if}}>{{name}} ({{rank}})</option>
-      {{/each}}
-    </select>
-  </div>
-  <span class="clear"></span>
-
-  {{#if alliance.Members}}
-    <table class="players" style="display: inline-block; vertical-align: top;">
-      <tr>
-        <td><strong>Player</strong></td>
-        <td><strong>Towns</strong></td>
-        <td><strong>Intel</strong></td>
-        <td></td>
-      </tr>
-      {{#each alliance.Members}}
-        <tr>
-          <td><a href="/{{../server}}/player/{{id}}" title="{{name}}">{{name}}</a></td>
-          <td>{{towns}}</td>
-          <td>{{intelCount}} ({{intelCoverage}}%)</td>
-          <td><a href="#" class="show-towns" data-value="{{id}}">Towns &gt;</a></td>
-        </tr>
-      {{/each}}
-    </table>
-    <div id="towns">
-      {{#each alliance.Members}}
-        <div id="towns-{{id}}" class="player-towns">
-          <a href="#" class="bbtoggle">
-            [bbcode]
-          </a>
-          <table id="towns-{{id}}">
-            <tr>
-              <td colspan="2" class="plaintext"><strong>{{name}}</strong></td>
-            </tr>
-            {{#each Towns}}
-            <tr class="plaintext">
-              <td>{{name}}</td>
-              <td>[town]{{id}}[/town]</td>
-              <td>{{points}} points</td>
-              <td id="townSelect-{{id}}" class="intel-selector-row" data-value="{{Intel.intel}}" data-id="{{id}}">
-              </td>
-            </tr>
+  <div>
+    <form action="/{{server}}/alliance/{{alliance}}/intel" method="GET" id="allyForm">
+      {{#each intelAlliances}}
+        <div class="ally">
+          <select name="ally[]" class="allySelect static">
+            <option value="">Select Alliance</option>
+            {{#each alliances}}
+              <option value="{{id}}"{{#if isActive}} selected="selected"{{/if}}>{{name}} ({{rank}})</option>
             {{/each}}
-          </table>
-
-          <textarea class="codearea bbtable bbtable-{{id}}">{{>bbtables/intel}}</textarea>
-
+          </select>
         </div>
       {{/each}}
-    </div>
-  {{/if}}
+      <input class="search-btn" type="button" value="Search" />
+    </form>
+    <span class="clear"></span>
+    <a href="#" class="add-ally">+ Add Alliance</a>
+    <span class="clear"></span>
+  </div>
+
+  <table class="players" style="display: inline-block; vertical-align: top;">
+    <tr>
+      <td><strong>Player</strong></td>
+      <td><strong>Towns</strong></td>
+      <td><strong>Intel</strong></td>
+      <td></td>
+    </tr>
+    {{#each members}}
+      <tr>
+        <td><a href="/{{../server}}/player/{{id}}" title="{{name}}">{{name}}</a></td>
+        <td>{{towns}}</td>
+        <td>{{intelCount}} ({{intelCoverage}}%)</td>
+        <td><a href="#" class="show-towns" data-value="{{id}}">Towns &gt;</a></td>
+      </tr>
+    {{/each}}
+  </table>
+  <div id="towns">
+    {{#each members}}
+      <div id="towns-{{id}}" class="player-towns">
+        <a href="#" class="bbtoggle">
+          [bbcode]
+        </a>
+        <table id="towns-{{id}}">
+          <tr>
+            <td colspan="2" class="plaintext"><strong>{{name}}</strong></td>
+          </tr>
+          {{#each Towns}}
+          <tr class="plaintext">
+            <td>{{name}}</td>
+            <td>[town]{{id}}[/town]</td>
+            <td>{{points}} points</td>
+            <td id="townSelect-{{id}}" class="intel-selector-row" data-value="{{Intel.intel}}" data-id="{{id}}">
+            </td>
+          </tr>
+          {{/each}}
+        </table>
+
+        <textarea class="codearea bbtable bbtable-{{id}}">{{>bbtables/intel}}</textarea>
+
+      </div>
+    {{/each}}
+  </div>
 
   <script type="text/javascript">
-    var allyEndpoint = '/intel';
+    var id = {{alliance}},
+        allyEndpoint = '/intel';
   </script>
   
   {{>footer}}
