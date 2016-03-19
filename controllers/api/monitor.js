@@ -48,6 +48,7 @@ class Monitor extends BaseController {
 
     where.time = { $gte: time };
     if (alliances) {
+      alliances = _.map(alliances.split(','), id => { return parseInt(id, 10); });
       where.alliance = { $any: alliances };
     }
 
@@ -84,15 +85,16 @@ class Monitor extends BaseController {
 
     where.time = { $gte: time };
     if (alliances) {
+      alliances = _.map(alliances.split(','), id => { return parseInt(id, 10); });
       where = _.extend(where, {
         $or: [
-          { newally: { $in: alliances.split(',') } },
-          { oldally: { $in: alliances.split(',') } }
+          { newally: { $in: alliances } },
+          { oldally: { $in: alliances } }
         ]
       });
     }
 
-    super.getConquers(where)
+    models.Conquers.getConquers({ where })
     .then(conquers => {
       let data = {
         count: conquers.length,
@@ -119,10 +121,11 @@ class Monitor extends BaseController {
 
     where.time = { $gte: time };
     if (alliances) {
+      alliances = _.map(alliances.split(','), id => { return parseInt(id, 10); });
       where = _.extend(where, {
         $or: [
-          { new_alliance: { $in: alliances.split(',') } },
-          { old_alliance: { $in: alliances.split(',') } }
+          { new_alliance: { $in: alliances } },
+          { old_alliance: { $in: alliances } }
         ]
       });
     }
