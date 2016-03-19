@@ -57,7 +57,7 @@ class Monitor extends BaseController {
       where: where,
       order: 'time DESC',
       limit: 3000,
-      attributes: ['id', 'server', 'alliance', 'abp_delta', 'dbp_delta', 'towns_delta', 'points_delta'],
+      attributes: ['id', 'server', 'name', 'alliance', 'abp_delta', 'dbp_delta', 'towns_delta', 'points_delta'],
       include: [{
         model: models.Alliance,
         as: 'Alliance',
