@@ -4,6 +4,7 @@ const _ = require('underscore');
 const BaseController = require('../base');
 
 let models = require('../../models'),
+    sequelize = models.sequelize,
     logger = require('../../lib/logger')({
       consoleLabel: 'web',
       tags: ['web']
@@ -55,13 +56,24 @@ class Monitor extends BaseController {
     models.PlayerUpdates.findAll({
       where: where,
       order: 'time DESC',
-      limit: 3000
+      limit: 3000,
+      attributes: ['id', 'server', 'alliance', 'abp_delta', 'dbp_delta', 'towns_delta', 'points_delta'],
+      include: [{
+        model: models.Alliance,
+        as: 'Alliance',
+        where: sequelize.literal('"PlayerUpdates".alliance = "Alliance".id'),
+        attributes: ['id', 'name'],
+        required: false
+      }]
     })
     .then(updates => {
-      updates = updates.map(o => { return o.toJSON(); });
+      updates = _.chain(updates)
+        .map(o => { return o.toJSON(); })
+        .filter(o => { return o.abp_delta > 0 && o.dbp_delta > 0 })
+        .groupBy('alliance')
+        .value();
       
       let data = {
-        count: updates.length,
         updates: updates
       };
 
@@ -96,9 +108,17 @@ class Monitor extends BaseController {
 
     models.Conquers.getConquers({ where })
     .then(conquers => {
+      let filteredConquers = {};
+      // conquers = _.map(conquers, o => { return o.toJSON(); });
+
+      _.each(alliances, id => {
+        let cqArr = _.filter(conquers, o => { return o.newally.id === id; });
+        cqArr = cqArr.concat(_.filter(conquers, o => { return o.oldally.id === id; }));
+        filteredConquers[id] = cqArr;
+      });
+
       let data = {
-        count: conquers.length,
-        updates: conquers
+        updates: filteredConquers
       };
 
       return res.send(200, data);
@@ -134,9 +154,18 @@ class Monitor extends BaseController {
       where: where
     })
     .then(changes => {
+      let filteredChanges = {};
+
+      changes = changes.map(o => { return o.toJSON(); });
+      console.log(alliances);
+      _.each(alliances, id => {
+        let chArr = _.filter(changes, o => { return o.new_alliance === id; });
+        chArr = chArr.concat(_.filter(changes, o => { return o.old_alliance === id; }));
+        filteredChanges[id] = chArr;
+      });
+
       let data = {
-        count: changes.length,
-        updates: changes
+        updates: filteredChanges
       };
 
       return res.send(200, data);

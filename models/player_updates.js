@@ -68,7 +68,12 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0
     }
   }, {
-    tableName: 'player_updates'
+    tableName: 'player_updates',
+    classMethods: {
+      associate: (models) => {
+        PlayerUpdates.hasOne(models.Alliance, { foreignKey: 'server', as: 'Alliance' });
+      }
+    }
   });
 
   return PlayerUpdates;
