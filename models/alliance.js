@@ -97,16 +97,15 @@ module.exports = (sequelize, DataTypes) => {
                 };
               });
 
-              alliance.Members = _.sortBy(alliance.Members, (o) => { return o.allbp; }).reverse();
-              alliance.Members.forEach((member, i) => {
-                member.rank = i+1;
-              });
-
               return alliance;
             });
 
             let members = _.chain(alliances).pluck('Members').flatten(true)
               .sortBy('allbp').reverse().value();
+
+            members.forEach((member, i) => {
+              member.rank = i+1;
+            });
 
             var data = {
               activityAlliances: alliances,
