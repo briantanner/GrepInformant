@@ -49,7 +49,7 @@ class Monitor extends BaseController {
 
     if (time === 0) {
       // default to 24 hours
-      time = (new Date() / 1000) - 86400;
+      time = (new Date() / 1000) - 14400;
     }
 
     where.time = { $gte: time };
