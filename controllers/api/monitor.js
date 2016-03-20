@@ -149,7 +149,14 @@ class Monitor extends BaseController {
 
       _.each(alliances, id => {
         let cqArr = _.filter(conquers, o => { return o.newally.id === id; });
+
         cqArr = cqArr.concat(_.filter(conquers, o => { return o.oldally.id === id; }));
+        cqArr = _.map(cqArr, o => {
+          o = _.clone(o);
+          o.alliance_name = (parseInt(o.newally.id,10) === parseInt(id,10)) ? o.newally.name : o.oldally.name;
+          return o;
+        });
+
         filteredConquers[id] = cqArr;
       });
 
@@ -196,7 +203,15 @@ class Monitor extends BaseController {
       console.log(alliances);
       _.each(alliances, id => {
         let chArr = _.filter(changes, o => { return o.new_alliance === id; });
+
         chArr = chArr.concat(_.filter(changes, o => { return o.old_alliance === id; }));
+        chArr = _.map(chArr, o => {
+          o = _.clone(o);
+          o.alliance_name = (parseInt(o.new_alliance,10) === parseInt(id,10)) ? 
+            o.new_alliance_name : o.old_alliance_name;
+          return o;
+        });
+
         filteredChanges[id] = chArr;
       });
 
