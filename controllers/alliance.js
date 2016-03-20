@@ -153,39 +153,55 @@ class Alliance extends BaseController {
   allianceActivity(req, res) {
 
     let server = req.params.server,
-        allyId = req.params.alliance,
+        alliance = req.params.alliance,
+        allyIds = req.query.alliances || alliance,
         start = req.query.start || null,
         end = req.query.end || null,
-        hours = 168;
+        hours = 168,
+        where = {};
 
     start = ((new Date() / 1000) - (168 * 60 * 60)) - 300;
 
-    // build query
-    models.Alliance.getActivity({
-      where: { server: server, id: allyId },
-      include: [{ model: models.Player, as: 'Members',
-        where: { alliance: allyId },
-        include: [{ model: models.PlayerUpdates, as: 'PlayerUpdates',
-          where: {
-            time: { $gte: start },
-            id: sequelize.literal('"Members.PlayerUpdates".id = "Members".id')
-          },
-          attributes: ['id', 'time', 'points_delta', 'abp_delta', 'dbp_delta', 'towns_delta'],
-          required: false,
+    // normalize alliance id input
+    allyIds = allyIds.split(',');
+    allyIds = _.map(allyIds, a => { return parseInt(a); });
+
+    if (typeof allyIds === 'string') {
+      where = { server: server, id: allyIds };
+    } else {
+      where = { server: server, id: { $any: allyIds } };
+    }
+
+    let config = {
+      alliances: res.app.locals.alliances,
+      options: { // build query
+        where: where,
+        include: [{ model: models.Player, as: 'Members',
+          where: { alliance: sequelize.literal('"Members".alliance = "Alliance".id') },
+          include: [{ model: models.PlayerUpdates, as: 'PlayerUpdates',
+            where: {
+              time: { $gte: start },
+              id: sequelize.literal('"Members.PlayerUpdates".id = "Members".id')
+            },
+            attributes: ['id', 'time', 'points_delta', 'abp_delta', 'dbp_delta', 'towns_delta'],
+            required: false,
+          }],
+          attributes: ['id', 'name', 'towns'],
+          required: false
         }],
-        attributes: ['id', 'name', 'towns'],
-        required: false
-      }],
-      attributes: ['id', 'name']
-    })
-    .then(alliance => {
+        attributes: ['id', 'name']
+      }
+    };
+
+    // build query
+    models.Alliance.getActivity(config)
+    .then(data => {
 
       // build template context
-      let data = _.extend(defaults, {
-        title: util.format("Alliance Activity: %s", alliance.name),
-        alliance: alliance,
+      data = _.extend(defaults, data, {
+        title: "Alliance Activity",
         server: server,
-        totals: alliance.totals
+        alliance: alliance
       });
 
       // render view

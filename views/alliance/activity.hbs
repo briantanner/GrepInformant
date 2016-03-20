@@ -1,9 +1,37 @@
+  <script type="text/template" id="allyTemplate">
+    <div class="ally">
+      <select name="ally[]" class="allySelect static">
+        <option value="">Select Alliance</option>
+        {{#each alliances}}
+          <option value="{{id}}">{{name}} ({{rank}})</option>
+        {{/each}}
+      </select>
+    <div>
+  </script>
+
   <h2>{{title}}</h2>
 
-  {{>allyselect}}
+  <div>
+    <form action="/{{server}}/alliance/{{alliance}}/intel" method="GET" id="allyForm">
+      {{#each activityAlliances}}
+        <div class="ally">
+          <select name="ally[]" class="allySelect static">
+            <option value="">Select Alliance</option>
+            {{#each alliances}}
+              <option value="{{id}}"{{#if isActive}} selected="selected"{{/if}}>{{name}} ({{rank}})</option>
+            {{/each}}
+          </select>
+        </div>
+      {{/each}}
+      <input class="search-btn" type="button" value="Search" />
+    </form>
+    <span class="clear"></span>
+    <a href="#" class="add-ally">+ Add Alliance</a>
+    <span class="clear"></span>
+  </div>
   
   <a href="#" class="bbtoggle">bbcode</a>
-  {{#if alliance.Members}}
+  {{#if members}}
     <table class="players">
       <tr>
         <td><strong>Rank</strong></td>
@@ -15,7 +43,7 @@
         <td><strong>Def BP</strong></td>
         <td><strong>Total BP</strong></td>
       </tr>
-      {{#each alliance.Members}}
+      {{#each members}}
         <tr>
           <td>{{rank}}</td>
           <td><a href="/{{../server}}/player/{{id}}">{{name}}</a></td>
@@ -43,7 +71,6 @@
   {{/if}}
 
   <script type="text/javascript">
-    var allyEndpoint = '/activity';
+    var id = {{alliance}},
+        allyEndpoint = '/activity';
   </script>
-
-  {{>footer}}
