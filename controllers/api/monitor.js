@@ -108,12 +108,8 @@ class Monitor extends BaseController {
         })
         .indexBy(o => { return _.sample(o).alliance; }) // index resulting collection by alliance id
         .value();
-      
-      let data = {
-        updates: updates
-      };
 
-      return res.send(200, data);
+      return res.send(200, updates);
     })
     .catch(err => {
       logger.error(err);
@@ -160,11 +156,7 @@ class Monitor extends BaseController {
         filteredConquers[id] = cqArr;
       });
 
-      let data = {
-        updates: filteredConquers
-      };
-
-      return res.send(200, data);
+      return res.send(200, filteredConquers);
     })
     .catch(err => {
       logger.error(err);
@@ -215,11 +207,7 @@ class Monitor extends BaseController {
         filteredChanges[id] = chArr;
       });
 
-      let data = {
-        updates: filteredChanges
-      };
-
-      return res.send(200, data);
+      return res.send(200, filteredChanges);
     })
     .catch(err => {
       logger.error(err);
