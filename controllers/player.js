@@ -75,9 +75,9 @@ class Player extends BaseController {
           required: false
         },
         {
-          model: models.PlayerDaily,
-          as: 'Updates',
-          where: sequelize.literal('"Player".id = "Updates".id'),
+          model: models.PlayerUpdates,
+          as: 'PlayerUpdates',
+          where: sequelize.literal('"Player".id = "PlayerUpdates".id'),
           required: false
         }
       ]
@@ -94,7 +94,7 @@ class Player extends BaseController {
       player.abp = accounting.formatNumber(player.abp);
       player.dbp = accounting.formatNumber(player.dbp);
 
-      player.Updates = player.Updates.map(o => {
+      player.PlayerUpdates = player.PlayerUpdates.map(o => {
         o = o.toJSON();
         o.time = moment.unix(o.time).format("Y-MM-DD");
         o.points_delta = accounting.formatNumber(o.points_delta);
@@ -103,7 +103,7 @@ class Player extends BaseController {
         return o;
       });
 
-      player.Updates = _.sortBy(player.Updates, o => { return o.time; }).reverse();
+      player.PlayerUpdates = _.sortBy(player.PlayerUpdates, o => { return o.time; }).reverse();
 
       data = {
         title: util.format('Player: %s (%s)', player.name, server),

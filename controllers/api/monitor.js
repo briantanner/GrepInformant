@@ -48,7 +48,7 @@ class Monitor extends BaseController {
     }
 
     if (time === 0) {
-      // default to 24 hours
+      // default to 4 hours
       time = (new Date() / 1000) - 14400;
     }
 
@@ -76,7 +76,7 @@ class Monitor extends BaseController {
       // parse updates
       updates = _.chain(updates)
         .map(o => { return o.toJSON(); })
-        .filter(o => { return o.abp_delta > 0 && o.dbp_delta > 0; }) // remove 0 bp updates
+        .filter(o => { return o.abp_delta > 0 || o.dbp_delta > 0; }) // remove 0 bp updates
         .groupBy('alliance')
         .map(oAlly => {
           // group by player id
@@ -127,6 +127,11 @@ class Monitor extends BaseController {
       return res.send(500, 'Time parameter required.');
     }
 
+    if (time === 0) {
+      // default to 4 hours
+      time = (new Date() / 1000) - 14400;
+    }
+
     where.time = { $gte: time };
     if (alliances) {
       alliances = _.map(alliances.split(','), id => { return parseInt(id, 10); });
@@ -174,6 +179,11 @@ class Monitor extends BaseController {
       return res.send(500, 'Time parameter required.');
     }
 
+    if (time === 0) {
+      // default to 4 hours
+      time = (new Date() / 1000) - 14400;
+    }
+
     where.time = { $gte: time };
     if (alliances) {
       alliances = _.map(alliances.split(','), id => { return parseInt(id, 10); });
@@ -192,7 +202,6 @@ class Monitor extends BaseController {
       let filteredChanges = {};
 
       changes = changes.map(o => { return o.toJSON(); });
-      console.log(alliances);
       _.each(alliances, id => {
         let chArr = _.filter(changes, o => { return o.new_alliance === id; });
 
