@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('underscore');
 const util = require('util');
 const moment = require('moment');
 const accounting = require('accounting');
@@ -72,6 +73,12 @@ class Player extends BaseController {
           where: sequelize.literal('"Towns".player = "Player".id'),
           attributes: ['id', 'name', 'points'],
           required: false
+        },
+        {
+          model: models.PlayerDaily,
+          as: 'Updates',
+          where: sequelize.literal('"Player".id = "Updates".id'),
+          required: false
         }
       ]
     })
@@ -83,48 +90,27 @@ class Player extends BaseController {
         player.Alliance = player.Alliance || { name: '' };
       }
 
-      player.alliance = player.Alliance;
       player.points = accounting.formatNumber(player.points);
       player.abp = accounting.formatNumber(player.abp);
       player.dbp = accounting.formatNumber(player.dbp);
 
-      delete player.Alliance;
+      player.Updates = player.Updates.map(o => {
+        o = o.toJSON();
+        o.time = moment.unix(o.time).format("Y-MM-DD");
+        o.points_delta = accounting.formatNumber(o.points_delta);
+        o.abp_delta = accounting.formatNumber(o.abp_delta);
+        o.dbp_delta = accounting.formatNumber(o.dbp_delta);
+        return o;
+      });
 
-      options = {
-        where: {
-          server: server,
-          id: player.id,
-          time: { $gte: start }
-        },
-        order: 'time DESC'
+      player.Updates = _.sortBy(player.Updates, o => { return o.time; }).reverse();
+
+      data = {
+        title: util.format('Player: %s (%s)', player.name, server),
+        player: player
       };
 
-      // get player updates
-      super.getPlayerUpdates(options)
-      .then(updates => {
-
-        updates = updates.map(function (o) {
-          o = o.toJSON();
-          o.time = moment.unix(o.time).format("DD/MM/Y HH") + ":00";
-          o.points_delta = accounting.formatNumber(o.points_delta);
-          o.abp_delta = accounting.formatNumber(o.abp_delta);
-          o.dbp_delta = accounting.formatNumber(o.dbp_delta);
-          return o;
-        });
-
-        player.updates = updates;
-
-        data = {
-          title: util.format('Player: %s (%s)', player.name, server),
-          player: player
-        };
-
-        return res.render('player', data);
-      })
-      .catch(err => {
-        logger.error(err);
-        return res.send(500, err);
-      });
+      return res.render('player', data);
 
     })
     .catch(err => {

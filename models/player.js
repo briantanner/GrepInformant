@@ -49,6 +49,7 @@ module.exports = (sequelize, DataTypes) => {
         Player.hasOne(models.Alliance, { foreignKey: 'server', as: 'Alliance' });
         Player.hasMany(models.Town, { foreignKey: 'server', as: 'Towns' });
         Player.hasMany(models.PlayerUpdates, { foreignKey: 'server', as: 'PlayerUpdates' });
+        Player.hasMany(models.PlayerDaily, { foreignKey: 'server', as: 'Updates' });
       }
     }
   });

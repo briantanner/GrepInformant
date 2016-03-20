@@ -47,7 +47,7 @@ class Monitor extends BaseController {
       return res.send(500, 'Time parameter required.');
     }
 
-    if (time == 0) {
+    if (time === 0) {
       // default to 24 hours
       time = (new Date() / 1000) - 86400;
     }
@@ -76,7 +76,7 @@ class Monitor extends BaseController {
       // parse updates
       updates = _.chain(updates)
         .map(o => { return o.toJSON(); })
-        .filter(o => { return o.abp_delta > 0 && o.dbp_delta > 0 }) // remove 0 bp updates
+        .filter(o => { return o.abp_delta > 0 && o.dbp_delta > 0; }) // remove 0 bp updates
         .groupBy('alliance')
         .map(oAlly => {
           // group by player id
@@ -100,7 +100,7 @@ class Monitor extends BaseController {
               dbp_delta: _.reduce(player, (num, o) => { return num + parseInt(o.dbp_delta,10); }, 0),
               towns_delta: _.reduce(player, (num, o) => { return num + parseInt(o.towns_delta,10); }, 0),
               points_delta: _.reduce(player, (num, o) => { return num + parseInt(o.points_delta,10); }, 0)
-            }
+            };
 
             return player;
           });
