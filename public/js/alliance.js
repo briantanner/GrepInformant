@@ -81,11 +81,6 @@ function loadSelectors($el, id) {
       $('.bbtable').toggle();
     });
 
-    $('.change-ocean').on('click', function (e) {
-      var ocean = $(this).prev().val();
-      top.location.href = '/{{server}}/alliance/{{alliance.id}}/{{quad}}/' + ocean;
-    });
-
     $('.add-ally').on('click', function (e) {
       e.preventDefault();
 
@@ -100,12 +95,20 @@ function loadSelectors($el, id) {
     });
 
     $('#allyForm .search-btn').on('click', function (e) {
+      console.log(1);
       var vals = $(this).parent().find('select.allySelect').map(function (i, o) { return $(o).val(); }).toArray(),
           url = '/' + server + '/alliance/' + id + allyEndpoint + '?alliances=' + vals.join(',');
 
       top.location.href = url;
       
       e.preventDefault();
+    });
+
+    $('.change-ocean').on('click', function (e) {
+      var ocean = $(this).parent().find('input[name=ocean]').val(),
+          url = '/' + server + '/alliance/' + id + '/' + quad + '/' + ocean || null;
+
+      top.location.href = url;
     });
 
     $('.codearea')

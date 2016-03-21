@@ -21,7 +21,7 @@
 
   <div class="ocean">
     <input type="text" name="ocean" value="{{ocean}}" size="2" placeholder="Ocean" />
-    <input class="search-btn" type="button" value="Search" />
+    <input class="search-btn change-ocean" type="button" value="Search" />
   </div>
 
   <span class="clear"></span>
@@ -76,7 +76,10 @@
   {{/if}}
 
   <script type="text/javascript">
-    var allyEndpoint = '/{{quad}}/{{ocean}}';
+    var id = {{alliance.id}},
+        quad = '{{quad}}',
+        ocean = {{ocean}},
+        allyEndpoint = '/{{quad}}/{{ocean}}';
   </script>
   
   {{>footer}}

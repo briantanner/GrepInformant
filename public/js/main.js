@@ -22,7 +22,7 @@
 
     $('.quadSelect').on('change', function() {
       var quad = $(this).val(),
-          url = '/' + server + '/alliance/{{alliance.id}}/' + quad + '/{{ocean}}' || null;
+          url = '/' + server + '/alliance/' + id + '/' + quad + '/' + ocean || null;
       top.location.href = url;
     });
     
