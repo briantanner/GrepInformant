@@ -1,6 +1,8 @@
 'use strict';
 
+const _ = require('underscore');
 const http = require('http');
+const models = require('../models');
 
 // Index Controller
 class Index {
@@ -20,6 +22,12 @@ class Index {
         name: 'test',
         uri: '/test',
         handler: this.test.bind(this)
+      },
+      offsets: {
+        method: 'get',
+        name: 'offsets',
+        uri: '/offsets',
+        handler: this.offsets.bind(this)
       },
       home: {
         method: 'get',
@@ -96,6 +104,26 @@ class Index {
     };
 
     return res.send(200, bounds);
+  }
+
+  offsets(req, res) {
+    models.Offsets.findAll({})
+    .then(offsets => {
+      let csvArray = [],
+          csvString = '',
+          vals = [];
+
+      offsets = offsets.map(o => { return o.toJSON(); });
+
+      csvArray.push(Object.keys(_.first(offsets)).join(','));
+      vals = _.map(offsets, o => { return _.values(o).join(','); });
+
+      csvArray = csvArray.concat(vals);
+      csvString = csvArray.join("\n");
+
+      res.set('content-type', 'text/csv');
+      return res.send(200, csvString);
+    });
   }
 }
 
