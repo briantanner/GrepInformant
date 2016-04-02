@@ -1,14 +1,15 @@
 'use strict';
 
 const _ = require('underscore');
+const moment = require('moment');
 const BaseController = require('../base');
+const models = require('../../models');
+const logger = require('../../lib/logger')({
+  consoleLabel: 'web',
+  tags: ['web']
+});
 
-let models = require('../../models'),
-    sequelize = models.sequelize,
-    logger = require('../../lib/logger')({
-      consoleLabel: 'web',
-      tags: ['web']
-    });
+let sequelize = models.sequelize;
 
 class Monitor extends BaseController {
 
@@ -41,13 +42,20 @@ class Monitor extends BaseController {
     let server = req.params.server,
         time = req.query.time || null,
         alliances = req.query.alliances || null,
-        where = { server: server };
+        where = { server: server },
+        hoursSince;
 
     if (!time) {
       return res.send(500, 'Time parameter required.');
     }
 
     if (time === 0) {
+      // default to 4 hours
+      time = (new Date() / 1000) - 14400;
+    }
+
+    hoursSince = moment().diff(moment.unix(time), "hours");
+    if (hoursSince > 4) {
       // default to 4 hours
       time = (new Date() / 1000) - 14400;
     }
@@ -95,7 +103,7 @@ class Monitor extends BaseController {
               server: first.server,
               name: first.name,
               alliance: first.alliance,
-              alliance_name: first.Alliance.name,
+              alliance_name: first.Alliance ? first.Alliance.name : "",
               abp_delta: _.reduce(player, (num, o) => { return num + parseInt(o.abp_delta,10); }, 0),
               dbp_delta: _.reduce(player, (num, o) => { return num + parseInt(o.dbp_delta,10); }, 0),
               towns_delta: _.reduce(player, (num, o) => { return num + parseInt(o.towns_delta,10); }, 0),
@@ -121,13 +129,20 @@ class Monitor extends BaseController {
     let server = req.params.server,
         time = req.query.time || null,
         alliances = req.query.alliances || null,
-        where = { server: server };
+        where = { server: server },
+        hoursSince;
 
     if (!time) {
       return res.send(500, 'Time parameter required.');
     }
 
     if (time === 0) {
+      // default to 4 hours
+      time = (new Date() / 1000) - 14400;
+    }
+
+    hoursSince = moment().diff(moment.unix(time), "hours");
+    if (hoursSince > 4) {
       // default to 4 hours
       time = (new Date() / 1000) - 14400;
     }
@@ -148,18 +163,22 @@ class Monitor extends BaseController {
       let filteredConquers = {};
       // conquers = _.map(conquers, o => { return o.toJSON(); });
 
-      _.each(alliances, id => {
-        let cqArr = _.filter(conquers, o => { return o.newally.id === id; });
+      if (alliances) {
+        _.each(alliances, id => {
+          let cqArr = _.filter(conquers, o => { return o.newally.id === id; });
 
-        cqArr = cqArr.concat(_.filter(conquers, o => { return o.oldally.id === id; }));
-        cqArr = _.map(cqArr, o => {
-          o = _.clone(o);
-          o.alliance_name = (parseInt(o.newally.id,10) === parseInt(id,10)) ? o.newally.name : o.oldally.name;
-          return o;
+          cqArr = cqArr.concat(_.filter(conquers, o => { return o.oldally.id === id; }));
+          cqArr = _.map(cqArr, o => {
+            o = _.clone(o);
+            o.alliance_name = (parseInt(o.newally.id,10) === parseInt(id,10)) ? o.newally.name : o.oldally.name;
+            return o;
+          });
+
+          filteredConquers[id] = cqArr;
         });
-
-        filteredConquers[id] = cqArr;
-      });
+      } else {
+        filteredConquers = conquers;
+      }
 
       return res.send(200, filteredConquers);
     })
@@ -173,13 +192,20 @@ class Monitor extends BaseController {
     let server = req.params.server,
         time = req.query.time || null,
         alliances = req.query.alliances || null,
-        where = { server: server };
+        where = { server: server },
+        hoursSince;
 
     if (!time) {
       return res.send(500, 'Time parameter required.');
     }
 
     if (time === 0) {
+      // default to 4 hours
+      time = (new Date() / 1000) - 14400;
+    }
+
+    hoursSince = moment().diff(moment.unix(time), "hours");
+    if (hoursSince > 4) {
       // default to 4 hours
       time = (new Date() / 1000) - 14400;
     }
@@ -202,19 +228,24 @@ class Monitor extends BaseController {
       let filteredChanges = {};
 
       changes = changes.map(o => { return o.toJSON(); });
-      _.each(alliances, id => {
-        let chArr = _.filter(changes, o => { return o.new_alliance === id; });
 
-        chArr = chArr.concat(_.filter(changes, o => { return o.old_alliance === id; }));
-        chArr = _.map(chArr, o => {
-          o = _.clone(o);
-          o.alliance_name = (parseInt(o.new_alliance,10) === parseInt(id,10)) ? 
-            o.new_alliance_name : o.old_alliance_name;
-          return o;
+      if (alliances) {
+        _.each(alliances, id => {
+          let chArr = _.filter(changes, o => { return o.new_alliance === id; });
+
+          chArr = chArr.concat(_.filter(changes, o => { return o.old_alliance === id; }));
+          chArr = _.map(chArr, o => {
+            o = _.clone(o);
+            o.alliance_name = (parseInt(o.new_alliance,10) === parseInt(id,10)) ? 
+              o.new_alliance_name : o.old_alliance_name;
+            return o;
+          });
+
+          filteredChanges[id] = chArr;
         });
-
-        filteredChanges[id] = chArr;
-      });
+      } else {
+        filteredChanges = changes;
+      }
 
       return res.send(200, filteredChanges);
     })
