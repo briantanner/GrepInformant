@@ -1,13 +1,13 @@
 'use strict';
 
-let _ = require('underscore'),
-    Import = require('../lib/import'),
-    arg = process.argv[2];
+const _ = require('underscore');
+const Import = require('../lib/import');
 
-let importer = new Import(arg || 'hourly');
+let arg = process.argv[2],
+    importer = new Import(arg || 'hourly');
 
 importer.start().then(() => {
-  console.log('done');
+  logger.info("Exiting import");
   process.exit();
 })
 .catch(err => {
