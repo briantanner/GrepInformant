@@ -5,6 +5,10 @@ Grepolis-Tools
 ## Change Log
 All notable changes to this project will be documented here.
 
+### [0.3.1] - 2016-04-02
+#### Changed
+- Import and api bug fixes
+
 ### [0.3.0] - 2016-04-02
 #### Added
 - allianceChanges api method
@@ -39,3 +43,4 @@ All notable changes to this project will be documented here.
 
 [0.2.0]: https://github.com/briantanner/Grepolis-Tools/compare/a4474f6...v0.2.0
 [0.3.0]: https://github.com/briantanner/Grepolis-Tools/compare/v0.2.0...v0.3.0
+[0.3.1]: https://github.com/briantanner/Grepolis-Tools/compare/v0.3.0...v0.3.1
