@@ -5,18 +5,22 @@ const util = require('util');
 const moment = require('moment');
 const accounting = require('accounting');
 const BaseController = require('./base');
+const utils = require('../lib/utils');
+const models = require('../models');
+const logger = require('../lib/logger')({
+  consoleLabel: 'web',
+  tags: ['web']
+});
 
-let utils = require('../lib/utils'),
-    models = require('../models'),
-    sequelize = models.sequelize,
-    logger = require('../lib/logger')({
-      consoleLabel: 'web',
-      tags: ['web']
-    }),
+let sequelize = models.sequelize,
     defaults = { title: 'Grepolis Tools' };
 
 class Player extends BaseController {
 
+  /**
+   * Constructor
+   * @return {Object} Route configuration
+   */
   constructor() {
     super();
 
@@ -36,7 +40,11 @@ class Player extends BaseController {
     };
   }
 
-  // players route handler
+  /**
+   * Players handler
+   * @param  {Object} req Express request
+   * @param  {Object} res Express response
+   */
   players(req, res) {
     let server = req.params.server;
 
@@ -50,7 +58,11 @@ class Player extends BaseController {
       });
   }
 
-  // player route handler
+  /**
+   * Player handler
+   * @param  {Object} req Express request
+   * @param  {Object} res Express response
+   */
   player(req, res) {
     let server = req.params.server,
         playerId = utils.sanitizeName(req.params.playerId),
