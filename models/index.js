@@ -12,8 +12,8 @@ if (fs.existsSync(path.join(process.env.PWD, '.env'))) {
   require('dotenv').load();
 }
 
-// let dbString = process.env.HEROKU_POSTGRESQL_CHARCOAL_URL;
-let dbString = process.env.HEROKU_POSTGRESQL_TEAL_URL;
+let dbString = process.env.HEROKU_POSTGRESQL_CHARCOAL_URL;
+// let dbString = process.env.HEROKU_POSTGRESQL_TEAL_URL;
 
 let sequelize = new Sequelize(dbString, {
   dialectOptions: { ssl: true },
