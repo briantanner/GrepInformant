@@ -10,6 +10,7 @@ All notable changes to this project will be documented here.
 - allianceChanges api method
 - Named routes and 301 redirect support
 - Added handlebars and hbs templates
+- alliance intel uploader
 
 #### Changed
 - Changed alliance activity, conquers, losses routes

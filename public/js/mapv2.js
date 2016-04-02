@@ -150,8 +150,10 @@ Map.prototype.drawTowns = function (data) {
       options = data.options,
       zoom = this.options.zoom;
 
-  $.each(towns, function (i, group) {
+  for (var i = 0; i <= towns.length; i++) {
+  // $.each(towns, function (i, group) {
     var container = new createjs.Container(),
+        group = towns[i],
         alpha = 1,
         color, colorMatch;
 
@@ -168,8 +170,10 @@ Map.prototype.drawTowns = function (data) {
 
     townsContainer.addChild(container);
 
-    $.each(group, function (i, o) {
+    for (var l = 0; l <= group.length; l++) {
+    // $.each(group, function (i, o) {
       var circle = new createjs.Shape(),
+          o = group[l];
           color = (o.player !== 'ghost') ? o.color || "#FFF" : '#808080',
           radius = (o.points < 6000) ? (o.points < 2000) ? 3 : 4.5 : 5.5,
           alpha = 1,
@@ -216,9 +220,9 @@ Map.prototype.drawTowns = function (data) {
       } else {
         container.addChild(circle);
       }
-    }.bind(this));
+    }
 
-  }.bind(this));
+  }
 
   this.stage.addChild(townsContainer);
   this.resize = true;

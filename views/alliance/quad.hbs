@@ -1,0 +1,85 @@
+{{!-- TODO: Remove inline styles/scripts --}}
+  <h2>{{title}}</h2>
+
+  <div class="ally">
+    <select name="ally[]" class="allySelect">
+      <option value="">Select Alliance</option>
+      {{#each alliances}}
+        <option value="{{id}}"{{#if isActive}} selected="selected"{{/if}}>{{name}} ({{rank}})</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="quad">
+    <select name="quad" class="quadSelect">
+      <option value="">Select Quad</option>
+      {{#each quads}}
+        <option value="{{this}}">{{this}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="ocean">
+    <input type="text" name="ocean" value="{{ocean}}" size="2" placeholder="Ocean" />
+    <input class="search-btn change-ocean" type="button" value="Search" />
+  </div>
+
+  <span class="clear"></span>
+
+  {{#if alliance.name}}
+    <h4>{{alliance.name}} - {{quad}}{{ocean}}</h4>
+  {{/if}}
+
+  {{#if alliance.Members}}
+    <table class="players">
+      <tr>
+        <td><strong>Player</strong></td>
+        <td><strong>Towns</strong></td>
+        <td><strong>Towns In Quad</strong></td>
+        <td><strong>Ratio</strong></td>
+        <td></td>
+      </tr>
+      {{#each alliance.Members}}
+        <tr>
+          <td><a href="/{{../server}}/player/{{id}}" title="{{name}}">{{name}}</a></td>
+          <td>{{towns}}</td>
+          <td>{{townsInQuad}}</td>
+          <td>{{ratio}}%</td>
+          <td><a href="#" class="show-towns" data-value="{{id}}">Towns &gt;</a></td>
+        </tr>
+      {{/each}}
+    </table>
+    <div id="towns">
+      {{#each alliance.Members}}
+        <div id="towns-{{id}}" class="player-towns">
+          <a href="#" class="bbtoggle">
+            [bbcode]
+          </a>
+          <table id="towns-{{id}}">
+            <tr>
+              <td colspan="2" class="plaintext"><strong>{{name}}</strong></td>
+            </tr>
+            {{#each Towns}}
+            <tr class="plaintext">
+              <td>{{name}}</td>
+              <td>[town]{{id}}[/town]</td>
+              <td>{{points}} points</td>
+            </tr>
+            {{/each}}
+          </table>
+
+          <textarea class="codearea bbtable bbtable-{{id}}">{{>bbtables/quad}}</textarea>
+
+        </div>
+      {{/each}}
+    </div>
+  {{/if}}
+
+  <script type="text/javascript">
+    var id = {{alliance.id}},
+        quad = '{{quad}}',
+        ocean = {{ocean}},
+        allyEndpoint = '/{{quad}}/{{ocean}}';
+  </script>
+  
+  {{>footer}}

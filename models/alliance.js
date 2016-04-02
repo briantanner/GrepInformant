@@ -58,52 +58,76 @@ module.exports = (sequelize, DataTypes) => {
       associate: models => {
         Alliance.hasMany(models.Player, { foreignKey: 'server', as: 'Members' });
       },
-      getActivity: (options) => {
+      getActivity: (config) => {
         return new Promise((resolve, reject) => {
           
-          Alliance.find(options)
-          .then(alliance => {
+          Alliance.findAll(config.options)
+          .then(alliances => {
             let formatKeys = ['abp', 'dbp', 'allbp', 'points', 'towns', 'towns_delta'];
             let reduce = (obj, col) => {
               return _.reduce(obj, (num,o) => { return num + parseInt(o[col],10); }, 0);
             };
             
-            alliance = alliance.toJSON();
-            alliance.Members = alliance.Members.map(player => {
-              return {
-                id: player.id,
-                name: player.name,
-                towns: player.towns,
-                points: reduce(player.PlayerUpdates, 'points_delta'),
-                abp: reduce(player.PlayerUpdates, 'abp_delta'),
-                dbp: reduce(player.PlayerUpdates, 'dbp_delta'),
-                allbp: _.reduce(player.PlayerUpdates, (num, o) => { return num + o.abp_delta + o.dbp_delta; }, 0),
-                towns_delta: reduce(player.PlayerUpdates, 'towns_delta')
-              };
+            alliances = _.map(alliances, alliance => {
+              alliance = alliance.toJSON();
+
+              let _alliances = _.map(config.alliances, _.clone);
+
+              // set active alliance for alliance selector
+              alliance.alliances = _alliances.map(o => {
+                delete o.isActive;
+
+                if (o.id === alliance.id) {
+                  o.isActive = true;
+                }
+
+                return o;
+              });
+
+              alliance.Members = alliance.Members.map(player => {
+                return {
+                  id: player.id,
+                  name: player.name,
+                  towns: player.towns,
+                  points: reduce(player.PlayerUpdates, 'points_delta'),
+                  abp: reduce(player.PlayerUpdates, 'abp_delta'),
+                  dbp: reduce(player.PlayerUpdates, 'dbp_delta'),
+                  allbp: _.reduce(player.PlayerUpdates, (num, o) => { return num + o.abp_delta + o.dbp_delta; }, 0),
+                  towns_delta: reduce(player.PlayerUpdates, 'towns_delta')
+                };
+              });
+
+              return alliance;
             });
 
-            alliance.Members = _.sortBy(alliance.Members, (o) => { return o.allbp; }).reverse();
-            alliance.Members.forEach((member, i) => {
+            let members = _.chain(alliances).pluck('Members').flatten(true)
+              .sortBy('allbp').reverse().value();
+
+            members.forEach((member, i) => {
               member.rank = i+1;
             });
 
-            alliance.totals = {
-              points: accounting.formatNumber(reduce(alliance.Members, 'points')),
-              towns: accounting.formatNumber(reduce(alliance.Members, 'towns')),
-              towns_delta: accounting.formatNumber(reduce(alliance.Members, 'towns_delta')),
-              abp: accounting.formatNumber(reduce(alliance.Members, 'abp')),
-              dbp: accounting.formatNumber(reduce(alliance.Members, 'dbp')),
-              allbp: accounting.formatNumber(reduce(alliance.Members, 'allbp'))
+            var data = {
+              activityAlliances: alliances,
+              members: members,
+              totals: {
+                points: accounting.formatNumber(reduce(members, 'points')),
+                towns: accounting.formatNumber(reduce(members, 'towns')),
+                towns_delta: accounting.formatNumber(reduce(members, 'towns_delta')),
+                abp: accounting.formatNumber(reduce(members, 'abp')),
+                dbp: accounting.formatNumber(reduce(members, 'dbp')),
+                allbp: accounting.formatNumber(reduce(members, 'allbp'))
+              }
             };
 
-            alliance.Members = alliance.Members.map(player => {
+            data.members = data.members.map(player => {
               formatKeys.forEach(key => {
                 player[key] = accounting.formatNumber(player[key]);
               });
               return player;
             });
 
-            return resolve(alliance);
+            return resolve(data);
           })
           .catch(reject);
 

@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    points: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
     x: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -33,7 +37,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     }
   }, {
-    tableName: 'towns'
+    tableName: 'towns',
+    classMethods: {
+      associate: models => {
+        Town.hasOne(models.TownIntel, { foreignKey: 'server', as: 'Intel' });
+      }
+    }
   });
 
   return Town;

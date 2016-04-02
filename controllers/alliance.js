@@ -13,7 +13,11 @@ let utils = require('../lib/utils'),
       consoleLabel: 'web',
       tags: ['web']
     }),
-    defaults = { title: 'Grepolis Tools' };
+    defaults = {
+      title: 'Grepolis Tools',
+      stylesheets: [ '/stylesheets/alliance.css' ],
+      scripts: [ '/js/alliance.js' ]
+    };
 
 // Alliance controller
 class Alliance extends BaseController {
@@ -52,8 +56,49 @@ class Alliance extends BaseController {
         name: 'alliance.losses',
         uri: '/:server/alliance/:alliance/losses',
         handler: this.allianceLosses.bind(this)
+      },
+      intel: {
+        method: 'get',
+        name: 'alliance.intel',
+        uri: '/:server/alliance/:alliance/intel',
+        handler: this.intel.bind(this)
+      },
+      townsByQuad: {
+        method: 'get',
+        name: 'alliance.towns.byquad',
+        uri: '/:server/alliance/:alliance/:quad/:ocean',
+        handler: this.townsByQuad.bind(this)
       }
     };
+  }
+
+  getBounds(quad, ocean) {
+    let x = parseInt(ocean.split('')[0],10),
+        y = parseInt(ocean.split('')[1],10),
+        w = 33,
+        h = 33,
+        quads = {
+          'nw': [0,0],
+          'nc': [33,0],
+          'ne': [67,0],
+          'cw': [0,33],
+          'cc': [33,33],
+          'ce': [67,33],
+          'sw': [0,67],
+          'sc': [33,67],
+          'se': [67,67]
+        },
+        bounds;
+
+    quad = quads[quad];
+    bounds = {
+      x1: (x*100)+quad[0],
+      y1: (y*100)+quad[1],
+      x2: (x*100)+quad[0]+w,
+      y2: (y*100)+quad[1]+h
+    };
+
+    return bounds;
   }
 
   // alliances route handler
@@ -108,50 +153,64 @@ class Alliance extends BaseController {
   allianceActivity(req, res) {
 
     let server = req.params.server,
-        allyId = req.params.alliance,
+        alliance = req.params.alliance,
+        allyIds = req.query.alliances || alliance,
         start = req.query.start || null,
         end = req.query.end || null,
-        hours = 168;
+        hours = 168,
+        where = {};
 
     start = ((new Date() / 1000) - (168 * 60 * 60)) - 300;
 
-    let handleError = function (err) {
-      logger.error(err);
-      return res.send(500, err);
+    // normalize alliance id input
+    allyIds = allyIds.split(',');
+    allyIds = _.map(allyIds, a => { return parseInt(a); });
+
+    if (typeof allyIds === 'string') {
+      where = { server: server, id: allyIds };
+    } else {
+      where = { server: server, id: { $any: allyIds } };
+    }
+
+    let config = {
+      alliances: res.app.locals.alliances,
+      options: { // build query
+        where: where,
+        include: [{ model: models.Player, as: 'Members',
+          where: { alliance: sequelize.literal('"Members".alliance = "Alliance".id') },
+          include: [{ model: models.PlayerUpdates, as: 'PlayerUpdates',
+            where: {
+              time: { $gte: start },
+              id: sequelize.literal('"Members.PlayerUpdates".id = "Members".id')
+            },
+            attributes: ['id', 'time', 'points_delta', 'abp_delta', 'dbp_delta', 'towns_delta'],
+            required: false,
+          }],
+          attributes: ['id', 'name', 'towns'],
+          required: false
+        }],
+        attributes: ['id', 'name']
+      }
     };
 
     // build query
-    models.Alliance.getActivity({
-      where: { server: server, id: allyId },
-      include: [{ model: models.Player, as: 'Members',
-        where: { alliance: allyId },
-        include: [{ model: models.PlayerUpdates, as: 'PlayerUpdates',
-          where: {
-            time: { $gte: start },
-            id: sequelize.literal('"Members.PlayerUpdates".id = "Members".id')
-          },
-          attributes: ['id', 'time', 'points_delta', 'abp_delta', 'dbp_delta', 'towns_delta'],
-          required: false,
-        }],
-        attributes: ['id', 'name', 'towns'],
-        required: false
-      }],
-      attributes: ['id', 'name']
-    })
-    .then(alliance => {
+    models.Alliance.getActivity(config)
+    .then(data => {
 
       // build template context
-      let data = {
-        title: util.format("Alliance Activity: %s", alliance.name),
-        alliance: alliance,
+      data = _.extend(defaults, data, {
+        title: "Alliance Activity",
         server: server,
-        totals: alliance.totals
-      };
+        alliance: alliance
+      });
 
       // render view
-      return res.render('allyactivity', data);
+      return res.render('alliance/activity', data);
     })
-    .catch(handleError);
+    .catch(err => {
+      logger.error(err);
+      return res.send(500, err);
+    });
   }
 
   // alliance conquers route handler
@@ -166,15 +225,12 @@ class Alliance extends BaseController {
         where = { server: server },
         options, startTime, endTime;
 
-    let handleError = function (err) {
-      logger.error(err);
-      return res.send(500, err);
-    };
-
+    // set 30 day limit for performance
     if (!start) {
-      start = moment.unix(moment().format('X') - 2592000); // 30 day limit
+      start = moment.unix(moment().format('X') - 2592000);
     }
 
+    // convert YYYY-MM-DD to unix timestamps
     startTime = (start) ? moment(start).format('X') : null;
     endTime = (end) ? moment(end).format('X') : null;
 
@@ -190,8 +246,10 @@ class Alliance extends BaseController {
 
     models.Conquers.getConquers({ where: where })
     .then(conquers => {
+
+      // build template context
       let data = {
-        title: "Alliance Conquers",
+        title: util.format("Alliance Conquers: %s", _.sample(conquers).newally.name),
         subtitle: "Cities Gained",
         ally: _.sample(conquers).newally,
         server: server,
@@ -201,18 +259,21 @@ class Alliance extends BaseController {
         routeType: 'conquers'
       };
 
+      // return count by alliance
       data.cqCount = _.countBy(conquers, o => { return o.oldally.name; });
       data.cqCount = _.chain(data.cqCount)
         .map((o,i) => { return { ally: i, count: o }; })
-        .filter(o => { return o.count >= 10; })
+        .filter(o => { return o.count >= 10; }) // just show alliance with >= 10 conquers
         .sortBy('count')
         .reverse()
         .value();
 
-      return res.render('allyconquers', _.extend(defaults, data));
-
+      return res.render('alliance/conquers', _.extend(defaults, data));
     })
-    .catch(handleError);
+    .catch(err => {
+      logger.error(err);
+      return res.send(500, err);
+    });
   }
 
   // alliance losses route handler
@@ -226,15 +287,12 @@ class Alliance extends BaseController {
         hasStart = start,
         startTime, endTime;
 
-    let handleError = function (err) {
-      logger.error(err);
-      return res.send(500, err);
-    };
-
+    // set 30 day limit for performance
     if (!start) {
       start = moment.unix(moment().format('X') - 2592000); // 30 day limit
     }
 
+    // convert YYYY-MM-DD to unix timestamps
     startTime = (start) ? moment(start).format('X') : null;
     endTime = (end) ? moment(end).format('X') : null;
 
@@ -251,8 +309,10 @@ class Alliance extends BaseController {
 
     models.Conquers.getConquers({ where: where })
     .then(conquers => {
-      let data = {
-        title: "Alliance Losses",
+
+      // build template context
+      let data = _.extend(defaults, {
+        title: util.format("Alliance Losses: %s", _.sample(conquers).oldally.name),
         subtitle: "Cities Lost",
         ally: _.sample(conquers).newally,
         server: server,
@@ -260,8 +320,9 @@ class Alliance extends BaseController {
         conquers: conquers,
         hasStartTime: hasStart,
         routeType: 'losses'
-      };
+      });
 
+      // return count by alliance
       data.cqCount = _.countBy(conquers, o => { return o.newally.name; });
       data.cqCount = _.chain(data.cqCount)
         .map((o,i) => { return { ally: i, count: o }; })
@@ -270,10 +331,193 @@ class Alliance extends BaseController {
         .reverse()
         .value();
 
-      return res.render('allyconquers', _.extend(defaults, data));
-
+      return res.render('alliance/conquers', data);
     })
-    .catch(handleError);
+    .catch(err => {
+      logger.error(err);
+      return res.send(500, err);
+    });
+  }
+
+  townsByQuad(req, res) {
+
+    let server = req.params.server,
+        allyId = req.params.alliance,
+        quad = req.params.quad,
+        ocean = req.params.ocean;
+
+    // build query
+    models.Alliance.find({
+      where: { server: server, id: allyId },
+      include: [{ model: models.Player, as: 'Members',
+        where: { alliance: allyId },
+        include: [{ model: models.Town, as: 'Towns',
+          where: {
+            id: sequelize.literal('"Members.Towns".player = "Members".id')
+          },
+          required: false,
+        }],
+        attributes: ['id', 'name', 'towns'],
+        required: false
+      }],
+      attributes: ['id', 'name']
+    })
+    .then(alliance => {
+
+      let bounds = this.getBounds(quad, ocean);
+
+      alliance = alliance.toJSON();
+      alliance.Members = alliance.Members.map(player => {
+        // filter towns outside of quad
+        player.Towns = player.Towns.filter(town => {
+          let filter = town.x >= bounds.x1 &&
+                       town.x < bounds.x2 &&
+                       town.y >= bounds.y1 &&
+                       town.y < bounds.y2;
+          return filter;
+        });
+
+        // count towns in quad
+        player.townsInQuad = player.Towns.length;
+        player.ratio = Math.round((player.townsInQuad / player.towns) * 100);
+
+        return player;
+      });
+
+      // sort members by towns in quad and remove those with none
+      alliance.Members = _.chain(alliance.Members)
+        .filter(o => { return o.townsInQuad > 0; })
+        .sortBy(o => { return o.townsInQuad; }).value().reverse();
+
+      // build template context
+      let data = _.extend(defaults, {
+        title: util.format("Alliance Targets: %s", alliance.name),
+        alliance: alliance,
+        server: server,
+        bounds: bounds,
+        quad: quad,
+        ocean: ocean,
+        quads: [ 'nw', 'nc', 'ne', 'cw', 'cc', 'ce', 'sw', 'sc', 'se' ]
+      });
+
+      return res.render('alliance/quad', data);
+    })
+    .catch(err => {
+      console.error(err);
+      return res.send(500, err);
+    });
+  }
+
+  intel(req, res) {
+
+    let server = req.params.server,
+        alliance = req.params.alliance,
+        allyIds = req.query.alliances || alliance,
+        where = {};
+
+    // normalize alliance id input
+    allyIds = allyIds.split(',');
+    allyIds = _.map(allyIds, a => { return parseInt(a); });
+
+    if (typeof allyIds === 'string') {
+      where = { server: server, id: allyIds };
+    } else {
+      where = { server: server, id: { $any: allyIds } };
+    }
+
+    // build query
+    models.Alliance.findAll({
+      where: where,
+      include: [{ model: models.Player, as: 'Members',
+        where: { alliance: sequelize.literal('"Members".alliance = "Alliance".id') },
+        include: [{ model: models.Town, as: 'Towns',
+          where: { id: sequelize.literal('"Members.Towns".player = "Members".id') },
+          include: [{ model: models.TownIntel, as: 'Intel',
+            where: { id: sequelize.literal('"Members.Towns".id = "Members.Towns.Intel".id') },
+            required: false
+          }],
+          required: false
+        }],
+        attributes: ['id', 'name', 'towns'],
+        required: false
+      }],
+      attributes: ['id', 'name']
+    })
+    .then(alliances => {
+
+      // sort order of known intel
+      let sort = {
+        LS: '001', Tris: '002', OLU: '003', OLUSlings: '004', OLUHorse: '005', OLUHops: '006', Chariots: '007', 
+        Mantis: '008', Griffins: '009', Harpies: '09', Erinys: '010', Birs: '011', DLU: '012', Hydra: '013', Pegs: '014'
+      },
+      members = {};
+
+      alliances = alliances.map(ally => { return ally.toJSON(); });
+      alliances = alliances.map(alliance => {
+        let _alliances = _.map(res.app.locals.alliances, _.clone);
+
+        // set active alliance for alliance selector
+        alliance.alliances = _alliances.map(o => {
+          delete o.isActive;
+
+          if (o.id === alliance.id) {
+            o.isActive = true;
+          }
+
+          return o;
+        });
+
+        alliance.Members = alliance.Members.map(player => {
+          // sort towns by known intel
+          player.Towns = _.sortBy(player.Towns, town => {
+            if (town.Intel) {
+              return sort[town.Intel.intel.replace('/', '')] + town.name;
+            }
+
+            return 'Z' + town.name;
+          });
+          
+          // add number of towns with intel
+          player.intelCount = _.reduce(player.Towns, (num, town) => {
+            return num + ((town.Intel) ? 1 : 0);
+          }, 0);
+
+          // percentage of known towns
+          player.intelCoverage = Math.round((player.intelCount / player.towns) * 100);
+
+          return player;
+        });
+
+        // sort members by known intel count
+        // alliance.Members = _.sortBy(alliance.Members, 'intelCount').reverse();
+
+        // console.log(alliance.alliances.slice(0,10));
+
+        return alliance;
+      });
+
+      // pull members from alliances, merge and sort
+      members = _.chain(alliances).pluck('Members').flatten(true)
+        .sortBy('intelCount').reverse().value();
+
+      // remove members from alliances
+      alliances = alliances.map(o => { return _.omit(o, 'Members'); });
+
+      // build template context
+      let data = _.extend(defaults, {
+        title: "Alliance Intel",
+        alliance: alliance,
+        intelAlliances: alliances,
+        members: members,
+        server: server
+      });
+
+      return res.render('alliance/intel', data);
+    })
+    .catch(err => {
+      logger.error(err);
+      return res.send(500, err);
+    });
   }
 }
 

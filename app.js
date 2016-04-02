@@ -73,6 +73,11 @@ app.locals({
   }
 });
 
+app.use((req, res, next) => {
+  res.setHeader('X-Powered-By', 'Grepolis Tools https://github.com/briantanner/Grepolis-Tools');
+  next();
+});
+
 app.use(middleware.worlds);
 app.all('/:server*', middleware.server);
 app.all('/:server/alliance/:alliance/*?', middleware.alliances);
