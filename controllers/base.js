@@ -3,9 +3,9 @@
 const _ = require('underscore');
 const util = require('util');
 const moment = require('moment');
+const models = require('../models');
 
-let models = require('../models'),
-    sequelize = models.sequelize;
+let sequelize = models.sequelize;
 
 class BaseController {
 

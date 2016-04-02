@@ -7,9 +7,15 @@ const Sequelize = require('sequelize');
 let basename = path.basename(module.filename),
     db = {};
 
-require('dotenv').load();
+// load .env file if exists
+if (fs.existsSync(path.join(process.env.PWD, '.env'))) {
+  require('dotenv').load();
+}
 
-let sequelize = new Sequelize(process.env.HEROKU_POSTGRESQL_CHARCOAL_URL, {
+// let dbString = process.env.HEROKU_POSTGRESQL_CHARCOAL_URL;
+let dbString = process.env.HEROKU_POSTGRESQL_TEAL_URL;
+
+let sequelize = new Sequelize(dbString, {
   dialectOptions: { ssl: true },
   define: { timestamps: false }
 });

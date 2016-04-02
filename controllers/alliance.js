@@ -2,17 +2,17 @@
 
 const _ = require('underscore');
 const util = require('util');
+const utils = require('../lib/utils');
+const models = require('../models');
 const moment = require('moment');
 const accounting = require('accounting');
 const BaseController = require('./base');
+const logger = require('../lib/logger')({
+  consoleLabel: 'web',
+  tags: ['web']
+});
 
-let utils = require('../lib/utils'),
-    models = require('../models'),
-    sequelize = models.sequelize,
-    logger = require('../lib/logger')({
-      consoleLabel: 'web',
-      tags: ['web']
-    }),
+let sequelize = models.sequelize,
     defaults = {
       title: 'Grepolis Tools',
       stylesheets: [ '/stylesheets/alliance.css' ],
@@ -22,6 +22,10 @@ let utils = require('../lib/utils'),
 // Alliance controller
 class Alliance extends BaseController {
 
+  /**
+   * Constructor
+   * @return {Object} Route configuration
+   */
   constructor() {
     super();
 
@@ -72,6 +76,12 @@ class Alliance extends BaseController {
     };
   }
 
+  /**
+   * Get bounding box for ocean quad
+   * @param  {String} quad  Quadrant
+   * @param  {Number} ocean Ocean number
+   * @return {Object}       Bounding box coords
+   */
   getBounds(quad, ocean) {
     let x = parseInt(ocean.split('')[0],10),
         y = parseInt(ocean.split('')[1],10),
@@ -101,7 +111,11 @@ class Alliance extends BaseController {
     return bounds;
   }
 
-  // alliances route handler
+  /**
+   * Alliances handler
+   * @param  {Object} req Express request
+   * @param  {Object} res Express response
+   */
   alliances(req, res) {
 
     let server = req.params.server;
@@ -118,7 +132,11 @@ class Alliance extends BaseController {
     });
   }
 
-  // alliance route handler
+  /**
+   * Alliance handler
+   * @param  {Object} req Express request
+   * @param  {Object} res Express response
+   */
   alliance(req, res) {
 
     let server = req.params.server,
@@ -149,7 +167,11 @@ class Alliance extends BaseController {
     });
   }
 
-  // alliance activity route handler
+  /**
+   * Alliance activity handler
+   * @param  {Object} req Express request
+   * @param  {Object} res Express response
+   */
   allianceActivity(req, res) {
 
     let server = req.params.server,
@@ -213,7 +235,11 @@ class Alliance extends BaseController {
     });
   }
 
-  // alliance conquers route handler
+  /**
+   * Alliance conquers handler
+   * @param  {Object} req Express request
+   * @param  {Object} res Express response
+   */
   allianceConquers(req, res) {
 
     let server = req.params.server,
@@ -276,7 +302,11 @@ class Alliance extends BaseController {
     });
   }
 
-  // alliance losses route handler
+  /**
+   * Alliance losses handler
+   * @param  {Object} req Express request
+   * @param  {Object} res Express response
+   */
   allianceLosses(req, res) {
 
     let server = req.params.server,
@@ -339,6 +369,11 @@ class Alliance extends BaseController {
     });
   }
 
+  /**
+   * Towns by quad handler
+   * @param  {Object} req Express request
+   * @param  {Object} res Express response
+   */
   townsByQuad(req, res) {
 
     let server = req.params.server,
@@ -408,6 +443,11 @@ class Alliance extends BaseController {
     });
   }
 
+  /**
+   * Alliance intel handler
+   * @param  {Object} req Express request
+   * @param  {Object} res Express response
+   */
   intel(req, res) {
 
     let server = req.params.server,
