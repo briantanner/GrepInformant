@@ -1,13 +1,16 @@
 'use strict';
 
 let _ = require('underscore'),
-    logger = require('../lib/logger'),
     Import = require('../lib/import'),
     arg = process.argv[2];
 
-Import.init(arg || 'hourly', (err, result) => {
-	if (err) {
-    logger.error(err);
-  }
-	logger.info('Exiting import.');
+let importer = new Import(arg || 'hourly');
+
+importer.start().then(() => {
+  console.log('done');
+  process.exit();
+})
+.catch(err => {
+  logger.error(err);
+  process.exit();
 });

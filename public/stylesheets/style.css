@@ -195,7 +195,7 @@ div.result span {
   display: none;
 }
 
-.player .name {
+input[type=text] {
   -webkit-tap-highlight-color: transparent;
   background-color: #fff;
   border-radius: 5px;
@@ -207,7 +207,6 @@ div.result span {
   outline: none;
   padding-left: 18px;
   padding-right: 30px;
-  float: left;
   display: block;
 }
 
@@ -232,6 +231,10 @@ ul.players li {
 
 ul.players li:hover {
   background-color: #fff;
+}
+
+.player .name {
+  float: left;
 }
 
 .player a.delete {
