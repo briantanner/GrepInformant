@@ -112,6 +112,7 @@ class Monitor extends BaseController {
 
             return player;
           });
+
           return oAlly;
         })
         .indexBy(o => { return _.sample(o).alliance; }) // index resulting collection by alliance id
