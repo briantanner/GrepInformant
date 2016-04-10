@@ -68,11 +68,12 @@ class Player extends BaseController {
         playerId = utils.sanitizeName(req.params.playerId),
         column = (!isNaN(playerId)) ? 'id' : 'name',
         where = { server: server },
-        data = {};
+        data = {},
+        config = {};
 
     where[column] = playerId;
 
-    models.Player.find({
+    config = {
       where: where,
       include: [
         { model: models.Alliance,
@@ -86,36 +87,23 @@ class Player extends BaseController {
           attributes: ['id', 'name', 'points'],
           required: false
         },
-        {
-          model: models.PlayerUpdates,
-          as: 'PlayerUpdates',
-          where: sequelize.literal('"Player".id = "PlayerUpdates".id'),
+        { model: models.PlayerDaily,
+          as: 'Updates',
+          where: sequelize.literal('"Player".id = "Updates".id'),
           required: false
         }
       ]
-    })
+    };
+
+    models.Player.getPlayer(config)
     .then(player => {
       let start = (new Date() / 1000) - 604800,
           options = {};
 
-      if (player.alliance === 0) {
-        player.Alliance = player.Alliance || { name: '' };
-      }
-
-      player.points = accounting.formatNumber(player.points);
-      player.abp = accounting.formatNumber(player.abp);
-      player.dbp = accounting.formatNumber(player.dbp);
-
-      player.PlayerUpdates = player.PlayerUpdates.map(o => {
-        o = o.toJSON();
+      player.Updates = player.Updates.map(o => {
         o.time = moment.unix(o.time).format("Y-MM-DD");
-        o.points_delta = accounting.formatNumber(o.points_delta);
-        o.abp_delta = accounting.formatNumber(o.abp_delta);
-        o.dbp_delta = accounting.formatNumber(o.dbp_delta);
         return o;
       });
-
-      player.PlayerUpdates = _.sortBy(player.PlayerUpdates, o => { return o.time; }).reverse();
 
       data = {
         title: util.format('Player: %s (%s)', player.name, server),
@@ -123,7 +111,6 @@ class Player extends BaseController {
       };
 
       return res.render('player', data);
-
     })
     .catch(err => {
       logger.error(err);

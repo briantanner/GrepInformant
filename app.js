@@ -95,9 +95,6 @@ function createRoutes(routes) {
 // load controllers
 utils.readdirRecursive(controllerPath, files => {
   files.forEach(file => {
-    if (file.indexOf('v1') !== -1) {
-      return;
-    }
     return createRoutes(require(file));
   });
 });
