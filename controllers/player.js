@@ -3,6 +3,7 @@
 const _ = require('underscore');
 const util = require('util');
 const moment = require('moment');
+const escape = require('pg-escape');
 const accounting = require('accounting');
 const BaseController = require('./base');
 const utils = require('../lib/utils');
@@ -65,13 +66,16 @@ class Player extends BaseController {
    */
   player(req, res) {
     let server = req.params.server,
-        playerId = utils.sanitizeName(req.params.playerId),
+        playerId = req.params.playerId,
         column = (!isNaN(playerId)) ? 'id' : 'name',
         where = { server: server },
         data = {},
         config = {};
 
-    where[column] = playerId;
+    playerId = (!isNaN(playerId)) ? parseInt(playerId, 10) : utils.sanitizeName(playerId);
+
+    where[column] = (typeof playerId === 'number') ? playerId :
+      models.sequelize.literal(escape('lower("Player".%I) = lower(%L)', column, playerId));
 
     config = {
       where: where,

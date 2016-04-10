@@ -2,7 +2,7 @@
 
 const _ = require('underscore');
 const moment = require('moment');
-// const BaseController = require('../base');
+const escape = require('pg-escape');
 const utils = require('../../lib/utils');
 const models = require('../../models');
 const player = require('../player');
@@ -28,12 +28,15 @@ class Player {
 
   getPlayer(req, res) {
     let server = req.params.server,
-        playerId = utils.sanitizeName(req.params.playerId),
+        playerId = req.params.playerId,
         column = (!isNaN(playerId)) ? 'id' : 'name',
         where = { server: server },
         config = {};
 
-    where[column] = playerId;
+    playerId = (!isNaN(playerId)) ? parseInt(playerId, 10) : utils.sanitizeName(playerId);
+
+    where[column] = (typeof playerId === 'number') ? playerId :
+      models.sequelize.literal(escape('lower("Player".%I) = lower(%L)', column, playerId));
 
     config = {
       where: where,
