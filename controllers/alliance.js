@@ -199,7 +199,10 @@ class Alliance extends BaseController {
       options: { // build query
         where: where,
         include: [{ model: models.Player, as: 'Members',
-          where: { alliance: sequelize.literal('"Members".alliance = "Alliance".id') },
+          where: {
+            alliance: sequelize.literal('"Members".alliance = "Alliance".id'),
+            deleted: false
+          },
           include: [{ model: models.PlayerUpdates, as: 'PlayerUpdates',
             where: {
               time: { $gte: start },
