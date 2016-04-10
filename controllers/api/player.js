@@ -41,11 +41,13 @@ class Player {
         { model: models.Alliance,
           as: 'Alliance',
           where: sequelize.literal('"Player".alliance = "Alliance".id'),
-          attributes: ['id', 'name']
+          attributes: ['id', 'name'],
+          required: false
         },
         { model: models.PlayerUpdates,
           as: 'PlayerUpdates',
           where: sequelize.literal('"Player".id = "PlayerUpdates".id'),
+          attributes: ['time', 'abp_delta', 'dbp_delta', 'towns_delta', 'points_delta'],
           required: false
         }
       ]
@@ -56,7 +58,7 @@ class Player {
       player.Updates = player.Updates.slice(0,12).reverse();
 
       player.Updates = player.Updates.map(o => {
-        o.time = moment.unix(o.time).format("Y-MM-DD HH:mm:ss");
+        o.time = moment.unix(o.time).format("Y-MM-DD HH:00:00");
         return o;
       });
 
