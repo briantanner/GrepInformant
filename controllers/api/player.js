@@ -61,7 +61,7 @@ class Player {
       player.Updates = player.Updates.slice(0,12).reverse();
 
       player.Updates = player.Updates.map(o => {
-        o.time = moment.unix(o.time).format("HH:00:00");
+        o.time = moment.unix(o.time).format("HH:00");
         return o;
       });
 
