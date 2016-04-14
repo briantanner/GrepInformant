@@ -1,0 +1,58 @@
+<table class="table table-striped">
+  <tr>
+    <td><strong>Time</strong></td>
+    <td><strong>Town</strong></td>
+    <td><strong>Points</strong></td>
+    <td><strong>Ocean</strong></td>
+    <td><strong>New Player</strong></td>
+    <td><strong>Old Player</strong></td>
+    <td><strong>New Alliance</strong></td>
+    <td><strong>Old Alliance</strong></td>
+  </tr>
+  {{#each Conquers}}
+    <tr id="{{id}}">
+      <td>{{time}}</td>
+      <td>
+        <span class="plaintext town-name">{{town.name}}</span>
+      </td>
+      <td>
+        <span class="points">{{points}} points</span>
+      </td>
+      <td>
+        <span class="ocean">{{ocean}}</span>
+      </td>
+      <td>
+        {{#if newplayer}}
+          <span class="plaintext newplayer-name" data-id="{{newplayer}}">
+            <a href="/{{../server}}/player/{{newplayer}}">{{newplayer_name}}</a>
+          </span>
+        {{else}}
+          <span class="plaintext newplayer-name" data-id="{{newplayer}}">{{newplayer_name}}</span>
+        {{/if}}
+      </td>
+      <td>
+        {{#if oldplayer}}
+          <span class="plaintext oldplayer-name" data-id="{{oldplayer}}">
+            <a href="/{{../server}}/player/{{oldplayer}}">{{oldplayer_name}}</a>
+          </span>
+        {{else}}
+          <span class="plaintext oldplayer-name" data-id="{{oldplayer}}">{{oldplayer_name}} </span>
+        {{/if}}
+      </td>
+      <td>
+        <span class="alliance" data-id="{{newally}}">
+          <a href="/{{../server}}/alliance/{{newally}}" title="{{newally_name}}">
+            {{newally_name}}
+          </a>
+        </span>
+      </td>
+      <td>
+        <span class="alliance-name" data-id="{{oldally}}">
+          <a href="/{{../server}}/alliance/{{oldally}}" title="{{oldally_name}}">
+            {{oldally_name}}
+          </a>
+        </span>
+      </td>
+    </tr>
+  {{/each}}
+</table>

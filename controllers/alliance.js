@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('underscore');
-const util = require('util');
 const utils = require('../lib/utils');
 const models = require('../models');
 const moment = require('moment');
@@ -34,7 +33,7 @@ class Alliance extends BaseController {
       alliances: {
         method: 'get',
         name: 'alliances',
-        uri: '/:server/alliances',
+        uri: '/:server/alliances/:page?',
         handler: this.alliances.bind(this)
       },
       alliance: {
@@ -47,19 +46,19 @@ class Alliance extends BaseController {
         method: 'get',
         name: 'alliance.activity',
         uri: '/:server/alliance/:alliance/activity',
-        handler: this.allianceActivity.bind(this)
+        handler: this.activity.bind(this)
       },
       allianceConquers: {
         method: 'get',
         name: 'alliance.conquers',
-        uri: '/:server/alliance/:alliance/conquers',
-        handler: this.allianceConquers.bind(this)
+        uri: '/:server/alliance/:alliance/conquers/:page?',
+        handler: this.conquers.bind(this)
       },
       allianceLosses: {
         method: 'get',
         name: 'alliance.losses',
-        uri: '/:server/alliance/:alliance/losses',
-        handler: this.allianceLosses.bind(this)
+        uri: '/:server/alliance/:alliance/losses/:page?',
+        handler: this.losses.bind(this)
       },
       intel: {
         method: 'get',
@@ -74,6 +73,10 @@ class Alliance extends BaseController {
         handler: this.townsByQuad.bind(this)
       }
     };
+  }
+  
+  get defaults() {
+    return _.clone(defaults);
   }
 
   /**
@@ -110,6 +113,105 @@ class Alliance extends BaseController {
 
     return bounds;
   }
+  
+  /**
+   * Get alliance by id
+   * @param {Object} params request params
+   * @return {Promise} resolves alliance object
+   */
+  getAlliance(params, getMembers) {
+    return new Promise((resolve, reject) => {
+      let server = params.server,
+          id = utils.sanitizeName(params.alliance),
+          column = (!isNaN(id)) ? 'id' : 'name',
+          page = params.page || 1,
+          limit = 30,
+          search = {},
+          options = {};
+      
+      id = (!isNaN(id)) ? parseInt(id,10) : id;
+      search[column] = id;
+      
+      options = {
+        query: {
+          where: _.extend(search, {
+            server: server,
+            deleted: false
+          })
+        }
+      };
+      
+      if (getMembers) {
+        options.query.include = [{
+          model: models.Player,
+          as: 'Members',
+          where: { alliance: id, deleted: false }
+        }];
+      }
+      
+      models.Alliance.getAlliance(options)
+      .then(data => {
+         data.title = `Alliance: ${data.name}`;
+         data.isAlliance = true;
+         return resolve(data);
+      })
+      .catch(reject);
+    });
+  }
+  
+  /**
+   * Get conquers/losses
+   * @param {Object} alliance alliance object
+   * @param {Object} options  options to query
+   */
+  getConquers(alliance, options) {
+    return new Promise((resolve, reject) => {
+      let query = { server: alliance.server };
+      
+      query[options.column] = alliance.id;
+          
+      models.Conquers.getConquers({
+        query: query,
+        limit: options.limit,
+        offset: (options.page-1) * options.limit
+      })
+      .then(result => {
+        let conquers = result.rows;
+
+        // build template context
+        let data = _.extend(this.defaults, alliance, {
+          subtitle: (options.type === 'losses') ? "Cities Lost" : "Cities Gained",
+          totalConquers: result.count,
+          Conquers: conquers,
+          routeType: options.type,
+          count: result.count,
+          baseurl: `/${alliance.server}/alliance/${alliance.id}/${options.type}`,
+          pagination: {
+            page: options.page,
+            pageCount: Math.ceil(result.count / options.limit)
+          }
+        });
+        
+        if (options.type === 'conquers') {
+          data.isConquers = true;
+        } else if (options.type === 'losses') {
+          data.isLosses = true;
+        }
+
+        // return count by alliance
+        // data.cqCount = _.countBy(conquers, o => { return o.oldally_name; });
+        // data.cqCount = _.chain(data.cqCount)
+        //   .map((o,i) => { return { ally: i, count: o }; })
+        //   .filter(o => { return o.count >= 10; }) // just show alliance with >= 10 conquers
+        //   .sortBy('count')
+        //   .reverse()
+        //   .value();
+
+        return resolve(data);
+      })
+      .catch(reject);
+    });
+  }
 
   /**
    * Alliances handler
@@ -117,14 +219,32 @@ class Alliance extends BaseController {
    * @param  {Object} res Express response
    */
   alliances(req, res) {
+    let server = req.params.server,
+        page = req.params.page || 1,
+        limit = req.query.limit || 30;
 
-    let server = req.params.server;
-
-    models.Alliance.find({
-      where: { server: server }
+    models.Alliance.getAll({
+      query: {
+        where: { server: server, deleted: false },
+        order: 'rank ASC',
+        limit: limit,
+        offset: (page-1) * limit,
+        attributes: ['id', 'name', 'rank', 'members', 'points', 'towns', 'abp', 'dbp']
+      }
     })
-    .then(alliances => {
-      return res.send(200, alliances);
+    .then(result => {
+      // build template context
+      let data = _.extend(this.defaults, {
+        title: `Alliances: ${server}`,
+        alliances: result.rows,
+        baseurl: `/${server}/alliances`,
+        pagination: {
+          page: page,
+          pageCount: Math.ceil(result.count / limit)
+        }
+      });
+
+      return res.render('alliances', data);
     })
     .catch(err => {
       logger.error(err);
@@ -138,28 +258,16 @@ class Alliance extends BaseController {
    * @param  {Object} res Express response
    */
   alliance(req, res) {
+    // get alliance
+    this.getAlliance(req.params, true).then(data => {
 
-    let server = req.params.server,
-        allyId = utils.sanitizeName(req.params.alliance),
-        column = (!isNaN(allyId)) ? 'id' : 'name',
-        where = { server: server },
-        allySearch = {};
-    
-    allyId = (!isNaN(allyId)) ? parseInt(allyId,10) : allyId;
-    allySearch[column] = allyId;
-
-    models.Alliance.find({
-      where: _.extend(allySearch, {
-        server: server
-      }),
-      include: [{
-        model: models.Player,
-        as: 'Members',
-        where: { alliance: allyId }
-      }]
-    })
-    .then(alliance => {
-      return res.send(200, alliance);
+      // build template context
+      data = _.extend(this.defaults, data, {
+        isDefault: true
+      });
+      
+      // render view
+      return res.render('alliance', data);
     })
     .catch(err => {
       logger.error(err);
@@ -172,65 +280,30 @@ class Alliance extends BaseController {
    * @param  {Object} req Express request
    * @param  {Object} res Express response
    */
-  allianceActivity(req, res) {
+  activity(req, res) {
 
-    let server = req.params.server,
-        alliance = req.params.alliance,
-        allyIds = req.query.alliances || alliance,
-        start = req.query.start || null,
-        end = req.query.end || null,
-        hours = 168,
-        where = {};
+    // get alliance
+    this.getAlliance(req.params).then(alliance => {
+      
+      // get alliance activity
+      models.Alliance.getActivity({
+        query: { server: alliance.server, id: alliance.id },
+        alliances: res.app.locals.alliances
+      })
+      .then(data => {
 
-    start = ((new Date() / 1000) - (168 * 60 * 60)) - 300;
+        // build template context
+        data = _.extend(this.defaults, alliance, data, {
+          isActivity: true
+        });
 
-    // normalize alliance id input
-    allyIds = allyIds.split(',');
-    allyIds = _.map(allyIds, a => { return parseInt(a); });
-
-    if (typeof allyIds === 'string') {
-      where = { server: server, id: allyIds };
-    } else {
-      where = { server: server, id: { $any: allyIds } };
-    }
-
-    let config = {
-      alliances: res.app.locals.alliances,
-      options: { // build query
-        where: where,
-        include: [{ model: models.Player, as: 'Members',
-          where: {
-            alliance: sequelize.literal('"Members".alliance = "Alliance".id'),
-            deleted: false
-          },
-          include: [{ model: models.PlayerUpdates, as: 'PlayerUpdates',
-            where: {
-              time: { $gte: start },
-              id: sequelize.literal('"Members.PlayerUpdates".id = "Members".id')
-            },
-            attributes: ['id', 'time', 'points_delta', 'abp_delta', 'dbp_delta', 'towns_delta'],
-            required: false,
-          }],
-          attributes: ['id', 'name', 'towns'],
-          required: false
-        }],
-        attributes: ['id', 'name']
-      }
-    };
-
-    // build query
-    models.Alliance.getActivity(config)
-    .then(data => {
-
-      // build template context
-      data = _.extend(defaults, data, {
-        title: "Alliance Activity",
-        server: server,
-        alliance: alliance
+        // render view
+        return res.render('alliance', data);
+      })
+      .catch(err => {
+        logger.error(err);
+        return res.send(500, err);
       });
-
-      // render view
-      return res.render('alliance/activity', data);
     })
     .catch(err => {
       logger.error(err);
@@ -243,61 +316,23 @@ class Alliance extends BaseController {
    * @param  {Object} req Express request
    * @param  {Object} res Express response
    */
-  allianceConquers(req, res) {
-
-    let server = req.params.server,
-        alliance = req.params.alliance,
-        start = req.query.start || null,
-        end = req.query.end || null,
-        hideInternals = req.query.hideinternals || null,
-        hasStart = start,
-        where = { server: server },
-        options, startTime, endTime;
-
-    // set 30 day limit for performance
-    if (!start) {
-      start = moment.unix(moment().format('X') - 2592000);
-    }
-
-    // convert YYYY-MM-DD to unix timestamps
-    startTime = (start) ? moment(start).format('X') : null;
-    endTime = (end) ? moment(end).format('X') : null;
-
-    // build query
-    if (alliance)
-      where.newally = alliance;
-    if (hideInternals)
-      where.oldally = { $ne: alliance };
-    if (startTime)
-      where.time = { $gte: startTime };
-    if (endTime)
-      where.time = { $lte: endTime };
-
-    models.Conquers.getConquers({ where: where })
-    .then(conquers => {
-
-      // build template context
-      let data = {
-        title: util.format("Alliance Conquers: %s", _.sample(conquers).newally.name),
-        subtitle: "Cities Gained",
-        ally: _.sample(conquers).newally,
-        server: server,
-        totalConquers: conquers.length,
-        conquers: conquers,
-        hasStartTime: hasStart,
-        routeType: 'conquers'
+  conquers(req, res) {
+    let page = req.params.page || 1,
+        limit = 30;
+    
+    this.getAlliance(req.params).then(alliance => {
+      let options = {
+        type: 'conquers',
+        column: 'newally',
+        page, limit
       };
-
-      // return count by alliance
-      data.cqCount = _.countBy(conquers, o => { return o.oldally.name; });
-      data.cqCount = _.chain(data.cqCount)
-        .map((o,i) => { return { ally: i, count: o }; })
-        .filter(o => { return o.count >= 10; }) // just show alliance with >= 10 conquers
-        .sortBy('count')
-        .reverse()
-        .value();
-
-      return res.render('alliance/conquers', _.extend(defaults, data));
+      
+      this.getConquers(alliance, options).then(data => {
+        return res.render('alliance', data);
+      }).catch(err => {
+        logger.error(err);
+        return res.send(500, err);
+      });
     })
     .catch(err => {
       logger.error(err);
@@ -310,61 +345,23 @@ class Alliance extends BaseController {
    * @param  {Object} req Express request
    * @param  {Object} res Express response
    */
-  allianceLosses(req, res) {
-
-    let server = req.params.server,
-        alliance = req.params.alliance,
-        start = req.query.start || null,
-        end = req.query.end || null,
-        where = { server: server },
-        hasStart = start,
-        startTime, endTime;
-
-    // set 30 day limit for performance
-    if (!start) {
-      start = moment.unix(moment().format('X') - 2592000); // 30 day limit
-    }
-
-    // convert YYYY-MM-DD to unix timestamps
-    startTime = (start) ? moment(start).format('X') : null;
-    endTime = (end) ? moment(end).format('X') : null;
-
-    // build query
-    if (alliance) {
-      where.oldally = alliance;
-      where.newally = { $ne: alliance };
-    }
-
-    if (startTime)
-      where.time = { $gte: startTime };
-    if (endTime)
-      where.time = { $lte: endTime };
-
-    models.Conquers.getConquers({ where: where })
-    .then(conquers => {
-
-      // build template context
-      let data = _.extend(defaults, {
-        title: util.format("Alliance Losses: %s", _.sample(conquers).oldally.name),
-        subtitle: "Cities Lost",
-        ally: _.sample(conquers).newally,
-        server: server,
-        totalConquers: conquers.length,
-        conquers: conquers,
-        hasStartTime: hasStart,
-        routeType: 'losses'
+  losses(req, res) {
+    let page = req.params.page || 1,
+        limit = 30;
+    
+    this.getAlliance(req.params).then(alliance => {
+      let options = {
+        type: 'losses',
+        column: 'oldally',
+        page, limit
+      };
+      
+      this.getConquers(alliance, options).then(data => {
+        return res.render('alliance', data);
+      }).catch(err => {
+        logger.error(err);
+        return res.send(500, err);
       });
-
-      // return count by alliance
-      data.cqCount = _.countBy(conquers, o => { return o.newally.name; });
-      data.cqCount = _.chain(data.cqCount)
-        .map((o,i) => { return { ally: i, count: o }; })
-        .filter(o => { return o.count >= 10; })
-        .sortBy('count')
-        .reverse()
-        .value();
-
-      return res.render('alliance/conquers', data);
     })
     .catch(err => {
       logger.error(err);
@@ -378,7 +375,6 @@ class Alliance extends BaseController {
    * @param  {Object} res Express response
    */
   townsByQuad(req, res) {
-
     let server = req.params.server,
         allyId = req.params.alliance,
         quad = req.params.quad,
@@ -429,9 +425,8 @@ class Alliance extends BaseController {
 
       // build template context
       let data = _.extend(defaults, {
-        title: util.format("Alliance Targets: %s", alliance.name),
+        title: `Alliance Targets: ${alliance.name}`,
         alliance: alliance,
-        server: server,
         bounds: bounds,
         quad: quad,
         ocean: ocean,
@@ -452,7 +447,6 @@ class Alliance extends BaseController {
    * @param  {Object} res Express response
    */
   intel(req, res) {
-
     let server = req.params.server,
         alliance = req.params.alliance,
         allyIds = req.query.alliances || alliance,
@@ -551,8 +545,7 @@ class Alliance extends BaseController {
         title: "Alliance Intel",
         alliance: alliance,
         intelAlliances: alliances,
-        members: members,
-        server: server
+        members: members
       });
 
       return res.render('alliance/intel', data);

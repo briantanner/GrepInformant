@@ -1,0 +1,22 @@
+<table class="table table-striped">
+  <tr>
+    <th>Date/Time</th>
+    <th>Name</th>
+    <th>Rank</th>
+    <th>Points</th>
+    <th>Towns</th>
+    <th>ABP</th>
+    <th>DBP</th>
+  </tr>
+  {{#each Updates}}
+    <tr>
+      <td>{{time}}</td>
+      <td>{{name}}</td>
+      <td>{{rank}}</td>
+      <td>{{points_delta}}</td>
+      <td>{{towns_delta}}</td>
+      <td>{{abp_delta}}</td>
+      <td>{{dbp_delta}}</td>
+    </tr>
+  {{/each}}
+</table>

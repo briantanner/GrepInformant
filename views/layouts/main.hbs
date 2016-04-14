@@ -2,6 +2,11 @@
 <html>
   <head>
     <title>{{title}}</title>
+    
+    {{!--<meta name="viewport" content="width=device-width, initial-scale=1">--}}
+    
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+
     <link rel="stylesheet" href="/stylesheets/easy-autocomplete.min.css">
     <link rel="stylesheet" href="/stylesheets/nice-select.css">
     <link rel="stylesheet" href="/stylesheets/style.css">
@@ -14,22 +19,18 @@
   </head>
 
   <body>
-    <div class="header">
+    <div class="page-header">
       <h1>Grepolis Informant</h1>
-      <div class="header-right">
-        <select class="worldSelect">
-          <option value="">Select World</option>
-          {{#each worlds}}
-            <option value="{{server}}"{{#if isActive}}selected="selected"{{/if}}>{{name}} ({{server}})</option>
-          {{/each}}
-        </select>
-      </div>
+      {{!--<div class="header-right">--}}
+      {{>worldselect}}
+      {{!--</div>--}}
     </div>
-    <div class="content">
+    <div class="container-fluid">
       {{{body}}}
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
     <script type="text/javascript" src="/js/jquery.easy-autocomplete.min.js"></script>
     <script type="text/javascript" src="/js/jquery.nice-select.min.js"></script>
     <script type="text/javascript" src="/js/ui.js"></script>

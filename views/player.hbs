@@ -1,56 +1,71 @@
-<h3>{{title}}</h3>
-<table>
-  <tr>
-    <td>Name</td>
-    <td>{{player.name}}</td>
-  </tr>
-  <tr>
-    <td>Alliance</td>
-    <td>{{player.alliance.name}}</td>
-  </tr>
-  <tr>
-    <td>Rank</td>
-    <td>{{player.rank}}</td>
-  </tr>
-  <tr>
-    <td>Towns</td>
-    <td>{{player.towns}}</td>
-  </tr>
-  <tr>
-    <td>Points</td>
-    <td>{{player.points}}</td>
-  </tr>
-  <tr>
-    <td>ABP</td>
-    <td>{{player.abp}}</td>
-  </tr>
-  <tr>
-    <td>DBP</td>
-    <td>{{player.dbp}}</td>
-  </tr>
-</table>
-<h3>Updates</h3>
-<table class="updates">
-  <tr>
-    <th>Date/Time</th>
-    <th>Name</th>
-    <th>Rank</th>
-    <th>Points</th>
-    <th>Towns</th>
-    <th>ABP</th>
-    <th>DBP</th>
-  </tr>
-  {{#each player.Updates}}
-    <tr>
-      <td>{{time}}</td>
-      <td>{{name}}</td>
-      <td>{{rank}}</td>
-      <td>{{points_delta}}</td>
-      <td>{{towns_delta}}</td>
-      <td>{{abp_delta}}</td>
-      <td>{{dbp_delta}}</td>
-    </tr>
-  {{/each}}
-</table>
+<div class="row">
+  <div class="col-md-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <div class="panel-title">{{title}}</div>
+      </div>
+      <table class="table">
+        <tr>
+          <th>Name</th>
+          <td>
+            <a href="/{{server}}/player/{{player.id}}" title="{{player.name}}">{{player.name}}</a>
+          </td>
+        </tr>
+        <tr>
+          <th>Alliance</th>
+          <td>
+            <a href="/{{server}}/alliance/{{player.Alliance.id}}" title="{{player.Alliance.name}}">
+              {{player.Alliance.name}}
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <th>Rank</th>
+          <td>{{player.rank}}</td>
+        </tr>
+        <tr>
+          <th>Towns</th>
+          <td>{{player.towns}}</td>
+        </tr>
+        <tr>
+          <th>Points</th>
+          <td>{{player.points}}</td>
+        </tr>
+        <tr>
+          <th>ABP</th>
+          <td>{{player.abp}}</td>
+        </tr>
+        <tr>
+          <th>DBP</th>
+          <td>{{player.dbp}}</td>
+        </tr>
+      </table>
+    </div><!-- .panel -->
+  </div><!-- .col-md-4 -->
+</div><!-- .row -->
+
+<div class="row">
+  <div class="col-md-12">
+    <ul class="nav nav-tabs">
+      <li role="presentation"{{#if player.Updates}} class="active"{{/if}}><a href="/{{server}}/player/{{player.id}}">Updates</a></li>
+      <li role="presentation"{{#if player.Conquers}} class="active"{{/if}}><a href="/{{server}}/player/{{player.id}}/conquers">Conquers</a></li>
+      <li role="presentation"{{#if player.Towns}} class="active"{{/if}}><a href="/{{server}}/player/{{player.id}}/towns">Towns</a></li>
+    </ul>
+
+    {{#with player}}
+      {{#if Updates}}
+        <h3>Updates</h3>
+        {{>player/updates}}
+      {{else if Conquers}}
+        <h3>Conquests</h3>
+        {{>conquers}}
+      {{else if Towns}}
+        <h3>Towns</h3>
+        {{>player/towns}}
+      {{/if}}
+    {{/with}}
+    
+  </div><!-- .col-md-12 -->
+</div><!-- .row -->
 
 {{>footer}}

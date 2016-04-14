@@ -1,0 +1,70 @@
+<div class="row">
+  <div class="col-md-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <div class="panel-title">Alliance</div>
+      </div>
+      <div class="panel-body">
+        {{>allyselect}}
+      </div>
+      
+      <table class="table">
+        <tr>
+          <th>Name</th>
+          <td>
+            <a href="/{{server}}/player/{{id}}" title="{{name}}">
+              {{name}}
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <th>Rank</th>
+          <td>{{rank}}</td>
+        </tr>
+        <tr>
+          <th>Towns</th>
+          <td>{{towns}}</td>
+        </tr>
+        <tr>
+          <th>Points</th>
+          <td>{{points}}</td>
+        </tr>
+        <tr>
+          <th>ABP</th>
+          <td>{{abp}}</td>
+        </tr>
+        <tr>
+          <th>DBP</th>
+          <td>{{dbp}}</td>
+        </tr>
+      </table>
+    </div><!-- .panel -->
+  </div><!-- .col-md-4 -->
+</div><!-- .row -->
+
+<div class="row">
+  <div class="col-md-12">
+    <ul class="nav nav-tabs">
+      <li role="presentation"{{#if isDefault}} class="active"{{/if}}><a href="/{{server}}/alliance/{{id}}">Members</a></li>
+      <li role="presentation"{{#if isActivity}} class="active"{{/if}}><a href="/{{server}}/alliance/{{id}}/activity">Activity</a></li>
+      <li role="presentation"{{#if isConquers}} class="active"{{/if}}><a href="/{{server}}/alliance/{{id}}/conquers">Conquers</a></li>
+      <li role="presentation"{{#if isLosses}} class="active"{{/if}}><a href="/{{server}}/alliance/{{id}}/losses">Losses</a></li>
+    </ul>
+
+    {{#if isDefault}}
+      <h3>Members</h3>
+      {{>alliance/default}}
+    {{else if isConquers}}
+      <h3>Conquers ({{count}})</h3>
+      {{>alliance/conquers}}
+    {{else if isLosses}}
+      <h3>Losses ({{count}})</h3>
+      {{>alliance/conquers}}
+    {{else if isActivity}}
+      <h3>Activity (7 day)</h3>
+      {{>alliance/activity}}
+    {{/if}}
+  </div>
+</div>
+
+{{>footer}}

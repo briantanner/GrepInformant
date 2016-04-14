@@ -1,7 +1,7 @@
 body {
   padding: 10px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  background: #000 url('../images/bg.jpg') top center no-repeat;
+  font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
+  /*background: #000 url('../images/bg.jpg') top center no-repeat;*/
 }
 
 .header {
@@ -21,10 +21,37 @@ body {
   border: solid #999 1px;
 }
 
-.header h1 {
+.page-header {
+  position: relative;
+}
+
+.page-header h1 {
+  color: #ffe914;
+  text-shadow: 2px 1px 6px rgba(0, 0, 0, 0.8);
+  margin-left: 15px;
+}
+
+.world-select {
+  position: absolute;
+  right: 15px;
+  bottom: 15px;
+}
+
+/*.header h1 {
   color: #ffe914;
   font-size: 2.2em;
   text-shadow: 2px 1px 4px rgba(0, 0, 0, 0.6);
+}*/
+
+.container, .container-fluid {
+  /*background-color: #fafafa;*/
+  border-radius: 12px;
+  padding: 15px;
+  /*box-shadow: 0 0 10px 3px rgba(0,0,0,0.2);*/
+}
+
+.table-striped>tbody>tr:nth-of-type(odd) {
+  /*background-color: #eee;*/
 }
 
 .content {
@@ -36,8 +63,8 @@ body {
   box-shadow: 0 0 10px 5px rgba(0,0,0,0.4);
 }
 
-a {
-  /*color: #00B7FF;*/
+/*a {
+  color: #00B7FF;
   text-decoration: none;
 }
 
@@ -52,78 +79,26 @@ td,th {
 
 tr.alt td {
   background-color: #ececec;
-}
+}*/
 
-td.center {
+/*td.center {
   text-align: center;
 }
 
 td.bold {
   font-weight: bold;
-}
+}*/
 
-div.calculator {
-  background: #efefef;
-  max-width: 400px;
-  margin: 15px;
-  padding: 12px;
-  margin-left: 0;
-  border-radius: 12px;
-  webkit-border-radius: 12px;
-  moz-border-radius: 12px;
-}
-
-table.updates td, table.updates th {
+/*table.updates td, table.updates th {
   text-align: center;
   padding-right: 2em;
-}
+}*/
 
-div.compare {
-  /*background: #efefef;*/
-  /*max-width: 600px;*/
-  /*margin: 15px;
-  padding: 12px;
-  margin-left: 0;
-  border-radius: 12px;
-  webkit-border-radius: 12px;
-  moz-border-radius: 12px;*/
-}
-
-div.compare div.stats {
-  width: 240px;
-  height: 160px;
-  float: left;
-}
-
-div.compare ul {
-  padding-left: 15px;
-}
-
-div.compare li {
-  list-style-type: none;
-  font-size: 12px;
-}
-
-div.compare li span {
-  display: block;
-  width: 90px;
+/*.conquers td {
   font-weight: bold;
-  float: left;
-}
+}*/
 
-.conquers td {
-  font-weight: bold;
-}
-
-div.calculator h4.title {
-  margin: 5px 0 15px 0;
-}
-
-div.row {
-  margin: 5px 0;
-}
-
-div.result {
+/*div.result {
   margin: 10px 0;
   color: green;
   text-align: center;
@@ -131,7 +106,7 @@ div.result {
 
 div.result span {
   display: block;
-}
+}*/
 
 .help {
   font-size: 10px;
@@ -161,7 +136,7 @@ div.result span {
 }
 
 .ally, .player, .quad {
-  margin: 0 15px 15px 0;
+  /*margin: 0 15px 15px 0;*/
   float: left;
 }
 

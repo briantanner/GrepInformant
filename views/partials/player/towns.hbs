@@ -1,0 +1,16 @@
+<table class="table table-striped">
+  <tr>
+    <td><strong>Name</strong></td>
+    <td><strong>BB Code</strong></td>
+    <td><strong>Ocean</strong></td>
+    <td><strong>Points</strong></td>
+  </tr>
+  {{#each Towns}}
+    <tr data-id="{{id}}">
+      <td>{{name}}</td>
+      <td>[town]{{id}}[/town]</td>
+      <td>{{ocean}}</td>
+      <td>{{points}}</td>
+    </tr>
+  {{/each}}
+</table>

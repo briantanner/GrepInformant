@@ -75,7 +75,7 @@ class Index {
     models.Player.findAll({
       where: {
         $and: [
-          { server: server },
+          { server: server, deleted: false },
           sequelize.literal(util.format("lower(name) like '%s%%'", input.toLowerCase()))
         ]
       },

@@ -1,0 +1,17 @@
+{{#if Conquers}}
+
+  {{#if pagination}}
+    {{>pagination}}
+  {{/if}}
+
+  {{>conquers}}
+
+  {{#if pagination}}
+    {{>pagination}}
+  {{/if}}
+  
+{{/if}}
+
+<script type="text/javascript">
+  var allyEndpoint = '/{{routeType}}';
+</script>

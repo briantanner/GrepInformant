@@ -1,4 +1,20 @@
-<div class="ally">
+<div class="dropdown ally-select">
+  <button class="btn btn-default dropdown-toggle" type="button" id="allySelect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+    {{#if isAlliance}}
+      {{name}} ({{world.server}})
+    {{else}}
+      Select Alliance
+    {{/if}}
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="worldSelect">
+    {{#each alliances}}
+      <li{{#if isActive}} class="selected"{{/if}}><a href="/{{server}}/alliance/{{id}}">{{name}} ({{server}})</a></li>
+    {{/each}}
+  </ul>
+</div>
+
+{{!--<div class="ally">
   <select name="ally[]" class="allySelect">
     <option value="">Select Alliance</option>
     {{#each alliances}}
@@ -6,4 +22,4 @@
     {{/each}}
   </select>
 </div>
-<span class="clear"></span>
+<span class="clear"></span>--}}

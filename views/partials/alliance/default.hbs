@@ -1,0 +1,43 @@
+{{#if Members}}
+  <table class="table table-striped">
+    <tr>
+      <th>Rank</th>
+      <th>Name</th>
+      <th>Towns</th>
+      <th>Points</th>
+      <th>Att BP</th>
+      <th>Def BP</th>
+      <th>Total BP</th>
+    </tr>
+    {{#each Members}}
+      <tr>
+        <td>{{rank}}</td>
+        <td>
+          <a href="/{{../server}}/player/{{id}}" title="{{name}}">
+            {{name}}
+          </a>
+        </td>
+        <td>{{towns}}</td>
+        <td>{{points}}</td>
+        <td>{{abp}}</td>
+        <td>{{dbp}}</td>
+        <td>
+          {{allbp}}
+        </td>
+      </tr>
+    {{/each}}
+    <tr>
+      <td></td>
+      <td><strong>Total</strong></td>
+      <td><strong>{{towns}}</strong></td>
+      <td><strong>{{points}}</strong></td>
+      <td><strong>{{abp}}</strong></td>
+      <td><strong>{{dbp}}</strong></td>
+      <td><strong>{{allbp}}</strong></td>
+    </tr>
+  </table><!-- .players -->
+{{/if}}
+
+<script type="text/javascript">
+  var allyEndpoint = '/';
+</script>

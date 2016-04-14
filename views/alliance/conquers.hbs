@@ -2,11 +2,11 @@
 
   {{>allyselect}}
 
-  {{#unless hasStartTime}}
+  {{!-- {{#unless hasStartTime}}
     <h3>{{subtitle}}: {{totalConquers}} (30 day)</h3>
-  {{else}}
-    <h3>{{subtitle}}: {{totalConquers}}</h3>
-  {{/unless}}
+  {{else}} --}}
+  <h3>{{subtitle}}: {{totalConquers}}</h3>
+  {{!-- {{/unless}} --}}
   <ol>
     {{#each cqCount}}
       <li>
@@ -14,54 +14,22 @@
       </li>
     {{/each}}
   </ol>
-  {{#if conquers}}
-    <table>
-      <tr>
-        <td><strong>Time</strong></td>
-        <td><strong>Town</strong></td>
-        <td><strong>Ocean</strong></td>
-        <td><strong>New Player</strong></td>
-        <td><strong>Old Player</strong></td>
-      </tr>
+  {{#if Conquers}}
 
-      {{#each conquers}}
-        <tr>
-          <td>{{time}}</td>
-          <td>
-            <span class="plaintext town-name">{{town.name}}</span>
-            <span class="points">({{points}} points) </span>
-          </td>
-          <td>
-            <span class="ocean">o{{ocean}}</span>
-          </td>
-          <td>
-            {{#if newplayer.id}}
-              <span class="plaintext newplayer-name">
-                <a href="/{{../server}}/player/{{newplayer.id}}">{{newplayer.name}}</a>
-              </span>
-            {{else}}
-              <span class="plaintext newplayer-name">{{newplayer.name}}</span>
-            {{/if}}
-            <span class="alliance">({{newally.name}})</span>
-          </td>
-          <td>
-            {{#if oldplayer.id}}
-              <span class="plaintext oldplayer-name">
-                <a href="/{{../server}}/player/{{oldplayer.id}}">{{oldplayer.name}}</a>
-              </span>
-            {{else}}
-              <span class="plaintext oldplayer-name">{{oldplayer.name}} </span>
-            {{/if}}
-            <span class="alliance-name">({{oldally.name}})</span>
-          </td>
-        </tr>
-      {{/each}}
+    {{#if pagination}}
+      {{>pagination}}
+    {{/if}}
 
-    </table>
+    {{>conquers}}
+
+    {{#if pagination}}
+      {{>pagination}}
+    {{/if}}
+    
   {{/if}}
 
 {{>footer}}
 
-  <script type="text/javascript">
-    var allyEndpoint = '/conquers';
-  </script>
+<script type="text/javascript">
+  var allyEndpoint = '/conquers';
+</script>

@@ -131,6 +131,7 @@ class Monitor extends BaseController {
         time = req.query.time || null,
         alliances = req.query.alliances || null,
         where = { server: server },
+        options = {},
         hoursSince;
 
     if (!time) {
@@ -149,6 +150,7 @@ class Monitor extends BaseController {
     }
 
     where.time = { $gte: time };
+    
     if (alliances) {
       alliances = _.map(alliances.split(','), id => { return parseInt(id, 10); });
       where = _.extend(where, {
@@ -158,17 +160,18 @@ class Monitor extends BaseController {
         ]
       });
     }
+    
+    options.query = where;
 
-    models.Conquers.getConquers({ where })
-    .then(conquers => {
-      let filteredConquers = {};
-      // conquers = _.map(conquers, o => { return o.toJSON(); });
+    models.Conquers.getConquers(options)
+    .then(result => {
+      let filteredConquers = {},
+          conquers = result.rows;
 
       if (alliances) {
         _.each(alliances, id => {
-          let cqArr = _.filter(conquers, o => { return o.newally.id === id; });
+          let cqArr = _.filter(_.clone(conquers), o => { return o.newally === id || o.oldally === id; });
 
-          cqArr = cqArr.concat(_.filter(conquers, o => { return o.oldally.id === id; }));
           cqArr = _.map(cqArr, o => {
             o = _.clone(o);
             o.alliance_name = (parseInt(o.newally.id,10) === parseInt(id,10)) ? o.newally.name : o.oldally.name;
@@ -232,9 +235,8 @@ class Monitor extends BaseController {
 
       if (alliances) {
         _.each(alliances, id => {
-          let chArr = _.filter(changes, o => { return o.new_alliance === id; });
+          let chArr = _.filter(_.clone(changes), o => { return o.new_alliance === id || o.old_alliance === id; });
 
-          chArr = chArr.concat(_.filter(changes, o => { return o.old_alliance === id; }));
           chArr = _.map(chArr, o => {
             o = _.clone(o);
             o.alliance_name = (parseInt(o.new_alliance,10) === parseInt(id,10)) ? 

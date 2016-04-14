@@ -1,0 +1,38 @@
+<h3>{{title}}</h3>
+
+<div class="row">
+  <div class="col-md-12">
+    {{>pagination}}
+
+    <table class="table table-striped">
+      <tr>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>Alliance</th>
+        <th>Towns</th>
+        <th>Points</th>
+        <th>ABP</th>
+        <th>DBP</th>
+      </tr>
+      {{#each players}}
+        <tr>
+          <td>{{rank}}</td>
+          <td>
+            <a href="/{{../server}}/alliance/{{id}}" title="{{name}}">{{name}}</a>
+          </td>
+          <td>
+            <a href="/{{../server}}/alliance/{{Alliance.id}}" title="{{Alliance.name}}">
+              {{Alliance.name}}
+            </a>
+          </td>
+          <td>{{towns}}</td>
+          <td>{{points}}</td>
+          <td>{{abp}}</td>
+          <td>{{dbp}}</td>
+        </tr>
+      {{/each}}
+    </table>
+
+    {{>pagination}}
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<div class="dropdown world-select">
+  <button class="btn btn-default dropdown-toggle" type="button" id="worldSelect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+    {{#if world}}
+      {{world.name}} ({{world.server}})
+    {{else}}
+      Select World
+    {{/if}}
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="worldSelect">
+    {{#each worlds}}
+      <li{{#if isActive}} class="selected"{{/if}}><a href="/{{server}}">{{name}} ({{server}})</a></li>
+    {{/each}}
+  </ul>
+</div>

@@ -6,18 +6,29 @@ const morgan = require('morgan');
 const express = require('express');
 const Router = require('named-routes');
 const exphbs  = require('express-handlebars');
+const paginate = require('handlebars-paginate');
+const utils = require('./lib/utils');
+const middleware = require('./lib/middleware');
+const redirects = require('./redirects.json');
+const logger = require('./lib/logger')({
+  consoleLabel: 'web',
+  tags: ['web']
+});
 
 let app = express(),
-    utils = require('./lib/utils'),
-    middleware = require('./lib/middleware'),
-    redirects = require('./redirects.json'),
-    logger = require('./lib/logger')({
-      consoleLabel: 'web',
-      tags: ['web']
-    }),
     router = new Router(),
     controllerPath = require("path").join(__dirname, "controllers"),
-    routes = [];
+    routes = [],
+    hbs;
+
+hbs = exphbs.create({
+  extname: '.hbs',
+  defaultLayout: 'main',
+  partialsDir: 'views/partials/',
+  helpers: {
+    paginate
+  }
+});
 
 router.extendExpress(app);
 router.registerAppHelpers(app);
@@ -39,11 +50,7 @@ logger.stream = {
 app.set('port', process.env.PORT || 8080);
 app.set('views', path.join(__dirname, 'views'));
 
-app.engine('hbs', exphbs({
-  extname: '.hbs',
-  defaultLayout: 'main',
-  partialsDir: 'views/partials/'
-}));
+app.engine('hbs', hbs.engine);
 
 app.set('view engine', 'hbs');
 

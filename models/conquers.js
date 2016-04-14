@@ -46,6 +46,22 @@ module.exports = (sequelize, DataTypes) => {
     points: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    newplayer_name: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    oldplayer_name: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    newally_name: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    oldally_name: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     tableName: 'conquers',
@@ -55,65 +71,49 @@ module.exports = (sequelize, DataTypes) => {
         Conquers.hasOne(models.Player, { foreignKey: 'server', as: 'oldPlayerObj' });
         Conquers.hasOne(models.Alliance, { foreignKey: 'server', as: 'newAllyObj' });
         Conquers.hasOne(models.Alliance, { foreignKey: 'server', as: 'oldAllyObj' });
-        Conquers.hasOne(models.Town, { foreignKey: 'server', as: 'townObj' });
+        Conquers.hasOne(models.Town, { foreignKey: 'server', as: 'Town' });
       },
       getConquers: (options) => {
-        let Player = sequelize.import('./player'),
-            Alliance = sequelize.import('./alliance'),
-            Town = sequelize.import('./town');
-        // console.log(this.__factory.associations);
+        let Town = sequelize.models.Town;
+
         return new Promise((resolve, reject) => {
+          if (!options || !options.query) {
+            return reject('No query given.');
+          }
+          
           // build query with associations
-          Conquers.findAll({
-            where: options.where,
+          Conquers.findAndCountAll({
+            where: options.query,
             order: options.order || 'time DESC',
-            limit: 3000,
+            limit: options.limit || 30,
+            offset: options.offset || 0,
             include: [
-              { model: Player, as: 'newPlayerObj',
-                where: sequelize.literal('"Conquers".newplayer = "newPlayerObj".id'),
-                attributes: ["id", "name"],
-                required: false
-              },
-              { model: Player, as: 'oldPlayerObj', 
-                where: sequelize.literal('"Conquers".oldplayer = "oldPlayerObj".id'), 
-                attributes: ["id", "name"],
-                required: false
-              },
-              { model: Alliance, as: 'newAllyObj', 
-                where: sequelize.literal('"Conquers".newally = "newAllyObj".id'), 
-                attributes: ["id", "name"],
-                required: false
-              },
-              { model: Alliance, as: 'oldAllyObj', 
-                where: sequelize.literal('"Conquers".oldally = "oldAllyObj".id'), 
-                attributes: ["id", "name"],
-                required: false
-              },
-              { model: Town, as: 'townObj', 
-                where: sequelize.literal('"Conquers".town = "townObj".id'), 
+              { model: Town, as: 'Town', 
+                where: sequelize.literal('"Conquers".town = "Town".id'), 
                 attributes: ["id", "name", "x", "y"],
                 required: false
               }
-            ],
-            attributes: ['id', 'time', 'town', 'points', 'newplayer', 'oldplayer', 'newally', 'oldally']
+            ]
+            // attributes: ['id', 'time', 'town', 'points', 'newplayer', 'oldplayer', 'newally', 'oldally']
           })
-          .then(conquers => {
+          .then(result => {
             // format data
-            conquers = conquers.map(o => { return o.toJSON(); });
-            conquers = conquers.map(o => {
+            result.rows = result.rows.map(o => {
+              o = o.toJSON();
+
               o.time = moment.unix(o.time).format("Y-MM-DD HH:mm:ss");
-              o.newplayer = (o.newplayer) ? o.newPlayerObj : { id: 0, name: 'Ghost'};
-              o.oldplayer = (o.oldplayer) ? o.oldPlayerObj : { id: 0, name: 'Ghost'};
-              o.newally = (o.newally) ? o.newAllyObj : { id: 0, name: 'No Alliance'};
-              o.oldally = (o.oldally) ? o.oldAllyObj : { id: 0, name: 'No Alliance'};
-              o.town = (o.town) ? o.townObj : { id: 0, name: 'Unknown'};
-              o.ocean = Math.floor(o.townObj.x/100) +""+ Math.floor(o.townObj.y/100);
-              o = _.omit(o, ['newPlayerObj', 'oldPlayerObj', 'newAllyObj', 'oldAllyObj', 'townObj']);
+              o.newplayer_name = (o.newplayer) ? o.newplayer_name : 'Ghost';
+              o.oldplayer_name = (o.oldplayer) ? o.oldplayer_name : 'Ghost';
+              o.newally_name = (o.newally) ? o.newally_name : 'No Alliance';
+              o.oldally_name = (o.oldally) ? o.oldally_name : 'No Alliance';
+              o.town = (o.town) ? o.Town : { id: 0, name: 'Unknown'};
+              o.ocean = Math.floor(o.Town.x/100) +""+ Math.floor(o.Town.y/100);
+              delete o.Town;
 
               return o;
             });
 
-            return resolve(conquers);
+            return resolve(result);
           })
           .catch(reject);
 

@@ -1,17 +1,17 @@
 {
-  "name": "Grepolis-Tools",
-  "version": "0.3.1",
-  "homepage": "https://github.com/briantanner/Grepolis-Tools",
+  "name": "GrepInformant",
+  "version": "0.4.0",
+  "homepage": "https://github.com/briantanner/GrepInformant",
   "author": {
     "name": "Brian Tanner",
     "email": "brian@tanner.io"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/briantanner/Grepolis-Tools.git"
+    "url": "https://github.com/briantanner/GrepInformant.git"
   },
   "bugs": {
-    "url": "https://github.com/briantanner/Grepolis-Tools/issues"
+    "url": "https://github.com/briantanner/GrepInformant/issues"
   },
   "private": true,
   "scripts": {
@@ -30,14 +30,12 @@
     "dotenv": "^1.2.0",
     "express": "3.4.7",
     "express-handlebars": "^3.0.0",
-    "jade": "*",
+    "handlebars-paginate": "^0.1.0",
     "mocha": "^2.4.5",
     "moment": "^2.11.1",
     "morgan": "^1.6.1",
-    "mustache-express": "^1.2.1",
     "named-routes": "^2.0.3",
     "pg": "^4.5.1",
-    "pg-copy-streams": "^0.3.0",
     "pg-escape": "briantanner/pg-escape",
     "pg-format": "^1.0.1",
     "pg-hstore": "^2.3.2",
