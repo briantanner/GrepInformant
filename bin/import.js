@@ -7,10 +7,10 @@ let arg = process.argv[2],
     importer = new Import(arg || 'hourly');
 
 importer.start().then(() => {
-  logger.info("Exiting import");
+  console.log("Exiting import");
   process.exit();
 })
 .catch(err => {
-  logger.error(err);
+  console.error(err);
   process.exit();
 });
