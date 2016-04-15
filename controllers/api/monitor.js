@@ -174,7 +174,7 @@ class Monitor extends BaseController {
 
           cqArr = _.map(cqArr, o => {
             o = _.clone(o);
-            o.alliance_name = (parseInt(o.newally.id,10) === parseInt(id,10)) ? o.newally.name : o.oldally.name;
+            o.alliance_name = (parseInt(o.newally,10) === parseInt(id,10)) ? o.newally_name : o.oldally_name;
             return o;
           });
 
