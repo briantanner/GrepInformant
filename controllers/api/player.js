@@ -31,32 +31,34 @@ class Player {
         playerId = req.params.playerId,
         column = (!isNaN(playerId)) ? 'id' : 'name',
         where = { server: server },
-        config = {};
+        options = {};
 
     playerId = (!isNaN(playerId)) ? parseInt(playerId, 10) : utils.sanitizeName(playerId);
 
     where[column] = (typeof playerId === 'number') ? playerId :
       models.sequelize.literal(escape('lower("Player".%I) = lower(%L)', column, playerId));
 
-    config = {
-      where: where,
-      include: [
-        { model: models.Alliance,
-          as: 'Alliance',
-          where: sequelize.literal('"Player".alliance = "Alliance".id'),
-          attributes: ['id', 'name'],
-          required: false
-        },
-        { model: models.PlayerUpdates,
-          as: 'PlayerUpdates',
-          where: sequelize.literal('"Player".id = "PlayerUpdates".id'),
-          attributes: ['time', 'abp_delta', 'dbp_delta', 'towns_delta', 'points_delta'],
-          required: false
-        }
-      ]
+    options = {
+      query: {
+        where: where,
+        include: [
+          { model: models.Alliance,
+            as: 'Alliance',
+            where: sequelize.literal('"Player".alliance = "Alliance".id'),
+            attributes: ['id', 'name'],
+            required: false
+          },
+          { model: models.PlayerUpdates,
+            as: 'PlayerUpdates',
+            where: sequelize.literal('"Player".id = "PlayerUpdates".id'),
+            attributes: ['time', 'abp_delta', 'dbp_delta', 'towns_delta', 'points_delta'],
+            required: false
+          }
+        ]
+      }
     };
 
-    models.Player.getPlayer(config)
+    models.Player.getPlayer(options)
     .then(player => {
       player.Updates = player.Updates.slice(0,12).reverse();
 
