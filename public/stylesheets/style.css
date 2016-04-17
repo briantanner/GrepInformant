@@ -122,7 +122,7 @@ div.result span {
 
 .map-container {
   width: 100%;
-  height: 100%;
+  max-height: 600px;
   overflow: scroll;
 }
 
@@ -254,8 +254,8 @@ span.num {
 
 span.town {
   display: block;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   background-color: green;
   position: absolute;
   border-radius: 5px;
@@ -269,14 +269,14 @@ span.ghost {
 }
 
 span.townMed {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 4px;
 }
 
 span.townSmall {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
   border-radius: 3px;
 }
 

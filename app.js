@@ -26,7 +26,10 @@ hbs = exphbs.create({
   defaultLayout: 'main',
   partialsDir: 'views/partials/',
   helpers: {
-    paginate
+    paginate,
+    json: function(ctx) {
+      return JSON.stringify(ctx).replace(/(['"])/g, '\\$1');
+    },
   }
 });
 
