@@ -177,6 +177,10 @@ class Monitor extends BaseController {
             o.alliance_name = (parseInt(o.newally,10) === parseInt(id,10)) ? o.newally_name : o.oldally_name;
             return o;
           });
+          
+          if (!cqArr.length) {
+            return;
+          }
 
           filteredConquers[id] = cqArr;
         });
@@ -243,6 +247,10 @@ class Monitor extends BaseController {
               o.new_alliance_name : o.old_alliance_name;
             return o;
           });
+          
+          if (!chArr.length) {
+            return;
+          }
 
           filteredChanges[id] = chArr;
         });
