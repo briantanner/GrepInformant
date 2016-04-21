@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const getenv = require('getenv');
 const Sequelize = require('sequelize');
 
 let basename = path.basename(module.filename),
@@ -9,13 +10,15 @@ let basename = path.basename(module.filename),
 
 require('dotenv').config({silent: true});
 
-let dbString = process.env.DATABASE_URL;
+let dbString = getenv('DATABASE_URL'),
+    options = {
+      logging: getenv.bool('DEBUG_LOGGING', false),
+      dialectOptions: { ssl: true },
+      define: { timestamps: false }
+    },
+    sequelize;
 
-let sequelize = new Sequelize(dbString, {
-  logging: false,
-  dialectOptions: { ssl: true },
-  define: { timestamps: false }
-});
+sequelize = new Sequelize(dbString, options);
 
 fs
   .readdirSync(__dirname)

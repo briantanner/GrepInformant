@@ -2,6 +2,7 @@
 
 const http = require('http');
 const path = require('path');
+const getenv = require('getenv');
 const morgan = require('morgan');
 const express = require('express');
 const Router = require('named-routes');
@@ -50,7 +51,7 @@ logger.stream = {
   }
 };
 
-app.set('port', process.env.PORT || 8080);
+app.set('port', getenv('PORT', 8080));
 app.set('views', path.join(__dirname, 'views'));
 
 app.engine('hbs', hbs.engine);

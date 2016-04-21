@@ -30,6 +30,7 @@
     "dotenv": "^1.2.0",
     "express": "3.4.7",
     "express-handlebars": "^3.0.0",
+    "getenv": "^0.6.0",
     "handlebars-paginate": "^0.1.0",
     "mocha": "^2.4.5",
     "moment": "^2.11.1",
