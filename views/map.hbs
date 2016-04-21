@@ -27,12 +27,13 @@
 </div>
 
 <script type="text/javascript">
-  var server = '{{server}}',
-      towns,
-      minx = {{minx}},
-      miny = {{miny}};
+  var server = '{{server}}';
   {{#if towns}}
-    towns = JSON.parse('{{{json towns}}}');
+    var towns = JSON.parse('{{{json towns}}}'),
+        min_x = {{min_x}},
+        min_y = {{min_y}},
+        max_x = {{max_x}},
+        max_y = {{max_y}};
   {{/if}}
   
   function drawGrid() {
@@ -149,9 +150,10 @@
   
   drawGrid();
   
-  if (minx && miny) {
-    $('.map-container').scrollLeft(minx);
-    $('.map-container').scrollTop(miny*2);
+  if (min_x && min_y) {
+    {{!--var scroll_y = min_y + ((max_y-min_y) / 2);--}}
+    $('.map-container').scrollLeft(min_x);
+    $('.map-container').scrollTop(500);
   }
   
   if (towns) {

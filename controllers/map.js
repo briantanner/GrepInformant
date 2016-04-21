@@ -16,14 +16,12 @@ let sequelize = models.sequelize,
 
 class Map {
 
+  /**
+   * Constructor
+   * @returns {Object}  Route Configuration
+   */
   constructor() {
     return {
-      islands: {
-        method: 'get',
-        name: 'islands',
-        uri: '/:server/map/islands',
-        handler: this.getIslands.bind(this)
-      },
       map: {
         method: 'get',
         name: 'map',
@@ -32,20 +30,13 @@ class Map {
       }
     };
   }
-  
-  getIslands(req, res) {
-    let server = req.params.server;
-    
-    models.Island.findAll({
-      server: server,
-      limit: 10
-    }).then(islands => {
-      return res.send(200, islands);
-    }).catch(err => {
-      return res.send(500, err);
-    });
-  }
 
+  /**
+   * Gets player from database
+   * @param {String} server Server id
+   * @param {Object} search Search object for sequelize
+   * @returns {Object} Player object
+   */
   getPlayer(server, search) {
     return new Promise((resolve, reject) => {
       let where = _.extend(search, {
@@ -65,6 +56,12 @@ class Map {
     });
   }
 
+  /**
+   * Gets alliance from database
+   * @param {String} server Server id
+   * @param {Object} search Search object for sequelize
+   * @returns {Object} Alliance object
+   */
   getAlliance(server, search) {
     return new Promise((resolve, reject) => {
       let where = _.extend(search, {
@@ -91,6 +88,10 @@ class Map {
     });
   }
 
+  /**
+   * @param {Object} req Express request
+   * @param {Object} res Express response
+   */
   getMap(req, res) {
     let server = req.params.server,
         id = utils.sanitizeName(req.params.playerOrAlliance),
@@ -126,8 +127,10 @@ class Map {
         .then(towns => {
           let data = {
             title: `World Map (${server})`,
-            minx: (towns.length) ? _.min(towns, o => { return o.x; }).x : 0,
-            miny: (towns.length) ? _.min(towns, o => { return o.y; }).y : 0,
+            min_x: (towns.length) ? _.min(towns, o => { return o.x; }).x : 0,
+            min_y: (towns.length) ? _.min(towns, o => { return o.y; }).y : 0,
+            max_x: (towns.length) ? _.max(towns, o => { return o.x; }).x : 0,
+            max_y: (towns.length) ? _.max(towns, o => { return o.y; }).y : 0,
             towns: towns
           };
           

@@ -5,6 +5,10 @@ Grepolis-Tools
 ## Change Log
 All notable changes to this project will be documented here.
 
+### [UNRELEASED]
+#### Added
+- Added reworked player/alliance map
+
 ### [0.4.0] - 2016-04-14
 #### Added
 - Players and alliances views
