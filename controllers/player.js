@@ -38,6 +38,12 @@ class Player extends BaseController {
         uri: '/:server/player/:playerId',
         handler: this.player.bind(this)
       },
+      playerHourly: {
+        method: 'get',
+        name: 'player.hourly',
+        uri: '/:server/player/:playerId/hourly',
+        handler: this.playerHourly.bind(this)
+      },
       towns: {
         method: 'get',
         name: 'player.towns',
@@ -134,10 +140,65 @@ class Player extends BaseController {
         return o;
       });
 
-      data = {
+      data = _.extend(this.defaults, player, {
         title: util.format('Player: %s (%s)', player.name, server),
-        player: player
-      };
+        isDaily: true
+      });
+
+      return res.render('player', data);
+    })
+    .catch(err => {
+      logger.error(err);
+      return res.send(500, err);
+    });
+  }
+  
+  /**
+   * Player default handler
+   * @param  {Object} req Express request
+   * @param  {Object} res Express response
+   */
+  playerHourly(req, res) {
+    let server = req.params.server,
+        playerId = req.params.playerId,
+        column = (!isNaN(playerId)) ? 'id' : 'name',
+        where = { server: server },
+        data = {},
+        options = {};
+
+    playerId = (!isNaN(playerId)) ? parseInt(playerId, 10) : utils.sanitizeName(playerId);
+
+    where[column] = (typeof playerId === 'number') ? playerId :
+      models.sequelize.literal(escape('lower("Player".%I) = lower(%L)', column, playerId));
+
+    options = {
+      query: {
+        where: where,
+        include: [
+          { model: models.Alliance, as: 'Alliance',
+            where: sequelize.literal('"Player".alliance = "Alliance".id'),
+            attributes: ['id', 'name'] },
+          { model: models.PlayerUpdates, as: 'PlayerUpdates',
+            where: sequelize.literal('"Player".id = "PlayerUpdates".id'),
+            required: false }
+        ]
+      }
+    };
+
+    models.Player.getPlayer(options)
+    .then(player => {
+      let start = (new Date() / 1000) - 604800,
+          options = {};
+
+      player.Updates = player.Updates.map(o => {
+        o.time = moment.unix(o.time).format("Y-MM-DD H");
+        return o;
+      });
+
+      data = _.extend(this.defaults, player, {
+        title: util.format('Player: %s (%s)', player.name, server),
+        isHourly: true
+      });
 
       return res.render('player', data);
     })
@@ -193,10 +254,10 @@ class Player extends BaseController {
       
       player.Towns = _.sortBy(player.Towns, o => { return o.ocean; });
 
-      data = {
+      data = _.extend(this.defaults, player, {
         title: util.format('Player: %s (%s)', player.name, server),
-        player: player
-      };
+        isTowns: true
+      });
 
       return res.render('player', data);
     })
@@ -257,10 +318,10 @@ class Player extends BaseController {
       
       player.Conquers = _.sortBy(player.Conquers, o => { return o.time; }).reverse();
 
-      data = {
+      data = _.extend(this.defaults, player, {
         title: util.format('Player: %s (%s)', player.name, server),
-        player: player
-      };
+        isConquers: true
+      });
 
       return res.render('player', data);
     })

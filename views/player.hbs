@@ -47,23 +47,27 @@
 <div class="row">
   <div class="col-md-12">
     <ul class="nav nav-tabs">
-      <li role="presentation"{{#if player.Updates}} class="active"{{/if}}><a href="/{{server}}/player/{{player.id}}">Updates</a></li>
-      <li role="presentation"{{#if player.Conquers}} class="active"{{/if}}><a href="/{{server}}/player/{{player.id}}/conquers">Conquers</a></li>
-      <li role="presentation"{{#if player.Towns}} class="active"{{/if}}><a href="/{{server}}/player/{{player.id}}/towns">Towns</a></li>
+      <li role="presentation"{{#if isDaily}} class="active"{{/if}}><a href="/{{server}}/player/{{id}}">Updates</a></li>
+      <li role="presentation"{{#if isHourly}} class="active"{{/if}}><a href="/{{server}}/player/{{id}}/hourly">Updates (hourly)</a></li>
+      <li role="presentation"{{#if isConquers}} class="active"{{/if}}><a href="/{{server}}/player/{{id}}/conquers">Conquers</a></li>
+      <li role="presentation"{{#if isTowns}} class="active"{{/if}}><a href="/{{server}}/player/{{id}}/towns">Towns</a></li>
     </ul>
 
-    {{#with player}}
-      {{#if Updates}}
-        <h3>Updates</h3>
-        {{>player/updates}}
-      {{else if Conquers}}
-        <h3>Conquests</h3>
-        {{>conquers}}
-      {{else if Towns}}
-        <h3>Towns</h3>
-        {{>player/towns}}
-      {{/if}}
-    {{/with}}
+    {{!--{{#with player}}--}}
+    {{#if isDaily}}
+      <h3>Updates</h3>
+      {{>player/updates}}
+    {{else if isHourly}}
+      <h3>Updates (hourly)</h3>
+      {{>player/updates}}
+    {{else if isConquers}}
+      <h3>Conquests</h3>
+      {{>conquers}}
+    {{else if isTowns}}
+      <h3>Towns</h3>
+      {{>player/towns}}
+    {{/if}}
+    {{!--{{/with}}--}}
     
   </div><!-- .col-md-12 -->
 </div><!-- .row -->
