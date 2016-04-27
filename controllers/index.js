@@ -42,7 +42,7 @@ class Index {
    * @param  {Object} res Express response
    */
   index(req, res) {
-    return res.send(200, "Hello! :)");
+    return res.render('index');
   }
 
   /**

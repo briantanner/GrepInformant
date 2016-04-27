@@ -201,7 +201,7 @@ ul.players {
 ul.players li {
   height: 26px;
   line-height: 26px;
-  color: #667;
+  /*color: #667;*/
   cursor: pointer;
   padding: 0 10px;
 }
