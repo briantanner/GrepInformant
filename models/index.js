@@ -8,7 +8,7 @@ const Sequelize = require('sequelize');
 let basename = path.basename(module.filename),
     db = {};
 
-require('dotenv').config({silent: true});
+require('dotenv').config({silent: true, path: path.join(__dirname, '..', '.env') });
 
 let dbString = getenv('DATABASE_URL'),
     options = {
